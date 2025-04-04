@@ -131,7 +131,7 @@ const Register = () => {
                   />
                   <Label
                     htmlFor="free"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                   >
                     <div className="mb-2 font-semibold text-center">Free</div>
                     <div className="text-sm text-muted-foreground text-center">Basic features</div>
@@ -145,7 +145,7 @@ const Register = () => {
                   />
                   <Label
                     htmlFor="starter"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                   >
                     <div className="mb-2 font-semibold text-center">Starter</div>
                     <div className="text-sm text-muted-foreground text-center">R$ 15/month</div>
@@ -159,7 +159,7 @@ const Register = () => {
                   />
                   <Label
                     htmlFor="pro"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                   >
                     <div className="mb-2 font-semibold text-center">Pro</div>
                     <div className="text-sm text-muted-foreground text-center">R$ 29/month</div>
@@ -173,7 +173,7 @@ const Register = () => {
                   />
                   <Label
                     htmlFor="premium"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                   >
                     <div className="mb-2 font-semibold text-center">Premium</div>
                     <div className="text-sm text-muted-foreground text-center">R$ 85/month</div>
@@ -184,7 +184,7 @@ const Register = () => {
             
             <Button 
               type="submit" 
-              className="w-full bg-biobloom-600 hover:bg-biobloom-700"
+              className="w-full"
               disabled={loading}
             >
               {loading ? 'Creating account...' : 'Create account'}
@@ -192,7 +192,7 @@ const Register = () => {
           </form>
           <div className="mt-4 text-center text-sm">
             Already have an account?{' '}
-            <Link to="/login" className="text-biobloom-600 hover:underline">
+            <Link to="/login" className="text-primary hover:underline">
               Sign in
             </Link>
           </div>

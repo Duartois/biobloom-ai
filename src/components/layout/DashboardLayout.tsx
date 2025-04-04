@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Laptop, Layout, LinkIcon, Calendar, Settings, 
   PlusSquare, Home, ChevronLeft, ChevronRight, LogOut 
@@ -16,6 +17,14 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const isMobile = useIsMobile();
+
+  // Auto-collapse sidebar on mobile
+  React.useEffect(() => {
+    if (isMobile) {
+      setCollapsed(true);
+    }
+  }, [isMobile]);
 
   const navItems = [
     { name: 'Dashboard', icon: <Layout className="h-5 w-5" />, path: '/dashboard' },
@@ -35,11 +44,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       <div 
         className={`${
           collapsed ? 'w-16' : 'w-64'
-        } bg-background border-r border-border transition-all duration-300 ease-in-out flex flex-col`}
+        } bg-background border-r border-border transition-all duration-300 ease-in-out flex flex-col fixed h-full`}
       >
         <div className="p-4 border-b border-border flex items-center justify-between">
           {!collapsed && (
-            <Link to="/" className="font-satoshi font-bold text-lg bg-gradient-to-r from-biobloom-600 to-biobloom-800 bg-clip-text text-transparent">
+            <Link to="/" className="font-satoshi font-bold text-lg bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
               BioBloom
             </Link>
           )}
@@ -52,7 +61,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
         </div>
-        <div className="flex-grow py-4">
+        <div className="flex-grow py-4 overflow-y-auto">
           <div className="space-y-1 px-2">
             {navItems.map((item) => (
               <Link
@@ -60,7 +69,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 to={item.path}
                 className={`flex items-center px-2 py-2 rounded-md text-sm transition-colors ${
                   isActivePath(item.path)
-                    ? 'bg-biobloom-100/50 text-biobloom-700 dark:bg-biobloom-900/20 dark:text-biobloom-400'
+                    ? 'bg-primary/10 text-primary dark:bg-primary/20'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
@@ -86,8 +95,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-background border-b border-border h-14 flex items-center px-4 sm:px-6">
+      <div className={`flex-1 flex flex-col ${collapsed ? 'ml-16' : 'ml-64'} transition-all duration-300`}>
+        <header className="bg-background border-b border-border h-14 flex items-center px-4 sm:px-6 sticky top-0 z-10">
           <div className="flex items-center gap-3">
             <Link to="/" className="inline-flex items-center">
               <Home className="h-5 w-5 text-muted-foreground" />
@@ -108,7 +117,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
               </Link>
             </Button>
             <Button 
-              className="bg-biobloom-600 hover:bg-biobloom-700" 
               size="sm"
               asChild
             >

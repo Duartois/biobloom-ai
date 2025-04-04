@@ -55,7 +55,7 @@ const Login = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link to="/forgot-password" className="text-sm text-biobloom-600 hover:underline">
+                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                   Forgot your password?
                 </Link>
               </div>
@@ -70,7 +70,7 @@ const Login = () => {
             </div>
             <Button 
               type="submit" 
-              className="w-full bg-biobloom-600 hover:bg-biobloom-700"
+              className="w-full"
               disabled={loading}
             >
               {loading ? 'Signing in...' : 'Sign in'}
@@ -78,7 +78,7 @@ const Login = () => {
           </form>
           <div className="mt-4 text-center text-sm">
             Don't have an account?{' '}
-            <Link to="/register" className="text-biobloom-600 hover:underline">
+            <Link to="/register" className="text-primary hover:underline">
               Sign up
             </Link>
           </div>

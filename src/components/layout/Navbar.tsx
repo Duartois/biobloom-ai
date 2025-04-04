@@ -19,7 +19,7 @@ const Navbar: React.FC = () => {
     <header className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
         <Link to="/" className="flex items-center space-x-2">
-          <span className="font-satoshi font-bold text-2xl bg-gradient-to-r from-biobloom-600 to-biobloom-800 bg-clip-text text-transparent">
+          <span className="font-satoshi font-bold text-2xl bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
             BioBloom
           </span>
         </Link>
@@ -33,10 +33,10 @@ const Navbar: React.FC = () => {
               <Link to="/features" className="text-sm font-medium hover:text-primary transition-colors">
                 Features
               </Link>
-              <Link to="/login" className="text-sm font-medium text-biobloom-600 hover:text-biobloom-700 transition-colors">
+              <Link to="/login" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
                 Login
               </Link>
-              <Button asChild className="bg-biobloom-600 hover:bg-biobloom-700">
+              <Button asChild variant="default">
                 <Link to="/register">Get Started</Link>
               </Button>
             </>
@@ -80,42 +80,70 @@ const Navbar: React.FC = () => {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 top-16 z-30 bg-background/95 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="flex flex-col space-y-4 p-4">
+          <nav className="flex flex-col space-y-4 p-4">
             {!isAuthenticated && (
               <>
-                <Link to="/pricing" className="text-xl font-medium p-2 hover:text-primary">
+                <Link 
+                  to="/pricing" 
+                  className="text-xl font-medium p-2 hover:text-primary border-b border-border"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Pricing
                 </Link>
-                <Link to="/features" className="text-xl font-medium p-2 hover:text-primary">
+                <Link 
+                  to="/features" 
+                  className="text-xl font-medium p-2 hover:text-primary border-b border-border"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Features
                 </Link>
-                <Link to="/login" className="text-xl font-medium p-2 text-biobloom-600">
+                <Link 
+                  to="/login" 
+                  className="text-xl font-medium p-2 text-primary border-b border-border"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Login
                 </Link>
-                <Button asChild size="lg" className="mt-4 bg-biobloom-600 hover:bg-biobloom-700">
+                <Button 
+                  asChild 
+                  size="lg" 
+                  className="mt-4 w-full"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   <Link to="/register">Get Started</Link>
                 </Button>
               </>
             )}
             {isAuthenticated && (
               <>
-                <Link to="/dashboard" className="text-xl font-medium p-2 hover:text-primary">
+                <Link 
+                  to="/dashboard" 
+                  className="text-xl font-medium p-2 hover:text-primary border-b border-border"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Dashboard
                 </Link>
-                <Link to="/profile" className="text-xl font-medium p-2 hover:text-primary">
+                <Link 
+                  to="/profile" 
+                  className="text-xl font-medium p-2 hover:text-primary border-b border-border"
+                  onClick={() => setIsMenuOpen(false)}
+                >
                   Profile
                 </Link>
                 <Button 
                   variant="outline" 
-                  className="mt-4"
-                  onClick={() => logout()}
+                  className="mt-4 w-full"
+                  onClick={() => {
+                    logout();
+                    setIsMenuOpen(false);
+                  }}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </Button>
               </>
             )}
-          </div>
+          </nav>
         </div>
       )}
     </header>
