@@ -15,7 +15,7 @@ const Index = () => {
             <div className="flex flex-col justify-center space-y-4">
               <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-festa-amarelo/20 text-festa-laranja max-w-fit gap-1">
                 <Sparkles className="h-3 w-3" />
-                <span>Potencializado por IA</span>
+                <span>Powered by AI</span>
               </div>
               <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
                 Sua Bio-Página Inteligente para{' '}
@@ -28,7 +28,7 @@ const Index = () => {
                 Aprimorada com IA para ajudar você a crescer e engajar com seu público.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild size="lg" className="bg-festa-amarelo hover:bg-festa-laranja text-festa-dark">
+                <Button asChild size="lg" className="bg-festa-amarelo hover:bg-festa-laranja text-white">
                   <Link to="/register">Comece grátis</Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild>
@@ -143,7 +143,7 @@ const Index = () => {
               <div className="mb-4">
                 <h3 className="text-2xl font-bold">Inicial</h3>
                 <div className="mt-2 flex items-baseline text-foreground">
-                  <span className="text-3xl font-bold tracking-tight">R$ 15</span>
+                  <span className="text-3xl font-bold tracking-tight">R$ 9</span>
                   <span className="ml-1 text-sm text-muted-foreground">/mês</span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -168,7 +168,7 @@ const Index = () => {
                   <span className="text-sm">Agendamento de até 20 posts/mês</span>
                 </div>
               </div>
-              <Button className="mt-6 bg-festa-amarelo hover:bg-festa-laranja text-festa-dark" asChild>
+              <Button className="mt-6 bg-festa-amarelo hover:bg-festa-laranja text-white" asChild>
                 <Link to="/register?plan=starter">Começar agora</Link>
               </Button>
             </div>
@@ -181,7 +181,7 @@ const Index = () => {
               <div className="mb-4">
                 <h3 className="text-2xl font-bold">Pro</h3>
                 <div className="mt-2 flex items-baseline text-foreground">
-                  <span className="text-3xl font-bold tracking-tight">R$ 29</span>
+                  <span className="text-3xl font-bold tracking-tight">R$ 19</span>
                   <span className="ml-1 text-sm text-muted-foreground">/mês</span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -206,7 +206,7 @@ const Index = () => {
                   <span className="text-sm">Publicação automática com IA</span>
                 </div>
               </div>
-              <Button className="mt-6 bg-festa-amarelo hover:bg-festa-laranja text-festa-dark" asChild>
+              <Button className="mt-6 bg-festa-amarelo hover:bg-festa-laranja text-white" asChild>
                 <Link to="/register?plan=pro">Começar agora</Link>
               </Button>
             </div>
@@ -216,7 +216,7 @@ const Index = () => {
               <div className="mb-4">
                 <h3 className="text-2xl font-bold">Premium</h3>
                 <div className="mt-2 flex items-baseline text-foreground">
-                  <span className="text-3xl font-bold tracking-tight">R$ 85</span>
+                  <span className="text-3xl font-bold tracking-tight">R$ 39</span>
                   <span className="ml-1 text-sm text-muted-foreground">/mês</span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -241,7 +241,7 @@ const Index = () => {
                   <span className="text-sm">Colaboração em equipe</span>
                 </div>
               </div>
-              <Button className="mt-6 bg-festa-amarelo hover:bg-festa-laranja text-festa-dark" asChild>
+              <Button className="mt-6 bg-festa-amarelo hover:bg-festa-laranja text-white" asChild>
                 <Link to="/register?plan=premium">Começar agora</Link>
               </Button>
             </div>
@@ -261,7 +261,7 @@ const Index = () => {
                 Junte-se a milhares de criadores, freelancers e marcas que já usam o BioBloom.
               </p>
             </div>
-            <Button asChild size="lg" className="mt-4 bg-festa-amarelo hover:bg-festa-laranja text-festa-dark">
+            <Button asChild size="lg" className="mt-4 bg-festa-amarelo hover:bg-festa-laranja text-white">
               <Link to="/register">Comece gratuitamente</Link>
             </Button>
           </div>

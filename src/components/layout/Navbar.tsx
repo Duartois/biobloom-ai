@@ -4,6 +4,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Menu, X, UserCircle, LogOut } from 'lucide-react';
+import Logo from "@/components/assets/BioBloom.svg"
+
 
 const Navbar: React.FC = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -18,11 +20,9 @@ const Navbar: React.FC = () => {
   return (
     <header className="sticky top-0 z-40 w-full bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
-        <Link to="/" className="flex items-center space-x-2">
-          <span className="font-satoshi font-bold text-2xl bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-            BioBloom
-          </span>
-        </Link>
+      <Link to="/" className="flex items-center space-x-2">
+  <img src={Logo} alt="BioBloom Logo" className="h-8 sm:h-10 w-auto" />
+</Link>
         
         <div className="hidden md:flex items-center gap-6">
           {!isAuthenticated && (

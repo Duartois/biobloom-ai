@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <Link to="/" className="flex items-center mb-4">
-              <span className="font-satoshi font-bold text-xl bg-gradient-to-r from-biobloom-600 to-biobloom-800 bg-clip-text text-transparent">
+              <span className="font-satoshi font-bold text-xl bg-gradient-to-r from-festa-laranja to-festa-rosa bg-clip-text text-transparent">
                 BioBloom
               </span>
             </Link>
