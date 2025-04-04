@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Language = 'pt-BR' | 'en-US';
 
-// Updated type definition to match the nested structure of translations
+// Tipo atualizado para corresponder à estrutura aninhada das traduções
 type TranslationSection = {
   [key: string]: string;
 };
@@ -14,7 +14,7 @@ type Translations = {
   };
 };
 
-// Portuguese Brazil translations
+// Traduções em português do Brasil
 const ptBR = {
   common: {
     welcome: 'Bem-vindo ao BioBloom',
@@ -49,7 +49,7 @@ const ptBR = {
   },
 };
 
-// English US translations
+// Traduções em inglês dos EUA
 const enUS = {
   common: {
     welcome: 'Welcome to BioBloom',
@@ -115,17 +115,17 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   defaultLanguage = 'pt-BR' 
 }) => {
   const [language, setLanguage] = useState<Language>(() => {
-    // Try to get the language from localStorage
+    // Tentar obter o idioma do localStorage
     const savedLanguage = localStorage.getItem('language') as Language;
     return savedLanguage || defaultLanguage;
   });
 
-  // Update localStorage when language changes
+  // Atualizar localStorage quando o idioma muda
   useEffect(() => {
     localStorage.setItem('language', language);
   }, [language]);
 
-  // Translation function
+  // Função de tradução
   const t = (key: string, section: string = 'common'): string => {
     const keys = key.split('.');
     if (keys.length > 1) {

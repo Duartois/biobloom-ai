@@ -40,12 +40,12 @@ const Register = () => {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError("Passwords don't match");
+      setError("As senhas não coincidem");
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError("A senha deve ter pelo menos 6 caracteres");
       return;
     }
     
@@ -53,7 +53,7 @@ const Register = () => {
       await registerUser(email, password, username);
       navigate('/onboarding');
     } catch (err) {
-      setError('Failed to register. Please try again.');
+      setError('Falha no registro. Por favor tente novamente.');
       console.error(err);
     }
   };
@@ -62,8 +62,8 @@ const Register = () => {
     <MainLayout>
       <div className="container max-w-lg mx-auto px-4 py-12">
         <div className="flex flex-col space-y-2 text-center mb-8">
-          <h1 className="text-2xl font-bold">Create your account</h1>
-          <p className="text-muted-foreground">Enter your details to create your BioBloom account</p>
+          <h1 className="text-2xl font-bold">Crie sua conta</h1>
+          <p className="text-muted-foreground">Insira seus dados para criar sua conta BioBloom</p>
         </div>
         <div className="bg-background p-6 rounded-lg border shadow-sm">
           {error && (
@@ -73,32 +73,32 @@ const Register = () => {
           )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder="nome@exemplo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Nome de usuário</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="yourusername"
+                placeholder="seuusuario"
                 value={username}
                 onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                 required
               />
               <p className="text-xs text-muted-foreground">
-                This will be your BioBloom URL: biobloom.com/{username || 'yourusername'}
+                Esta será sua URL no BioBloom: biobloom.com/{username || 'seuusuario'}
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Senha</Label>
               <Input
                 id="password"
                 type="password"
@@ -109,7 +109,7 @@ const Register = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">Confirmar Senha</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -121,7 +121,7 @@ const Register = () => {
             </div>
             
             <div className="space-y-3">
-              <Label>Select your plan</Label>
+              <Label>Selecione seu plano</Label>
               <RadioGroup value={plan} onValueChange={(value) => setPlan(value as any)} className="grid grid-cols-2 gap-4 pt-2">
                 <div>
                   <RadioGroupItem 
@@ -133,8 +133,8 @@ const Register = () => {
                     htmlFor="free"
                     className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                   >
-                    <div className="mb-2 font-semibold text-center">Free</div>
-                    <div className="text-sm text-muted-foreground text-center">Basic features</div>
+                    <div className="mb-2 font-semibold text-center">Grátis</div>
+                    <div className="text-sm text-muted-foreground text-center">Recursos básicos</div>
                   </Label>
                 </div>
                 <div>
@@ -147,8 +147,8 @@ const Register = () => {
                     htmlFor="starter"
                     className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                   >
-                    <div className="mb-2 font-semibold text-center">Starter</div>
-                    <div className="text-sm text-muted-foreground text-center">R$ 15/month</div>
+                    <div className="mb-2 font-semibold text-center">Inicial</div>
+                    <div className="text-sm text-muted-foreground text-center">R$ 15/mês</div>
                   </Label>
                 </div>
                 <div>
@@ -159,10 +159,13 @@ const Register = () => {
                   />
                   <Label
                     htmlFor="pro"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary relative"
                   >
+                    <div className="absolute -top-3 -right-3 bg-festa-rosa text-white text-xs px-3 py-1 rounded-full transform rotate-12">
+                      Popular
+                    </div>
                     <div className="mb-2 font-semibold text-center">Pro</div>
-                    <div className="text-sm text-muted-foreground text-center">R$ 29/month</div>
+                    <div className="text-sm text-muted-foreground text-center">R$ 29/mês</div>
                   </Label>
                 </div>
                 <div>
@@ -176,7 +179,7 @@ const Register = () => {
                     className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                   >
                     <div className="mb-2 font-semibold text-center">Premium</div>
-                    <div className="text-sm text-muted-foreground text-center">R$ 85/month</div>
+                    <div className="text-sm text-muted-foreground text-center">R$ 85/mês</div>
                   </Label>
                 </div>
               </RadioGroup>
@@ -184,16 +187,16 @@ const Register = () => {
             
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full bg-festa-amarelo hover:bg-festa-laranja text-festa-dark"
               disabled={loading}
             >
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? 'Criando conta...' : 'Criar conta'}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            Already have an account?{' '}
+            Já tem uma conta?{' '}
             <Link to="/login" className="text-primary hover:underline">
-              Sign in
+              Entrar
             </Link>
           </div>
         </div>

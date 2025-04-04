@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, loading } = useAuth();
+  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +24,7 @@ const Login = () => {
       await login(email, password);
       navigate('/dashboard');
     } catch (err) {
-      setError('Failed to login. Please check your credentials.');
+      setError('Falha no login. Por favor, verifique suas credenciais.');
       console.error(err);
     }
   };
@@ -31,8 +33,8 @@ const Login = () => {
     <MainLayout>
       <div className="container max-w-md mx-auto px-4 py-12">
         <div className="flex flex-col space-y-2 text-center mb-8">
-          <h1 className="text-2xl font-bold">Welcome back</h1>
-          <p className="text-muted-foreground">Enter your credentials to access your account</p>
+          <h1 className="text-2xl font-bold">Bem-vindo de volta</h1>
+          <p className="text-muted-foreground">Digite suas credenciais para acessar sua conta</p>
         </div>
         <div className="bg-background p-6 rounded-lg border shadow-sm">
           {error && (
@@ -42,11 +44,11 @@ const Login = () => {
           )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder="nome@exemplo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -54,9 +56,9 @@ const Login = () => {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Senha</Label>
                 <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-                  Forgot your password?
+                  Esqueceu sua senha?
                 </Link>
               </div>
               <Input
@@ -70,16 +72,16 @@ const Login = () => {
             </div>
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full bg-festa-amarelo hover:bg-festa-laranja text-festa-dark"
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            Don't have an account?{' '}
+            Não tem uma conta?{' '}
             <Link to="/register" className="text-primary hover:underline">
-              Sign up
+              Cadastre-se
             </Link>
           </div>
         </div>

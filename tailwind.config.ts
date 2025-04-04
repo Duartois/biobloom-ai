@@ -53,24 +53,32 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        festa: {
+          amarelo: "#FFAA00", // Amarelo
+          laranja: "#E25B0E", // Laranja
+          rosa: "#D11571",    // Rosa
+          roxo: "#4D0974",    // Roxo
+          light: "#FFFFFF",   // Branco
+          dark: "#1A1A1A",    // Preto
+        },
         vintage: {
-          dark: "#2C4366",  // dark blue
-          medium: "#36C5CE", // turquoise
-          light: "#FFFFFF",  // white
-          accent: "#FF5B85", // pink 
+          dark: "#2C4366",
+          medium: "#36C5CE",
+          light: "#FFFFFF",
+          accent: "#FF5B85",
         },
         biobloom: {
-          50: "#ecf6f7",
-          100: "#d0eaee",
-          200: "#a4d8e0",
-          300: "#70c1cc",
-          400: "#42a6b5",
-          500: "#36C5CE",
-          600: "#2191a0",
-          700: "#1d7481",
-          800: "#1c5e68",
-          900: "#1b4f58",
-          950: "#0f333b",
+          50: "#fff3db",
+          100: "#ffe3ad",
+          200: "#ffd27a",
+          300: "#ffc147",
+          400: "#ffb114",
+          500: "#e69700",
+          600: "#b37500",
+          700: "#805300",
+          800: "#4d3200",
+          900: "#1e1000",
+          950: "#000000",
         },
       },
       fontFamily: {
