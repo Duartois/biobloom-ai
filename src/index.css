@@ -8,48 +8,48 @@
 
 @layer base {
   :root {
-    --background: 36 33% 97%;
-    --foreground: 24 15% 20%;
-    --card: 36 33% 97%;
-    --card-foreground: 24 15% 20%;
-    --popover: 36 33% 97%;
-    --popover-foreground: 24 15% 20%;
-    --primary: 32 43% 42%;
-    --primary-foreground: 36 33% 97%;
-    --secondary: 40 40% 85%;
-    --secondary-foreground: 24 15% 20%;
-    --muted: 36 23% 90%;
-    --muted-foreground: 24 5% 46%;
-    --accent: 50 40% 85%;
-    --accent-foreground: 24 15% 20%;
+    --background: 32 33% 96%;   /* #F5EFE7 */
+    --foreground: 217 28% 23%;  /* #213555 */
+    --card: 32 33% 96%;         /* #F5EFE7 */
+    --card-foreground: 217 28% 23%; /* #213555 */
+    --popover: 32 33% 96%;      /* #F5EFE7 */
+    --popover-foreground: 217 28% 23%; /* #213555 */
+    --primary: 217 28% 23%;     /* #213555 */
+    --primary-foreground: 32 33% 96%; /* #F5EFE7 */
+    --secondary: 217 20% 36%;   /* #3E5879 */
+    --secondary-foreground: 32 33% 96%; /* #F5EFE7 */
+    --muted: 20 20% 84%;        /* #D8C4B6 muted version */
+    --muted-foreground: 217 28% 23%; /* #213555 */
+    --accent: 20 20% 84%;       /* #D8C4B6 */
+    --accent-foreground: 217 28% 23%; /* #213555 */
     --destructive: 0 84% 60%;
-    --destructive-foreground: 36 33% 97%;
-    --border: 36 15% 85%;
-    --input: 36 15% 85%;
-    --ring: 32 43% 42%;
+    --destructive-foreground: 32 33% 96%; /* #F5EFE7 */
+    --border: 20 20% 84%;       /* #D8C4B6 */
+    --input: 20 20% 84%;        /* #D8C4B6 */
+    --ring: 217 28% 23%;        /* #213555 */
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 24 15% 10%;
-    --foreground: 36 33% 90%;
-    --card: 24 10% 15%;
-    --card-foreground: 36 33% 90%;
-    --popover: 24 15% 10%;
-    --popover-foreground: 36 33% 90%;
-    --primary: 32 43% 42%;
-    --primary-foreground: 36 33% 97%;
-    --secondary: 40 12% 25%;
-    --secondary-foreground: 36 33% 90%;
-    --muted: 24 10% 20%;
-    --muted-foreground: 36 15% 60%;
-    --accent: 50 12% 25%;
-    --accent-foreground: 36 33% 90%;
+    --background: 217 28% 23%;  /* #213555 */
+    --foreground: 32 33% 96%;   /* #F5EFE7 */
+    --card: 217 20% 36%;        /* #3E5879 */
+    --card-foreground: 32 33% 96%; /* #F5EFE7 */
+    --popover: 217 28% 23%;     /* #213555 */
+    --popover-foreground: 32 33% 96%; /* #F5EFE7 */
+    --primary: 32 33% 96%;      /* #F5EFE7 */
+    --primary-foreground: 217 28% 23%; /* #213555 */
+    --secondary: 20 20% 84%;    /* #D8C4B6 */
+    --secondary-foreground: 217 28% 23%; /* #213555 */
+    --muted: 217 20% 36%;       /* #3E5879 lighter */
+    --muted-foreground: 32 33% 96%; /* #F5EFE7 */
+    --accent: 20 20% 84%;       /* #D8C4B6 */
+    --accent-foreground: 217 28% 23%; /* #213555 */
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 36 33% 90%;
-    --border: 24 10% 20%;
-    --input: 24 10% 20%;
-    --ring: 32 43% 42%;
+    --destructive-foreground: 32 33% 96%; /* #F5EFE7 */
+    --border: 217 20% 36%;      /* #3E5879 */
+    --input: 217 20% 36%;       /* #3E5879 */
+    --ring: 32 33% 96%;         /* #F5EFE7 */
   }
 }
 
@@ -80,7 +80,7 @@
 }
 
 .gradient-bg {
-  background: linear-gradient(135deg, rgba(244,236,225,0.9) 0%, rgba(206,188,155,0.6) 100%);
+  background: linear-gradient(135deg, rgba(245,239,231,0.9) 0%, rgba(216,196,182,0.6) 100%);
   backdrop-filter: blur(10px);
 }
 
@@ -89,8 +89,8 @@
 }
 
 .vintage-bg {
-  background-color: #f5f0e0;
-  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17.5v-15H2.5v15H10zm17.5-17.5H20v20h7.5V0zm12.5 0h-7.5v20H40V0zM10 0H2.5v2.5H10V0zm0 5H2.5v2.5H10V5zm0 5H2.5v2.5H10V10zm0 5H2.5v2.5H10V15zm17.5-15h-7.5v2.5h7.5V0zm0 5h-7.5v2.5h7.5V5zm0 5h-7.5v2.5h7.5V10zm0 5h-7.5v2.5h7.5V15zM40 0h-7.5v2.5H40V0zm0 5h-7.5v2.5H40V5zm0 5h-7.5v2.5H40V10zm0 5h-7.5v2.5H40V15z' fill='%23decb96' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-color: #f5efe7;
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17.5v-15H2.5v15H10zm17.5-17.5H20v20h7.5V0zm12.5 0h-7.5v20H40V0zM10 0H2.5v2.5H10V0zm0 5H2.5v2.5H10V5zm0 5H2.5v2.5H10V10zm0 5H2.5v2.5H10V15zm17.5-15h-7.5v2.5h7.5V0zm0 5h-7.5v2.5h7.5V5zm0 5h-7.5v2.5h7.5V10zm0 5h-7.5v2.5h7.5V15zM40 0h-7.5v2.5H40V0zm0 5h-7.5v2.5H40V5zm0 5h-7.5v2.5H40V10zm0 5h-7.5v2.5H40V15z' fill='%23d8c4b6' fill-opacity='0.15' fill-rule='evenodd'/%3E%3C/svg%3E");
 }
 
 /* Add responsive utilities */
