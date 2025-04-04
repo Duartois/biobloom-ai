@@ -3,9 +3,14 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type Language = 'pt-BR' | 'en-US';
 
+// Updated type definition to match the nested structure of translations
+type TranslationSection = {
+  [key: string]: string;
+};
+
 type Translations = {
   [key: string]: {
-    [key: string]: string;
+    [section: string]: TranslationSection;
   };
 };
 
