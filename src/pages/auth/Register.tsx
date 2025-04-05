@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 // Define plan types for type safety
 type PlanType = 'free' | 'starter' | 'pro' | 'premium';
@@ -30,11 +31,18 @@ const Register = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const [planData, setPlanData] = useState<any[]>([]);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Check if user is already logged in
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      setIsRedirecting(true);
+      // Se for primeiro login, redirecionar para onboarding, caso contrário para dashboard
+      const redirectTimer = setTimeout(() => {
+        navigate('/onboarding', { replace: true });
+      }, 1000);
+      
+      return () => clearTimeout(redirectTimer);
     }
   }, [isAuthenticated, navigate]);
 
@@ -95,7 +103,8 @@ const Register = () => {
     
     try {
       await registerUser(email, password, username);
-      // A redireção para dashboard será feita pelo useEffect acima quando isAuthenticated mudar
+      setIsRedirecting(true);
+      // A redireção para onboarding será feita pelo useEffect acima quando isAuthenticated mudar
     } catch (err: any) {
       setError(err.message || 'Falha no registro. Por favor tente novamente.');
       console.error(err);
@@ -133,6 +142,14 @@ const Register = () => {
               {error}
             </div>
           )}
+          
+          {isRedirecting && (
+            <div className="bg-success/10 border border-success text-success text-sm p-3 rounded-md mb-4 flex items-center justify-center">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Cadastro realizado com sucesso! Redirecionando para configuração inicial...
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
@@ -253,9 +270,21 @@ const Register = () => {
             <Button 
               type="submit" 
               className="w-full bg-festa-amarelo hover:bg-festa-laranja text-festa-dark"
-              disabled={loading}
+              disabled={loading || isRedirecting}
             >
-              {loading ? 'Criando conta...' : 'Criar conta'}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Criando conta...
+                </>
+              ) : isRedirecting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Redirecionando...
+                </>
+              ) : (
+                'Criar conta'
+              )}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">

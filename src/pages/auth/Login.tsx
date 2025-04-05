@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from '@/contexts/AuthContext';
+import { Loader2 } from 'lucide-react';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,12 +15,18 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Redirect to dashboard if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
+      setIsRedirecting(true);
       const from = location.state?.from || '/dashboard';
-      navigate(from, { replace: true });
+      const redirectTimer = setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 1000); // Pequeno delay para mostrar a mensagem de redirecionamento
+      
+      return () => clearTimeout(redirectTimer);
     }
   }, [isAuthenticated, navigate, location]);
 
@@ -29,6 +36,7 @@ const Login = () => {
     
     try {
       await login(email, password);
+      setIsRedirecting(true);
       // A redireção será feita pelo useEffect acima quando isAuthenticated mudar
     } catch (err: any) {
       const errorMessage = err?.message || 'Falha no login. Por favor, verifique suas credenciais.';
@@ -50,6 +58,14 @@ const Login = () => {
               {error}
             </div>
           )}
+          
+          {isRedirecting && (
+            <div className="bg-success/10 border border-success text-success text-sm p-3 rounded-md mb-4 flex items-center justify-center">
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Login bem-sucedido. Redirecionando...
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
@@ -81,9 +97,21 @@ const Login = () => {
             <Button 
               type="submit" 
               className="w-full"
-              disabled={loading}
+              disabled={loading || isRedirecting}
             >
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Entrando...
+                </>
+              ) : isRedirecting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Redirecionando...
+                </>
+              ) : (
+                'Entrar'
+              )}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
