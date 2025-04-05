@@ -21,8 +21,9 @@ const Login = () => {
     try {
       await login(email, password);
       navigate('/dashboard');
-    } catch (err) {
-      setError('Falha no login. Por favor, verifique suas credenciais.');
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Falha no login. Por favor, verifique suas credenciais.';
+      setError(errorMessage);
       console.error(err);
     }
   };

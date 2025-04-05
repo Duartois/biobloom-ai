@@ -26,7 +26,13 @@ const presetBackgrounds = [
   { name: 'Minimalista', url: 'https://images.unsplash.com/photo-1558591710-8570b99f5292?q=80&w=1000&auto=format&fit=crop' },
   { name: 'Cores Vibrantes', url: 'https://images.unsplash.com/photo-1558591710-8a42d7059a9e?q=80&w=1000&auto=format&fit=crop' },
   { name: 'Neon Moderno', url: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Vintage', url: 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?q=80&w=1000&auto=format&fit=crop' }
+  { name: 'Vintage', url: 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?q=80&w=1000&auto=format&fit=crop' },
+  { name: 'Urbano', url: 'https://images.unsplash.com/photo-1520262494112-9fe481d36ec3?q=80&w=1000&auto=format&fit=crop' },
+  { name: 'Natureza', url: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?q=80&w=1000&auto=format&fit=crop' },
+  { name: 'Abstrato', url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1000&auto=format&fit=crop' },
+  { name: 'Tecnologia', url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000&auto=format&fit=crop' },
+  { name: 'Minimalista Preto', url: 'https://images.unsplash.com/photo-1499578124509-1611b77778c8?q=80&w=1000&auto=format&fit=crop' },
+  { name: 'Gradiente Suave', url: 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?q=80&w=1000&auto=format&fit=crop' }
 ];
 
 const BackgroundGenerator = () => {
@@ -37,11 +43,11 @@ const BackgroundGenerator = () => {
   const [generatedBackgrounds, setGeneratedBackgrounds] = useState<string[]>([]);
   const [selectedBackground, setSelectedBackground] = useState<string | undefined>(profile.backgroundImage);
 
-  const canUseAI = user?.plan && user.plan !== 'free';
+  const canUseAI = user?.plan && (user.plan !== 'free' && user.plan !== 'starter');
 
   const handleGenerate = () => {
     if (!canUseAI) {
-      toast.error('Faça upgrade para o plano Inicial ou superior para usar a geração de planos de fundo com IA.');
+      toast.error('Faça upgrade para o plano Pro ou superior para usar a geração de planos de fundo com IA.');
       return;
     }
 
@@ -63,9 +69,12 @@ const BackgroundGenerator = () => {
     setSelectedBackground(url);
   };
 
-  const handleApplyBackground = () => {
+  const handleApplyBackground = async () => {
     if (selectedBackground) {
-      updateProfile({ backgroundImage: selectedBackground });
+      await updateProfile({ 
+        backgroundImage: selectedBackground,
+        background_type: 'image'
+      });
       toast.success('Plano de fundo aplicado com sucesso!');
     }
   };
@@ -96,9 +105,9 @@ const BackgroundGenerator = () => {
                 </CardDescription>
                 {!canUseAI && (
                   <div className="bg-secondary/10 text-secondary p-3 rounded-md mt-2 text-sm">
-                    Este recurso está disponível apenas para planos pagos. 
+                    Este recurso está disponível apenas para planos Pro ou superior. 
                     <Button variant="link" className="p-0 h-auto text-secondary" asChild>
-                      <a href="/pricing">Fazer upgrade</a>
+                      <a href="/dashboard/settings">Fazer upgrade</a>
                     </Button>
                   </div>
                 )}
@@ -166,7 +175,7 @@ const BackgroundGenerator = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {presetBackgrounds.map((bg, index) => (
                     <div 
                       key={index}
@@ -179,6 +188,7 @@ const BackgroundGenerator = () => {
                         src={bg.url} 
                         alt={bg.name}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                       <div className="absolute bottom-0 inset-x-0 bg-black bg-opacity-50 p-2">
                         <p className="text-white text-sm truncate">{bg.name}</p>

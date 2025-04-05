@@ -21,8 +21,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useLinks, Link as LinkType } from '@/contexts/LinksContext';
 import { Link, PlusCircle, Pencil, Trash2, MoveUp, MoveDown, GripVertical } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const LinksManager = () => {
+  const { user } = useAuth();
   const { profile, addLink, updateLink, removeLink } = useLinks();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentLink, setCurrentLink] = useState<LinkType | null>(null);
@@ -32,7 +34,31 @@ const LinksManager = () => {
     style: 'default',
   });
 
+  // Check if the user has reached their link limit based on plan
+  const isLinkLimitReached = () => {
+    if (!user) return true;
+    
+    const linkCount = profile.links.length;
+    
+    switch (user.plan) {
+      case 'free':
+        return linkCount >= 2; // Free users get 2 links
+      case 'starter':
+      case 'pro':
+      case 'premium':
+      case 'trial':
+        return false; // Paid plans get unlimited links
+      default:
+        return true;
+    }
+  };
+
   const openNewLinkDialog = () => {
+    if (isLinkLimitReached() && !currentLink) {
+      alert("Você atingiu o limite de links para seu plano atual. Faça upgrade para adicionar mais links.");
+      return;
+    }
+    
     setCurrentLink(null);
     setFormData({
       title: '',
@@ -61,19 +87,19 @@ const LinksManager = () => {
     setFormData(prev => ({ ...prev, style: value as LinkType['style'] }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (currentLink) {
       // Edit mode
-      updateLink(currentLink.id, {
+      await updateLink(currentLink.id, {
         title: formData.title,
         url: formData.url,
         style: formData.style as LinkType['style'],
       });
     } else {
       // Add mode
-      addLink({
+      await addLink({
         title: formData.title,
         url: formData.url,
         style: formData.style as LinkType['style'],
@@ -83,9 +109,9 @@ const LinksManager = () => {
     setIsDialogOpen(false);
   };
 
-  const handleDeleteLink = (id: string) => {
-    if (confirm("Are you sure you want to delete this link?")) {
-      removeLink(id);
+  const handleDeleteLink = async (id: string) => {
+    if (confirm("Tem certeza que deseja excluir este link?")) {
+      await removeLink(id);
     }
   };
 
@@ -98,26 +124,30 @@ const LinksManager = () => {
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Manage Links</h1>
-        <Button onClick={openNewLinkDialog} className="bg-biobloom-600 hover:bg-biobloom-700">
+        <h1 className="text-2xl font-bold">Gerenciar Links</h1>
+        <Button 
+          onClick={openNewLinkDialog} 
+          className="bg-biobloom-600 hover:bg-biobloom-700"
+          disabled={isLinkLimitReached()}
+        >
           <PlusCircle className="mr-2 h-4 w-4" />
-          Add Link
+          Adicionar Link
         </Button>
       </div>
       
       <Card>
         <CardHeader>
-          <CardTitle>Your Links</CardTitle>
+          <CardTitle>Seus Links</CardTitle>
         </CardHeader>
         <CardContent>
           {profile.links.length === 0 ? (
             <div className="text-center py-12">
               <Link className="h-12 w-12 text-muted-foreground mb-3 mx-auto" />
-              <h3 className="text-lg font-medium mb-1">No links added yet</h3>
-              <p className="text-muted-foreground mb-4">Add your first link to your bio-page</p>
+              <h3 className="text-lg font-medium mb-1">Nenhum link adicionado ainda</h3>
+              <p className="text-muted-foreground mb-4">Adicione seu primeiro link à sua bio-page</p>
               <Button onClick={openNewLinkDialog} className="bg-biobloom-600 hover:bg-biobloom-700">
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Add your first link
+                Adicionar seu primeiro link
               </Button>
             </div>
           ) : (
@@ -144,11 +174,11 @@ const LinksManager = () => {
                   <div className="flex-none flex gap-1">
                     <Button variant="ghost" size="icon" onClick={() => openEditLinkDialog(link)}>
                       <Pencil className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
+                      <span className="sr-only">Editar</span>
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => handleDeleteLink(link.id)}>
                       <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
+                      <span className="sr-only">Excluir</span>
                     </Button>
                   </div>
                 </div>
@@ -162,18 +192,18 @@ const LinksManager = () => {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{currentLink ? 'Edit Link' : 'Add New Link'}</DialogTitle>
+            <DialogTitle>{currentLink ? 'Editar Link' : 'Adicionar Novo Link'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Link Title</Label>
+                <Label htmlFor="title">Título do Link</Label>
                 <Input
                   id="title"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
-                  placeholder="My Website"
+                  placeholder="Meu Website"
                   required
                 />
               </div>
@@ -184,35 +214,35 @@ const LinksManager = () => {
                   name="url"
                   value={formData.url}
                   onChange={handleChange}
-                  placeholder="https://example.com"
+                  placeholder="https://exemplo.com"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="style">Link Style</Label>
+                <Label htmlFor="style">Estilo do Link</Label>
                 <Select
                   value={formData.style}
                   onValueChange={handleStyleChange}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a style" />
+                    <SelectValue placeholder="Selecione um estilo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="default">Default</SelectItem>
-                    <SelectItem value="outline">Outline</SelectItem>
-                    <SelectItem value="ghost">Ghost</SelectItem>
+                    <SelectItem value="default">Padrão</SelectItem>
+                    <SelectItem value="outline">Contorno</SelectItem>
+                    <SelectItem value="ghost">Transparente</SelectItem>
                     <SelectItem value="neobrutal">Neo-brutal</SelectItem>
-                    <SelectItem value="glass">Glass</SelectItem>
+                    <SelectItem value="glass">Vidro</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancel
+                Cancelar
               </Button>
               <Button type="submit" className="bg-biobloom-600 hover:bg-biobloom-700">
-                {currentLink ? 'Save Changes' : 'Add Link'}
+                {currentLink ? 'Salvar Alterações' : 'Adicionar Link'}
               </Button>
             </DialogFooter>
           </form>

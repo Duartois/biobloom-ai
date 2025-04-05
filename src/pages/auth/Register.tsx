@@ -7,6 +7,10 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+
+// Define plan types for type safety
+type PlanType = 'free' | 'starter' | 'pro' | 'premium';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -17,7 +21,7 @@ const Register = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [plan, setPlan] = useState<'free' | 'starter' | 'pro' | 'premium'>(() => {
+  const [plan, setPlan] = useState<PlanType>(() => {
     const planParam = searchParams.get('plan');
     if (planParam === 'starter' || planParam === 'pro' || planParam === 'premium') {
       return planParam;
@@ -25,6 +29,28 @@ const Register = () => {
     return 'free';
   });
   const [error, setError] = useState<string | null>(null);
+  const [planData, setPlanData] = useState<any[]>([]);
+
+  // Fetch plans data from Supabase
+  useEffect(() => {
+    const fetchPlans = async () => {
+      const { data, error } = await supabase
+        .from('planos')
+        .select('*')
+        .eq('ativo', true);
+      
+      if (error) {
+        console.error('Error fetching plans:', error);
+        return;
+      }
+      
+      if (data) {
+        setPlanData(data);
+      }
+    };
+    
+    fetchPlans();
+  }, []);
 
   // Update URL when plan changes
   useEffect(() => {
@@ -39,6 +65,7 @@ const Register = () => {
     e.preventDefault();
     setError(null);
 
+    // Form validation
     if (password !== confirmPassword) {
       setError("As senhas não coincidem");
       return;
@@ -48,14 +75,44 @@ const Register = () => {
       setError("A senha deve ter pelo menos 6 caracteres");
       return;
     }
+
+    if (username.length < 3) {
+      setError("O nome de usuário deve ter pelo menos 3 caracteres");
+      return;
+    }
+
+    if (!/^[a-z0-9_]+$/.test(username)) {
+      setError("O nome de usuário deve conter apenas letras minúsculas, números e underscore");
+      return;
+    }
     
     try {
       await registerUser(email, password, username);
+      // The user is now registered and logged in
+      // Redirect to onboarding
       navigate('/onboarding');
-    } catch (err) {
-      setError('Falha no registro. Por favor tente novamente.');
+    } catch (err: any) {
+      setError(err.message || 'Falha no registro. Por favor tente novamente.');
       console.error(err);
     }
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(price / 100);
+  };
+
+  // Get plan details
+  const getPlanName = (planId: string) => {
+    const plan = planData.find(p => p.nome.toLowerCase() === planId);
+    return plan ? plan.nome : planId.charAt(0).toUpperCase() + planId.slice(1);
+  };
+
+  const getPlanPrice = (planId: string) => {
+    const plan = planData.find(p => p.nome.toLowerCase() === planId);
+    return plan ? formatPrice(plan.preco) + '/mês' : '';
   };
 
   return (
@@ -122,7 +179,7 @@ const Register = () => {
             
             <div className="space-y-3">
               <Label>Selecione seu plano</Label>
-              <RadioGroup value={plan} onValueChange={(value) => setPlan(value as any)} className="grid grid-cols-2 gap-4 pt-2">
+              <RadioGroup value={plan} onValueChange={(value) => setPlan(value as PlanType)} className="grid grid-cols-2 gap-4 pt-2">
                 <div>
                   <RadioGroupItem 
                     value="free" 
@@ -148,7 +205,7 @@ const Register = () => {
                     className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                   >
                     <div className="mb-2 font-semibold text-center">Inicial</div>
-                    <div className="text-sm text-muted-foreground text-center">R$ 15/mês</div>
+                    <div className="text-sm text-muted-foreground text-center">{getPlanPrice('starter') || 'R$ 9/mês'}</div>
                   </Label>
                 </div>
                 <div>
@@ -165,7 +222,7 @@ const Register = () => {
                       Popular
                     </div>
                     <div className="mb-2 font-semibold text-center">Pro</div>
-                    <div className="text-sm text-muted-foreground text-center">R$ 29/mês</div>
+                    <div className="text-sm text-muted-foreground text-center">{getPlanPrice('pro') || 'R$ 19/mês'}</div>
                   </Label>
                 </div>
                 <div>
@@ -179,10 +236,13 @@ const Register = () => {
                     className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                   >
                     <div className="mb-2 font-semibold text-center">Premium</div>
-                    <div className="text-sm text-muted-foreground text-center">R$ 85/mês</div>
+                    <div className="text-sm text-muted-foreground text-center">{getPlanPrice('premium') || 'R$ 39/mês'}</div>
                   </Label>
                 </div>
               </RadioGroup>
+              <p className="text-center text-sm text-muted-foreground mt-2">
+                Você terá acesso gratuito ao plano Pro por 7 dias. Cancele a qualquer momento.
+              </p>
             </div>
             
             <Button 

@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLinks } from '@/contexts/LinksContext';
 import { toast } from 'sonner';
 import { 
   CreditCard, 
@@ -17,18 +18,32 @@ import {
   Trash2, 
   RefreshCw,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  Upload
 } from 'lucide-react';
 
 const Settings = () => {
   const { user, updateUserPlan, getRemainingTrialDays, isTrialActive } = useAuth();
+  const { profile, updateProfile } = useLinks();
   const navigate = useNavigate();
+  
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [profilePictureUrl, setProfilePictureUrl] = useState(profile.profilePicture || '');
 
-  const handleUpdateProfile = (e: React.FormEvent) => {
+  const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Perfil atualizado com sucesso!');
+    
+    try {
+      await updateProfile({
+        name: name,
+        profilePicture: profilePictureUrl
+      });
+      toast.success('Perfil atualizado com sucesso!');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Erro ao atualizar o perfil.');
+    }
   };
 
   const handleChangePassword = (e: React.FormEvent) => {
@@ -58,9 +73,23 @@ const Settings = () => {
       default: return 'Desconhecido';
     }
   };
+  
+  const getPlanPrice = () => {
+    switch(user?.plan) {
+      case 'free': return 'Grátis';
+      case 'starter': return 'R$9/mês';
+      case 'pro': return 'R$19/mês';
+      case 'premium': return 'R$39/mês';
+      case 'trial': return 'Grátis durante o período de teste';
+      default: return '';
+    }
+  };
 
   const isPaidPlan = user?.plan && ['starter', 'pro', 'premium'].includes(user.plan);
   const isTrialPlan = user?.plan === 'trial';
+  
+  // Only Pro and Premium plans can upload logo
+  const canUploadLogo = user?.plan && ['pro', 'premium', 'trial'].includes(user.plan);
 
   return (
     <DashboardLayout>
@@ -94,7 +123,11 @@ const Settings = () => {
                       value={email} 
                       onChange={(e) => setEmail(e.target.value)} 
                       placeholder="seu@email.com" 
+                      disabled
                     />
+                    <p className="text-xs text-muted-foreground">
+                      O e-mail não pode ser alterado
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="username">Nome de usuário</Label>
@@ -107,6 +140,47 @@ const Settings = () => {
                       Seu URL é: biobloom.com/{user?.username}
                     </p>
                   </div>
+                  
+                  {canUploadLogo && (
+                    <div className="space-y-2">
+                      <Label htmlFor="profilePicture">Logotipo</Label>
+                      <div className="flex gap-3 items-start">
+                        {profilePictureUrl && (
+                          <div className="w-16 h-16 rounded-md overflow-hidden bg-muted">
+                            <img 
+                              src={profilePictureUrl} 
+                              alt="Logo" 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <Input 
+                            id="profilePicture" 
+                            value={profilePictureUrl} 
+                            onChange={(e) => setProfilePictureUrl(e.target.value)} 
+                            placeholder="https://exemplo.com/seu-logo.png" 
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Informe a URL do seu logotipo (disponível nos planos Pro e Premium)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {!canUploadLogo && (
+                    <div className="bg-muted p-3 rounded-md">
+                      <h4 className="text-sm font-medium flex items-center">
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload de Logotipo
+                      </h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Faça upgrade para o plano Pro ou Premium para adicionar seu logotipo personalizado
+                      </p>
+                    </div>
+                  )}
+                  
                   <Button type="submit">Salvar alterações</Button>
                 </form>
               </CardContent>
@@ -175,6 +249,9 @@ const Settings = () => {
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <p className="text-sm font-medium">Plano atual</p>
                   <p className="text-lg font-bold">{getPlanName()}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {getPlanPrice()}
+                  </p>
                   
                   {isTrialPlan && (
                     <div className="mt-2 text-sm">
@@ -190,7 +267,7 @@ const Settings = () => {
                   
                   {isPaidPlan && (
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Próxima cobrança: 15/05/2024
+                      Próxima cobrança: 15/05/2025
                     </p>
                   )}
                 </div>

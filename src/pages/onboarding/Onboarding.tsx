@@ -10,12 +10,14 @@ import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from '@/contexts/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
 
-// Mock background image suggestions
-const mockBackgroundImages = [
+// Background image suggestions
+const backgroundImages = [
   { id: 1, url: "https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=500&auto=format&fit=crop" },
   { id: 2, url: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=500&auto=format&fit=crop" },
   { id: 3, url: "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=500&auto=format&fit=crop" },
   { id: 4, url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=500&auto=format&fit=crop" },
+  { id: 5, url: "https://images.unsplash.com/photo-1557683311-eac922347aa1?q=80&w=500&auto=format&fit=crop" },
+  { id: 6, url: "https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?q=80&w=500&auto=format&fit=crop" },
 ];
 
 const Onboarding = () => {
@@ -39,7 +41,7 @@ const Onboarding = () => {
     setProfile(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     if (step === 1) {
       // In a real app, here we would send profile.interests to an AI service
       // to get background suggestions based on interests
@@ -49,16 +51,25 @@ const Onboarding = () => {
       setTimeout(() => {
         setIsLoading(false);
         setStep(2);
-      }, 1500);
+      }, 1000);
     } else if (step === 2 && selectedImage) {
       // Final step completion - save everything and go to dashboard
-      updateProfile({
-        name: profile.name,
-        bio: profile.bio,
-        backgroundImage: selectedImage,
-      });
+      setIsLoading(true);
       
-      navigate('/dashboard');
+      try {
+        await updateProfile({
+          name: profile.name,
+          bio: profile.bio,
+          backgroundImage: selectedImage,
+          background_type: 'image',
+        });
+        
+        navigate('/dashboard');
+      } catch (error) {
+        console.error('Error saving profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -71,8 +82,8 @@ const Onboarding = () => {
               <Sparkles className="h-5 w-5" />
             </div>
           </div>
-          <h1 className="text-2xl font-bold">Let's set up your BioBloom page</h1>
-          <p className="text-muted-foreground">We'll help you create a beautiful page that reflects your brand</p>
+          <h1 className="text-2xl font-bold">Vamos configurar sua página BioBloom</h1>
+          <p className="text-muted-foreground">Ajudaremos você a criar uma página bonita que reflita sua marca</p>
         </div>
 
         <div className="bg-background p-6 rounded-lg border shadow-sm">
@@ -97,11 +108,11 @@ const Onboarding = () => {
           {step === 1 && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">Nome</Label>
                 <Input
                   id="name"
                   name="name"
-                  placeholder="Your name or brand name"
+                  placeholder="Seu nome ou nome da marca"
                   value={profile.name}
                   onChange={handleProfileChange}
                 />
@@ -111,7 +122,7 @@ const Onboarding = () => {
                 <Textarea
                   id="bio"
                   name="bio"
-                  placeholder="A short description about you or your brand"
+                  placeholder="Uma breve descrição sobre você ou sua marca"
                   rows={3}
                   value={profile.bio}
                   onChange={handleProfileChange}
@@ -119,18 +130,18 @@ const Onboarding = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="interests">
-                  What are your interests or the focus of your content?
+                  Quais são seus interesses ou o foco do seu conteúdo?
                 </Label>
                 <Textarea
                   id="interests"
                   name="interests"
-                  placeholder="E.g., photography, fitness, tech reviews, fashion, coaching..."
+                  placeholder="Ex: fotografia, fitness, reviews de tecnologia, moda, coaching..."
                   rows={3}
                   value={profile.interests}
                   onChange={handleProfileChange}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  We'll use this to suggest the perfect background for your page
+                  Usaremos isso para sugerir o plano de fundo perfeito para sua página
                 </p>
               </div>
             </div>
@@ -140,9 +151,9 @@ const Onboarding = () => {
           {step === 2 && (
             <div className="space-y-6">
               <div>
-                <Label className="block mb-3">Choose a background for your page</Label>
-                <div className="grid grid-cols-2 gap-4">
-                  {mockBackgroundImages.map(image => (
+                <Label className="block mb-3">Escolha um plano de fundo para sua página</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {backgroundImages.map(image => (
                     <div 
                       key={image.id}
                       className={`relative aspect-[4/3] rounded-md overflow-hidden cursor-pointer border-2 transition-all ${
@@ -168,14 +179,6 @@ const Onboarding = () => {
                   ))}
                 </div>
               </div>
-              <div className="flex justify-center">
-                <Button 
-                  variant="outline" 
-                  className="text-sm"
-                >
-                  See more backgrounds
-                </Button>
-              </div>
             </div>
           )}
 
@@ -186,15 +189,16 @@ const Onboarding = () => {
                 variant="outline" 
                 onClick={() => setStep(1)} 
                 className="mr-2"
+                disabled={isLoading}
               >
-                Back
+                Voltar
               </Button>
             )}
             <Button 
               onClick={handleNextStep}
               className="bg-biobloom-600 hover:bg-biobloom-700"
               disabled={
-                (step === 1 && (!profile.name || !profile.interests)) || 
+                (step === 1 && (!profile.name || !profile.bio)) || 
                 (step === 2 && !selectedImage) ||
                 isLoading
               }
@@ -202,13 +206,13 @@ const Onboarding = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing
+                  Processando
                 </>
               ) : step === 2 ? (
-                'Complete Setup'
+                'Concluir Configuração'
               ) : (
                 <>
-                  Next
+                  Próximo
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </>
               )}

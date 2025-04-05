@@ -1,6 +1,8 @@
 
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { User, Session } from '@supabase/supabase-js';
 
 type PlanType = 'free' | 'starter' | 'pro' | 'premium' | 'trial';
 
@@ -19,6 +21,7 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
+  session: Session | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, username: string) => Promise<void>;
@@ -33,37 +36,84 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Check for stored user on initial load
+  // Set up auth state listener
   useEffect(() => {
-    const storedUser = localStorage.getItem('biobloom-user');
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
+        setSession(currentSession);
         
-        // Convert string dates back to Date objects
-        if (parsedUser.createdAt) parsedUser.createdAt = new Date(parsedUser.createdAt);
-        if (parsedUser.trialStartDate) parsedUser.trialStartDate = new Date(parsedUser.trialStartDate);
-        if (parsedUser.trialEndDate) parsedUser.trialEndDate = new Date(parsedUser.trialEndDate);
-        
-        setUser(parsedUser);
+        // Only perform synchronous updates in the callback
+        if (currentSession?.user) {
+          // Defer Supabase calls with setTimeout to avoid deadlocks
+          setTimeout(() => {
+            fetchUserData(currentSession.user.id);
+          }, 0);
+        } else {
+          setUser(null);
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      
+      if (currentSession?.user) {
+        fetchUserData(currentSession.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchUserData = async (userId: string) => {
+    try {
+      // Fetch user data from our custom users table
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (userError) {
+        console.error('Error fetching user data:', userError);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
+      if (userData) {
+        // Convert string dates to Date objects
+        const user: User = {
+          id: userData.id,
+          username: userData.username,
+          email: userData.email,
+          name: userData.name,
+          plan: userData.plano_atual as PlanType,
+          createdAt: new Date(userData.created_at),
+          trialStartDate: userData.teste_ativo ? new Date(userData.created_at) : undefined,
+          trialEndDate: userData.teste_expira_em ? new Date(userData.teste_expira_em) : undefined,
+        };
+
+        setUser(user);
         
         // Check if trial has expired
-        if (parsedUser.plan === 'trial' && !isTrialActive(parsedUser)) {
+        if (user.plan === 'trial' && !isTrialActive(user)) {
           // Trial expired, downgrade to free
-          const updatedUser = { ...parsedUser, plan: 'free' as PlanType };
-          setUser(updatedUser);
-          localStorage.setItem('biobloom-user', JSON.stringify(updatedUser));
+          await updateUserPlanInDb(userId, 'free');
+          user.plan = 'free';
           toast.info("Seu período de teste gratuito expirou. Seu plano foi alterado para gratuito.");
         }
-      } catch (error) {
-        console.error('Failed to parse stored user', error);
-        localStorage.removeItem('biobloom-user');
       }
+    } catch (error) {
+      console.error('Failed to fetch user data', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  };
 
   // Helper to check if trial is active
   const isTrialActive = (userToCheck: User | null = user) => {
@@ -90,28 +140,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       
-      // Mock login for demo purposes
-      if (email && password) {
-        // This would be replaced with actual auth call
-        const mockUser: User = {
-          id: 'user-123',
-          username: email.split('@')[0],
-          email,
-          name: 'Usuário Demo',
-          bio: 'Este é um perfil de demonstração',
-          plan: 'free',
-          createdAt: new Date(),
-        };
-        
-        setUser(mockUser);
-        localStorage.setItem('biobloom-user', JSON.stringify(mockUser));
-        toast.success("Login realizado com sucesso!");
-      } else {
-        throw new Error('Email e senha são obrigatórios');
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        throw error;
       }
-    } catch (error) {
-      toast.error("Falha no login. Por favor verifique suas credenciais.");
-      console.error('Login error:', error);
+
+      toast.success("Login realizado com sucesso!");
+      // User data will be set by the auth state listener
+      
+    } catch (error: any) {
+      toast.error(error.message || "Falha no login. Por favor verifique suas credenciais.");
       throw error;
     } finally {
       setLoading(false);
@@ -122,38 +164,61 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       
-      // Mock registration
-      if (email && password && username) {
-        // Initialize trial period (7 days)
-        const trialStartDate = new Date();
-        const trialEndDate = new Date();
-        trialEndDate.setDate(trialEndDate.getDate() + 7);
+      // First check if username is taken
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('username')
+        .eq('username', username)
+        .single();
+      
+      if (existingUser) {
+        toast.error("Este nome de usuário já está em uso.");
+        throw new Error("Este nome de usuário já está em uso.");
+      }
 
-        // This would be replaced with actual auth registration
-        const mockUser: User = {
-          id: 'user-' + Date.now(),
-          username,
-          email,
-          name: username,
-          bio: '',
-          plan: 'trial', // Start with trial plan
-          createdAt: new Date(),
-          trialStartDate,
-          trialEndDate,
-        };
-        
-        setUser(mockUser);
-        localStorage.setItem('biobloom-user', JSON.stringify(mockUser));
+      // Create user in auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username,
+            name: username, // Default name to username initially
+          },
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.user) {
+        // The trigger will create the profile and set the trial period
         toast.success("Cadastro realizado com sucesso! Você tem acesso ao plano Pro por 7 dias.");
       } else {
-        throw new Error('Todos os campos são obrigatórios');
+        toast.info("Por favor, verifique seu email para confirmar o cadastro.");
       }
-    } catch (error) {
-      toast.error("Falha no cadastro. Por favor tente novamente.");
-      console.error('Registration error:', error);
+      
+    } catch (error: any) {
+      toast.error(error.message || "Falha no cadastro. Por favor tente novamente.");
       throw error;
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateUserPlanInDb = async (userId: string, plan: PlanType) => {
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ plano_atual: plan })
+        .eq('id', userId);
+
+      if (error) throw error;
+      
+    } catch (error: any) {
+      console.error('Error updating user plan:', error);
+      throw error;
     }
   };
 
@@ -161,11 +226,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       if (!user) throw new Error('Usuário não encontrado');
       
-      const updatedUser = { ...user, plan };
-      setUser(updatedUser);
-      localStorage.setItem('biobloom-user', JSON.stringify(updatedUser));
+      await updateUserPlanInDb(user.id, plan);
+      
+      setUser(prev => {
+        if (!prev) return null;
+        return { ...prev, plan };
+      });
+      
       toast.success(`Seu plano foi atualizado para ${plan}!`);
-    } catch (error) {
+    } catch (error: any) {
       toast.error("Falha ao atualizar plano.");
       console.error('Update plan error:', error);
       throw error;
@@ -174,9 +243,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      // Clear user data
-      setUser(null);
-      localStorage.removeItem('biobloom-user');
+      await supabase.auth.signOut();
       toast.info("Você foi desconectado");
     } catch (error) {
       console.error('Logout error:', error);
@@ -188,6 +255,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        session,
         loading,
         login,
         register,

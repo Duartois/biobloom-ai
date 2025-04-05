@@ -21,7 +21,7 @@ import ScheduleContent from "./pages/dashboard/ScheduleContent";
 import BackgroundGenerator from "./pages/dashboard/BackgroundGenerator";
 import Analytics from "./pages/dashboard/Analytics";
 import Settings from "./pages/dashboard/Settings";
-import PublicProfile from "./pages/profile/PublicProfile";
+import PublicProfile from "./pages/profile/[username]";
 import NotFound from "./pages/NotFound";
 
 // Pages em construção
