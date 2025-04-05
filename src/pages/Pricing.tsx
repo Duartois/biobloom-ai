@@ -7,6 +7,7 @@ import { Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 
 type PlanDuration = 'monthly' | 'annual';
 type PlanType = 'free' | 'starter' | 'pro' | 'premium';
@@ -40,7 +41,22 @@ const Pricing = () => {
         console.error('Error fetching plans:', error);
         toast.error('Erro ao carregar os planos. Por favor, tente novamente mais tarde.');
       } else if (data) {
-        setPlansData(data);
+        // Transform the data to ensure recursos is always a string array
+        const transformedData: PlanData[] = data.map(plan => ({
+          id: plan.id,
+          nome: plan.nome,
+          preco: plan.preco,
+          descricao: plan.descricao || '',
+          // Handle recursos which could be Json (string, number, array, null, etc.)
+          recursos: Array.isArray(plan.recursos) 
+            ? plan.recursos as string[]
+            : typeof plan.recursos === 'string' 
+              ? [plan.recursos] 
+              : [],
+          ativo: plan.ativo || false
+        }));
+        
+        setPlansData(transformedData);
       }
       setLoading(false);
     };
