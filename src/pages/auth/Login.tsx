@@ -6,12 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, loading } = useAuth();
-  const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +70,7 @@ const Login = () => {
             </div>
             <Button 
               type="submit" 
-              className="w-full bg-festa-amarelo hover:bg-festa-laranja text-festa-dark"
+              className="w-full"
               disabled={loading}
             >
               {loading ? 'Entrando...' : 'Entrar'}

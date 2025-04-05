@@ -4,9 +4,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Badge } from '@/components/ui/badge';
 import { 
   Laptop, Layout, LinkIcon, Calendar, Settings, 
-  PlusSquare, Home, ChevronLeft, ChevronRight, LogOut 
+  PlusSquare, Home, ChevronLeft, ChevronRight, LogOut,
+  ImageIcon, LineChart, Sparkles
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -28,15 +30,21 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
 
   const navItems = [
     { name: 'Dashboard', icon: <Layout className="h-5 w-5" />, path: '/dashboard' },
-    { name: 'My Bio-page', icon: <Laptop className="h-5 w-5" />, path: '/dashboard/bio' },
+    { name: 'Minha Bio-page', icon: <Laptop className="h-5 w-5" />, path: '/dashboard/bio' },
     { name: 'Links', icon: <LinkIcon className="h-5 w-5" />, path: '/dashboard/links' },
-    { name: 'Schedule Posts', icon: <Calendar className="h-5 w-5" />, path: '/dashboard/schedule' },
-    { name: 'Settings', icon: <Settings className="h-5 w-5" />, path: '/dashboard/settings' },
+    { name: 'Planos de Fundo', icon: <ImageIcon className="h-5 w-5" />, path: '/dashboard/background' },
+    { name: 'Agendamento', icon: <Calendar className="h-5 w-5" />, path: '/dashboard/scheduled', 
+      badge: user?.plan === 'free' ? 'PRO' : undefined },
+    { name: 'Análises', icon: <LineChart className="h-5 w-5" />, path: '/dashboard/analytics', 
+      badge: user?.plan === 'free' || user?.plan === 'starter' ? 'PREMIUM' : undefined },
+    { name: 'Configurações', icon: <Settings className="h-5 w-5" />, path: '/dashboard/settings' },
   ];
 
   const isActivePath = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
+
+  const freeTrialDaysLeft = 7; // Placeholder - isso viria de um cálculo baseado na data de início do teste
 
   return (
     <div className="flex min-h-screen bg-muted/20">
@@ -61,6 +69,17 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
         </div>
+
+        {/* Free trial message */}
+        {!collapsed && user?.plan === 'trial' && (
+          <div className="bg-primary/10 border-b border-primary/20 px-4 py-2">
+            <p className="text-xs font-medium flex items-center">
+              <Sparkles className="h-3 w-3 mr-1 text-primary" />
+              <span>Período de teste: {freeTrialDaysLeft} dias restantes</span>
+            </p>
+          </div>
+        )}
+        
         <div className="flex-grow py-4 overflow-y-auto">
           <div className="space-y-1 px-2">
             {navItems.map((item) => (
@@ -74,7 +93,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 }`}
               >
                 <span className="inline-flex">{item.icon}</span>
-                {!collapsed && <span className="ml-3">{item.name}</span>}
+                {!collapsed && (
+                  <div className="ml-3 flex items-center justify-between w-full">
+                    <span>{item.name}</span>
+                    {item.badge && (
+                      <Badge variant="outline" className="text-xs bg-secondary/10 text-secondary border-secondary/20">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </Link>
             ))}
           </div>
@@ -89,7 +117,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             } text-muted-foreground hover:text-foreground`}
           >
             <LogOut className={`h-5 w-5 ${!collapsed && 'mr-2'}`} />
-            {!collapsed && <span>Logout</span>}
+            {!collapsed && <span>Sair</span>}
           </Button>
         </div>
       </div>
@@ -113,7 +141,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             >
               <Link to={`/${user?.username || 'preview'}`} target="_blank">
                 <Laptop className="mr-2 h-4 w-4" />
-                Preview Bio-page
+                Visualizar Bio-page
               </Link>
             </Button>
             <Button 
@@ -122,7 +150,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
             >
               <Link to="/dashboard/links/new">
                 <PlusSquare className="mr-2 h-4 w-4" />
-                Add Link
+                Adicionar Link
               </Link>
             </Button>
           </div>

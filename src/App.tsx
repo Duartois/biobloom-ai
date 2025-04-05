@@ -9,6 +9,8 @@ import { LinksProvider } from "./contexts/LinksContext";
 
 // Pages
 import Index from "./pages/Index";
+import Pricing from "./pages/Pricing";
+import Features from "./pages/Features";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
 import Onboarding from "./pages/onboarding/Onboarding";
@@ -16,8 +18,14 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import LinksManager from "./pages/dashboard/LinksManager";
 import BioPageEditor from "./pages/dashboard/BioPageEditor";
 import ScheduleContent from "./pages/dashboard/ScheduleContent";
+import BackgroundGenerator from "./pages/dashboard/BackgroundGenerator";
+import Analytics from "./pages/dashboard/Analytics";
+import Settings from "./pages/dashboard/Settings";
 import PublicProfile from "./pages/profile/PublicProfile";
 import NotFound from "./pages/NotFound";
+
+// Pages em construção
+import ComingSoon from "./pages/ComingSoon";
 
 // Guards
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -36,7 +44,13 @@ const App = () => (
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Index />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/features" element={<Features />} />
               <Route path="/:username" element={<PublicProfile />} />
+              <Route path="/blog" element={<ComingSoon title="Blog" />} />
+              <Route path="/help-center" element={<ComingSoon title="Central de Ajuda" />} />
+              <Route path="/terms-of-service" element={<ComingSoon title="Termos de Serviço" />} />
+              <Route path="/privacy-policy" element={<ComingSoon title="Política de Privacidade" />} />
               
               {/* Auth routes - accessible only to non-authenticated users */}
               <Route 
@@ -55,6 +69,7 @@ const App = () => (
                   </GuestRoute>
                 } 
               />
+              <Route path="/forgot-password" element={<ComingSoon title="Recuperação de Senha" />} />
               
               {/* Protected routes - require authentication */}
               <Route 
@@ -90,10 +105,34 @@ const App = () => (
                 } 
               />
               <Route 
-                path="/dashboard/schedule" 
+                path="/dashboard/scheduled" 
                 element={
                   <ProtectedRoute>
                     <ScheduleContent />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/background" 
+                element={
+                  <ProtectedRoute>
+                    <BackgroundGenerator />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/analytics" 
+                element={
+                  <ProtectedRoute>
+                    <Analytics />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/settings" 
+                element={
+                  <ProtectedRoute>
+                    <Settings />
                   </ProtectedRoute>
                 } 
               />
