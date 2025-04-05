@@ -1,20 +1,54 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 type PlanDuration = 'monthly' | 'annual';
+type PlanType = 'free' | 'starter' | 'pro' | 'premium';
+
+interface PlanData {
+  id: string;
+  nome: string;
+  preco: number;
+  descricao: string;
+  recursos: string[];
+  ativo: boolean;
+}
 
 const Pricing = () => {
   const [duration, setDuration] = useState<PlanDuration>('monthly');
   const { isAuthenticated, user, updateUserPlan } = useAuth();
   const navigate = useNavigate();
+  const [plansData, setPlansData] = useState<PlanData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleSelectPlan = (plan: 'free' | 'starter' | 'pro' | 'premium') => {
+  // Fetch plans data from Supabase
+  useEffect(() => {
+    const fetchPlans = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('planos')
+        .select('*')
+        .eq('ativo', true);
+      
+      if (error) {
+        console.error('Error fetching plans:', error);
+        toast.error('Erro ao carregar os planos. Por favor, tente novamente mais tarde.');
+      } else if (data) {
+        setPlansData(data);
+      }
+      setLoading(false);
+    };
+    
+    fetchPlans();
+  }, []);
+
+  const handleSelectPlan = (plan: PlanType) => {
     if (!isAuthenticated) {
       navigate('/register?plan=' + plan);
       return;
@@ -37,6 +71,29 @@ const Pricing = () => {
         .catch(console.error);
     }, 2000);
   };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(price / 100);
+  };
+
+  const getAnnualPrice = (monthlyPrice: number) => {
+    // 20% discount for annual plans
+    const annualPrice = monthlyPrice * 12 * 0.8;
+    return formatPrice(annualPrice);
+  };
+
+  // Helper to find plan by name
+  const findPlan = (planName: string): PlanData | undefined => {
+    return plansData.find(p => p.nome.toLowerCase() === planName);
+  };
+
+  const freePlan = findPlan('gratuito');
+  const starterPlan = findPlan('inicial');
+  const proPlan = findPlan('pro');
+  const premiumPlan = findPlan('premium');
 
   return (
     <MainLayout>
@@ -78,194 +135,157 @@ const Pricing = () => {
           </button>
         </div>
 
-        {/* Pricing cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Free plan */}
-          <div className="bg-background border rounded-xl overflow-hidden">
-            <div className="p-6 border-b">
-              <h3 className="text-lg font-medium">Gratuito</h3>
-              <div className="mt-4 flex items-baseline">
-                <span className="text-3xl font-bold">R$0</span>
-                <span className="text-muted-foreground ml-1">/sempre</span>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Perfeito para começar
-              </p>
-            </div>
-            <div className="p-6">
-              <ul className="space-y-3">
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Até 2 links</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Templates com cores sólidas</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Backgrounds padrões</span>
-                </li>
-                <li className="flex text-sm text-muted-foreground">
-                  <Check className="h-5 w-5 text-muted mr-2 flex-shrink-0" />
-                  <span>Marca d'água do BioBloom</span>
-                </li>
-              </ul>
-              <Button
-                onClick={() => handleSelectPlan('free')}
-                variant="outline"
-                className="w-full mt-6"
-              >
-                Começar Grátis
-              </Button>
-            </div>
+        {loading ? (
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-biobloom-600"></div>
           </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Free plan */}
+            <div className="bg-background border rounded-xl overflow-hidden">
+              <div className="p-6 border-b">
+                <h3 className="text-lg font-medium">Gratuito</h3>
+                <div className="mt-4 flex items-baseline">
+                  <span className="text-3xl font-bold">R$0</span>
+                  <span className="text-muted-foreground ml-1">/sempre</span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {freePlan?.descricao || 'Perfeito para começar'}
+                </p>
+              </div>
+              <div className="p-6">
+                <ul className="space-y-3">
+                  {freePlan?.recursos?.map((recurso, idx) => (
+                    <li key={idx} className="flex text-sm">
+                      <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                      <span>{recurso}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  onClick={() => handleSelectPlan('free')}
+                  variant="outline"
+                  className="w-full mt-6"
+                >
+                  Começar Grátis
+                </Button>
+              </div>
+            </div>
 
-          {/* Starter plan */}
-          <div className="bg-background border rounded-xl overflow-hidden">
-            <div className="p-6 border-b">
-              <h3 className="text-lg font-medium">Inicial</h3>
-              <div className="mt-4 flex items-baseline">
-                <span className="text-3xl font-bold">
-                  {duration === 'monthly' ? 'R$9' : 'R$87'}
-                </span>
-                <span className="text-muted-foreground ml-1">
-                  /{duration === 'monthly' ? 'mês' : 'ano'}
-                </span>
+            {/* Starter plan */}
+            <div className="bg-background border rounded-xl overflow-hidden">
+              <div className="p-6 border-b">
+                <h3 className="text-lg font-medium">Inicial</h3>
+                <div className="mt-4 flex items-baseline">
+                  <span className="text-3xl font-bold">
+                    {duration === 'monthly' 
+                      ? starterPlan ? formatPrice(starterPlan.preco) : 'R$9'
+                      : starterPlan ? getAnnualPrice(starterPlan.preco) : 'R$87'}
+                  </span>
+                  <span className="text-muted-foreground ml-1">
+                    /{duration === 'monthly' ? 'mês' : 'ano'}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {starterPlan?.descricao || 'Para criadores em crescimento'}
+                </p>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Para criadores em crescimento
-              </p>
+              <div className="p-6">
+                <ul className="space-y-3">
+                  {starterPlan?.recursos?.map((recurso, idx) => (
+                    <li key={idx} className="flex text-sm">
+                      <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                      <span>{recurso}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  onClick={() => handleSelectPlan('starter')}
+                  variant="outline"
+                  className="w-full mt-6"
+                >
+                  Assinar Plano Inicial
+                </Button>
+              </div>
             </div>
-            <div className="p-6">
-              <ul className="space-y-3">
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Links ilimitados</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Temas variados</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Plano de fundo com IA</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Até 20 agendamentos/mês</span>
-                </li>
-                <li className="flex text-sm text-muted-foreground">
-                  <Check className="h-5 w-5 text-muted mr-2 flex-shrink-0" />
-                  <span>Marca d'água do BioBloom</span>
-                </li>
-              </ul>
-              <Button
-                onClick={() => handleSelectPlan('starter')}
-                variant="outline"
-                className="w-full mt-6"
-              >
-                Assinar Plano Inicial
-              </Button>
-            </div>
-          </div>
 
-          {/* Pro plan */}
-          <div className="bg-background border-2 border-primary rounded-xl overflow-hidden relative transform hover:scale-105 transition-transform">
-            <div className="absolute -top-3 -right-3 bg-secondary text-white text-xs px-3 py-1 rounded-full transform rotate-12">
-              Popular
-            </div>
-            <div className="p-6 border-b">
-              <h3 className="text-lg font-medium">Pro</h3>
-              <div className="mt-4 flex items-baseline">
-                <span className="text-3xl font-bold">
-                  {duration === 'monthly' ? 'R$19' : 'R$182'}
-                </span>
-                <span className="text-muted-foreground ml-1">
-                  /{duration === 'monthly' ? 'mês' : 'ano'}
-                </span>
+            {/* Pro plan */}
+            <div className="bg-background border-2 border-primary rounded-xl overflow-hidden relative transform hover:scale-105 transition-transform">
+              <div className="absolute -top-3 -right-3 bg-secondary text-white text-xs px-3 py-1 rounded-full transform rotate-12">
+                Popular
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Para criadores estabelecidos
-              </p>
+              <div className="p-6 border-b">
+                <h3 className="text-lg font-medium">Pro</h3>
+                <div className="mt-4 flex items-baseline">
+                  <span className="text-3xl font-bold">
+                    {duration === 'monthly' 
+                      ? proPlan ? formatPrice(proPlan.preco) : 'R$19'
+                      : proPlan ? getAnnualPrice(proPlan.preco) : 'R$182'}
+                  </span>
+                  <span className="text-muted-foreground ml-1">
+                    /{duration === 'monthly' ? 'mês' : 'ano'}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {proPlan?.descricao || 'Para criadores estabelecidos'}
+                </p>
+              </div>
+              <div className="p-6">
+                <ul className="space-y-3">
+                  {proPlan?.recursos?.map((recurso, idx) => (
+                    <li key={idx} className="flex text-sm">
+                      <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                      <span>{recurso}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  onClick={() => handleSelectPlan('pro')}
+                  className="w-full mt-6"
+                >
+                  Assinar Plano Pro
+                </Button>
+              </div>
             </div>
-            <div className="p-6">
-              <ul className="space-y-3">
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Tudo do plano Inicial</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Sem marca d'água</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Logotipo personalizado</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Publicação com IA</span>
-                </li>
-              </ul>
-              <Button
-                onClick={() => handleSelectPlan('pro')}
-                className="w-full mt-6"
-              >
-                Assinar Plano Pro
-              </Button>
-            </div>
-          </div>
 
-          {/* Premium plan */}
-          <div className="bg-background border rounded-xl overflow-hidden">
-            <div className="p-6 border-b">
-              <h3 className="text-lg font-medium">Premium</h3>
-              <div className="mt-4 flex items-baseline">
-                <span className="text-3xl font-bold">
-                  {duration === 'monthly' ? 'R$39' : 'R$374'}
-                </span>
-                <span className="text-muted-foreground ml-1">
-                  /{duration === 'monthly' ? 'mês' : 'ano'}
-                </span>
+            {/* Premium plan */}
+            <div className="bg-background border rounded-xl overflow-hidden">
+              <div className="p-6 border-b">
+                <h3 className="text-lg font-medium">Premium</h3>
+                <div className="mt-4 flex items-baseline">
+                  <span className="text-3xl font-bold">
+                    {duration === 'monthly' 
+                      ? premiumPlan ? formatPrice(premiumPlan.preco) : 'R$39'
+                      : premiumPlan ? getAnnualPrice(premiumPlan.preco) : 'R$374'}
+                  </span>
+                  <span className="text-muted-foreground ml-1">
+                    /{duration === 'monthly' ? 'mês' : 'ano'}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {premiumPlan?.descricao || 'Para equipes e marcas'}
+                </p>
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Para equipes e marcas
-              </p>
-            </div>
-            <div className="p-6">
-              <ul className="space-y-3">
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Tudo do plano Pro</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Análises avançadas</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Postagens ilimitadas</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Até 3 marcas</span>
-                </li>
-                <li className="flex text-sm">
-                  <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
-                  <span>Colaboração em equipe</span>
-                </li>
-              </ul>
-              <Button
-                onClick={() => handleSelectPlan('premium')}
-                variant="outline"
-                className="w-full mt-6"
-              >
-                Assinar Plano Premium
-              </Button>
+              <div className="p-6">
+                <ul className="space-y-3">
+                  {premiumPlan?.recursos?.map((recurso, idx) => (
+                    <li key={idx} className="flex text-sm">
+                      <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                      <span>{recurso}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Button
+                  onClick={() => handleSelectPlan('premium')}
+                  variant="outline"
+                  className="w-full mt-6"
+                >
+                  Assinar Plano Premium
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="mt-16 text-center">
           <p className="text-muted-foreground">

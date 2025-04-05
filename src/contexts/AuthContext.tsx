@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log('Auth state changed:', event, currentSession?.user?.id);
         setSession(currentSession);
         
         // Only perform synchronous updates in the callback
@@ -60,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      console.log('Checking existing session:', currentSession?.user?.id);
       setSession(currentSession);
       
       if (currentSession?.user) {
@@ -74,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserData = async (userId: string) => {
     try {
+      console.log('Fetching user data for:', userId);
       // Fetch user data from our custom users table
       const { data: userData, error: userError } = await supabase
         .from('users')
@@ -89,6 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (userData) {
+        console.log('User data fetched:', userData);
         // Convert string dates to Date objects
         const userProfile: UserProfile = {
           id: userData.id,
@@ -167,6 +171,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       
+      console.log('Registering user:', email, username);
+      
       // First check if username is taken
       const { data: existingUser } = await supabase
         .from('users')
@@ -191,13 +197,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       });
 
+      console.log('User registration response:', data, error);
+
       if (error) {
         throw error;
       }
 
       if (data.user) {
-        // The trigger will create the profile and set the trial period
+        // The trigger should create the profile, but let's give it a second to complete
         toast.success("Cadastro realizado com sucesso! Você tem acesso ao plano Pro por 7 dias.");
+        
+        // Wait a moment for the database trigger to create the user
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Verify the user was created correctly in the database
+        await fetchUserData(data.user.id);
       } else {
         toast.info("Por favor, verifique seu email para confirmar o cadastro.");
       }

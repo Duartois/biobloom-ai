@@ -15,7 +15,7 @@ type PlanType = 'free' | 'starter' | 'pro' | 'premium';
 const Register = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { register: registerUser, loading } = useAuth();
+  const { register: registerUser, loading, isAuthenticated } = useAuth();
   
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -30,6 +30,13 @@ const Register = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const [planData, setPlanData] = useState<any[]>([]);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   // Fetch plans data from Supabase
   useEffect(() => {
@@ -88,9 +95,7 @@ const Register = () => {
     
     try {
       await registerUser(email, password, username);
-      // The user is now registered and logged in
-      // Redirect to onboarding
-      navigate('/onboarding');
+      // A redireção para dashboard será feita pelo useEffect acima quando isAuthenticated mudar
     } catch (err: any) {
       setError(err.message || 'Falha no registro. Por favor tente novamente.');
       console.error(err);
