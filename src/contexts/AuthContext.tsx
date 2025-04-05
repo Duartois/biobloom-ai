@@ -2,11 +2,12 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Session } from '@supabase/supabase-js';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import { Database } from "@/integrations/supabase/types";
 
 type PlanType = 'free' | 'starter' | 'pro' | 'premium' | 'trial';
 
-type User = {
+type UserProfile = {
   id: string;
   username: string;
   email: string;
@@ -20,7 +21,7 @@ type User = {
 };
 
 type AuthContextType = {
-  user: User | null;
+  user: UserProfile | null;
   session: Session | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -35,7 +36,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -63,6 +64,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       if (currentSession?.user) {
         fetchUserData(currentSession.user.id);
+      } else {
+        setLoading(false);
       }
     });
 
@@ -87,10 +90,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (userData) {
         // Convert string dates to Date objects
-        const user: User = {
+        const userProfile: UserProfile = {
           id: userData.id,
           username: userData.username,
-          email: userData.email,
+          email: userData.email || '',
           name: userData.name,
           plan: userData.plano_atual as PlanType,
           createdAt: new Date(userData.created_at),
@@ -98,13 +101,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           trialEndDate: userData.teste_expira_em ? new Date(userData.teste_expira_em) : undefined,
         };
 
-        setUser(user);
+        setUser(userProfile);
         
         // Check if trial has expired
-        if (user.plan === 'trial' && !isTrialActive(user)) {
+        if (userProfile.plan === 'trial' && !isTrialActive(userProfile)) {
           // Trial expired, downgrade to free
           await updateUserPlanInDb(userId, 'free');
-          user.plan = 'free';
+          userProfile.plan = 'free';
           toast.info("Seu período de teste gratuito expirou. Seu plano foi alterado para gratuito.");
         }
       }
@@ -116,7 +119,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Helper to check if trial is active
-  const isTrialActive = (userToCheck: User | null = user) => {
+  const isTrialActive = (userToCheck: UserProfile | null = user) => {
     if (!userToCheck) return false;
     if (userToCheck.plan !== 'trial') return false;
     if (!userToCheck.trialEndDate) return false;

@@ -3,6 +3,7 @@ import React, { createContext, useState, useContext, ReactNode, useEffect } from
 import { useAuth } from './AuthContext';
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
 export type Link = {
   id: string;
@@ -122,8 +123,8 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
 
       // Build the profile object
       const updatedProfile: ProfileData = {
-        name: userData.name || '',
-        username: userData.username || '',
+        name: userData?.name || '',
+        username: userData?.username || '',
         bio: profileData?.bio || '',
         profilePicture: profileData?.logotipo || undefined,
         backgroundImage: profileData?.imagem_fundo || undefined,
@@ -191,8 +192,8 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
 
       // Build the profile object
       return {
-        name: userData.name || '',
-        username: userData.username || '',
+        name: userData?.name || '',
+        username: userData?.username || '',
         bio: profileData?.bio || '',
         profilePicture: profileData?.logotipo || undefined,
         backgroundImage: profileData?.imagem_fundo || undefined,
@@ -216,7 +217,7 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      const updates = {};
+      const updates: Record<string, any> = {};
       
       // Map profile fields to database columns
       if (data.bio !== undefined) updates['bio'] = data.bio;
@@ -276,7 +277,7 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
         .order('ordem', { ascending: false })
         .limit(1);
 
-      const nextOrder = maxOrderData && maxOrderData.length > 0 && maxOrderData[0].ordem 
+      const nextOrder = maxOrderData && maxOrderData.length > 0 && maxOrderData[0]?.ordem 
         ? maxOrderData[0].ordem + 1 
         : 0;
 
@@ -296,20 +297,22 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error;
 
       // Add to local state
-      const link: Link = {
-        id: newLink.id,
-        title: newLink.titulo,
-        url: newLink.url,
-        style: newLink.style as Link['style'],
-      };
-
-      setProfile(prev => {
-        const updated = { 
-          ...prev, 
-          links: [...prev.links, link] 
+      if (newLink) {
+        const link: Link = {
+          id: newLink.id,
+          title: newLink.titulo,
+          url: newLink.url,
+          style: newLink.style as Link['style'],
         };
-        return updated;
-      });
+
+        setProfile(prev => {
+          const updated = { 
+            ...prev, 
+            links: [...prev.links, link] 
+          };
+          return updated;
+        });
+      }
       
       toast.success("Link adicionado com sucesso!");
     } catch (error) {
@@ -325,7 +328,7 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      const updates = {};
+      const updates: Record<string, any> = {};
       if (linkData.title !== undefined) updates['titulo'] = linkData.title;
       if (linkData.url !== undefined) updates['url'] = linkData.url;
       if (linkData.style !== undefined) updates['style'] = linkData.style;
