@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { toast } from "sonner";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,6 +23,9 @@ const Login = () => {
     if (isAuthenticated) {
       setIsRedirecting(true);
       const from = location.state?.from || '/dashboard';
+      
+      toast.success("Login bem-sucedido!", { duration: 2000 });
+      
       const redirectTimer = setTimeout(() => {
         navigate(from, { replace: true });
       }, 1000); // Pequeno delay para mostrar a mensagem de redirecionamento

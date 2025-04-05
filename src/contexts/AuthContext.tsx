@@ -78,17 +78,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchUserData = async (userId: string) => {
     try {
       console.log('Fetching user data for:', userId);
+      
       // Fetch user data from our custom users table
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle(); // Alterado de .single() para .maybeSingle()
 
       if (userError) {
         console.error('Error fetching user data:', userError);
-        setUser(null);
         setLoading(false);
+        
+        // Verificar se o usuário existe na auth mas não na tabela users
+        if (userError.code === 'PGRST116') {
+          // O usuário existe na autenticação mas não na tabela users
+          // Vamos criar o usuário manualmente
+          await createUserRecord(userId);
+          return;
+        }
+        
+        setUser(null);
         return;
       }
 
@@ -115,11 +125,63 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           userProfile.plan = 'free';
           toast.info("Seu período de teste gratuito expirou. Seu plano foi alterado para gratuito.");
         }
+      } else {
+        // Usuário não encontrado na tabela users
+        await createUserRecord(userId);
       }
     } catch (error) {
       console.error('Failed to fetch user data', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Nova função para criar o registro do usuário quando ele existe na auth mas não na tabela users
+  const createUserRecord = async (userId: string) => {
+    try {
+      // Primeiro, obtenha os detalhes do usuário da auth
+      const { data: authUser } = await supabase.auth.getUser(userId);
+      
+      if (!authUser || !authUser.user) {
+        console.error('User not found in auth');
+        setUser(null);
+        return;
+      }
+      
+      const userEmail = authUser.user.email || '';
+      const userMetadata = authUser.user.user_metadata || {};
+      const username = userMetadata.username || userEmail.split('@')[0];
+      const name = userMetadata.name || username;
+      
+      // Inserir o usuário na tabela users
+      const { data: newUser, error: insertError } = await supabase
+        .from('users')
+        .insert([
+          { 
+            id: userId, 
+            email: userEmail, 
+            username: username,
+            name: name,
+            plano_atual: 'trial'
+          }
+        ])
+        .select('*')
+        .single();
+      
+      if (insertError) {
+        console.error('Error creating user record:', insertError);
+        setUser(null);
+        return;
+      }
+      
+      console.log('User record created:', newUser);
+      
+      // Buscar o usuário recém-criado para confirmar
+      await fetchUserData(userId);
+      
+    } catch (error) {
+      console.error('Failed to create user record', error);
+      setUser(null);
     }
   };
 
