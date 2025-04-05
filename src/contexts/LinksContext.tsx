@@ -118,7 +118,7 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
         id: link.id,
         title: link.titulo,
         url: link.url,
-        style: link.style as Link['style'] || 'default',
+        style: (link.style as Link['style']) || 'default',
       })) || [];
 
       // Build the profile object
@@ -129,9 +129,9 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
         profilePicture: profileData?.logotipo || undefined,
         backgroundImage: profileData?.imagem_fundo || undefined,
         links: links,
-        theme: profileData?.theme || 'default',
+        theme: (profileData?.theme as ProfileData['theme']) || 'default',
         themeColor: profileData?.cor_fundo || '#893bf2',
-        background_type: profileData?.background_type || 'color',
+        background_type: (profileData?.background_type as ProfileData['background_type']) || 'color',
         opacity: profileData?.opacity || 1.0,
         grayscale: profileData?.grayscale || false,
       };
@@ -187,7 +187,7 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
         id: link.id,
         title: link.titulo,
         url: link.url,
-        style: link.style as Link['style'] || 'default',
+        style: (link.style as Link['style']) || 'default',
       })) || [];
 
       // Build the profile object
@@ -198,9 +198,9 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
         profilePicture: profileData?.logotipo || undefined,
         backgroundImage: profileData?.imagem_fundo || undefined,
         links: links,
-        theme: profileData?.theme || 'default',
+        theme: (profileData?.theme as ProfileData['theme']) || 'default',
         themeColor: profileData?.cor_fundo || '#893bf2',
-        background_type: profileData?.background_type || 'color',
+        background_type: (profileData?.background_type as ProfileData['background_type']) || 'color',
         opacity: profileData?.opacity || 1.0,
         grayscale: profileData?.grayscale || false,
       };
@@ -302,7 +302,7 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
           id: newLink.id,
           title: newLink.titulo,
           url: newLink.url,
-          style: newLink.style as Link['style'],
+          style: (newLink.style as Link['style']) || 'default',
         };
 
         setProfile(prev => {
