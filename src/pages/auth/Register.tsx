@@ -167,7 +167,7 @@ const Register = () => {
               <Input
                 id="username"
                 type="text"
-                placeholder="seuusuario"
+                placeholder="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                 required
