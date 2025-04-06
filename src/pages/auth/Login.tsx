@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MainLayout from "@/components/layout/MainLayout";
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { toast } from "sonner";
+import { LoadingBanner } from './components/LoadingBanner';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -63,12 +64,7 @@ const Login = () => {
             </div>
           )}
           
-          {isRedirecting && (
-            <div className="bg-success/10 border border-success text-success text-sm p-3 rounded-md mb-4 flex items-center justify-center">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Login bem-sucedido. Redirecionando...
-            </div>
-          )}
+          {isRedirecting && <LoadingBanner message="Login bem-sucedido. Redirecionando..." />}
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">

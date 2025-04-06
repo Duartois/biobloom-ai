@@ -1,14 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { RegistrationForm } from './components/RegistrationForm';
+import { LoadingBanner } from './components/LoadingBanner';
 
 // Define plan types for type safety
 type PlanType = 'free' | 'starter' | 'pro' | 'premium';
@@ -143,150 +140,27 @@ const Register = () => {
             </div>
           )}
           
-          {isRedirecting && (
-            <div className="bg-success/10 border border-success text-success text-sm p-3 rounded-md mb-4 flex items-center justify-center">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Cadastro realizado com sucesso! Redirecionando para configuração inicial...
-            </div>
-          )}
+          {isRedirecting && <LoadingBanner message="Cadastro realizado com sucesso! Redirecionando para configuração inicial..." />}
           
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="nome@exemplo.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="username">Nome de usuário</Label>
-              <Input
-                id="username"
-                type="text"
-                placeholder="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                Esta será sua URL no BioBloom: biobloom.com/{username || 'seuusuario'}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmar Senha</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="space-y-3">
-              <Label>Selecione seu plano</Label>
-              <RadioGroup value={plan} onValueChange={(value) => setPlan(value as PlanType)} className="grid grid-cols-2 gap-4 pt-2">
-                <div>
-                  <RadioGroupItem 
-                    value="free" 
-                    id="free" 
-                    className="peer sr-only" 
-                  />
-                  <Label
-                    htmlFor="free"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                  >
-                    <div className="mb-2 font-semibold text-center">Grátis</div>
-                    <div className="text-sm text-muted-foreground text-center">Recursos básicos</div>
-                  </Label>
-                </div>
-                <div>
-                  <RadioGroupItem 
-                    value="starter" 
-                    id="starter" 
-                    className="peer sr-only" 
-                  />
-                  <Label
-                    htmlFor="starter"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                  >
-                    <div className="mb-2 font-semibold text-center">Inicial</div>
-                    <div className="text-sm text-muted-foreground text-center">{getPlanPrice('starter') || 'R$ 9/mês'}</div>
-                  </Label>
-                </div>
-                <div>
-                  <RadioGroupItem 
-                    value="pro" 
-                    id="pro" 
-                    className="peer sr-only" 
-                  />
-                  <Label
-                    htmlFor="pro"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary relative"
-                  >
-                    <div className="absolute -top-3 -right-3 bg-festa-rosa text-white text-xs px-3 py-1 rounded-full transform rotate-12">
-                      Popular
-                    </div>
-                    <div className="mb-2 font-semibold text-center">Pro</div>
-                    <div className="text-sm text-muted-foreground text-center">{getPlanPrice('pro') || 'R$ 19/mês'}</div>
-                  </Label>
-                </div>
-                <div>
-                  <RadioGroupItem 
-                    value="premium" 
-                    id="premium" 
-                    className="peer sr-only" 
-                  />
-                  <Label
-                    htmlFor="premium"
-                    className="flex flex-col items-center justify-between rounded-md border-2 border-muted p-4 hover:bg-accent/10 hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                  >
-                    <div className="mb-2 font-semibold text-center">Premium</div>
-                    <div className="text-sm text-muted-foreground text-center">{getPlanPrice('premium') || 'R$ 39/mês'}</div>
-                  </Label>
-                </div>
-              </RadioGroup>
-              <p className="text-center text-sm text-muted-foreground mt-2">
-                Você terá acesso gratuito ao plano Pro por 7 dias. Cancele a qualquer momento.
-              </p>
-            </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full bg-festa-amarelo hover:bg-festa-laranja text-festa-dark"
-              disabled={loading || isRedirecting}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Criando conta...
-                </>
-              ) : isRedirecting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Redirecionando...
-                </>
-              ) : (
-                'Criar conta'
-              )}
-            </Button>
-          </form>
+          <RegistrationForm 
+            email={email}
+            setEmail={setEmail}
+            username={username}
+            setUsername={setUsername}
+            password={password}
+            setPassword={setPassword}
+            confirmPassword={confirmPassword}
+            setConfirmPassword={setConfirmPassword}
+            plan={plan}
+            setPlan={setPlan}
+            planData={planData}
+            getPlanName={getPlanName}
+            getPlanPrice={getPlanPrice}
+            handleSubmit={handleSubmit}
+            loading={loading}
+            isRedirecting={isRedirecting}
+          />
+          
           <div className="mt-4 text-center text-sm">
             Já tem uma conta?{' '}
             <Link to="/login" className="text-primary hover:underline">
