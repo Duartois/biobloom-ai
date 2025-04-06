@@ -10,6 +10,7 @@ export const useAuthState = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   // Set up auth state listener
   useEffect(() => {
@@ -27,6 +28,7 @@ export const useAuthState = () => {
           }, 0);
         } else {
           setUser(null);
+          setNeedsOnboarding(false);
         }
       }
     );
@@ -96,6 +98,17 @@ export const useAuthState = () => {
           userProfile.plan = 'free';
           toast.info("Seu período de teste gratuito expirou. Seu plano foi alterado para gratuito.");
         }
+
+        // Verificar se o usuário precisa passar pelo onboarding
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('bio, imagem_fundo, background_type')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+        // Considerar que precisa de onboarding se não tiver bio ou imagem de fundo definidos
+        const requiresOnboarding = !profileData || (!profileData.bio && !profileData.imagem_fundo);
+        setNeedsOnboarding(requiresOnboarding);
       } else {
         // Usuário não encontrado na tabela users
         await createUserRecord();
@@ -133,5 +146,5 @@ export const useAuthState = () => {
     }
   };
 
-  return { user, setUser, session, loading };
+  return { user, setUser, session, loading, needsOnboarding };
 };

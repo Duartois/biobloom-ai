@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -9,31 +8,56 @@ import { useAuth } from '@/contexts/auth/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { toast } from "sonner";
 import { LoadingBanner } from './components/LoadingBanner';
+import { supabase } from '@/integrations/supabase/client';
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, loading, isAuthenticated } = useAuth();
+  const { login, loading, isAuthenticated, needsOnboarding } = useAuth();
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [redirectMessage, setRedirectMessage] = useState('Login bem-sucedido. Redirecionando...');
+  
+  useEffect(() => {
+    const checkEmailConfirmation = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const type = params.get('type');
+      
+      if (type === 'email_confirmation') {
+        toast.success("Email confirmado com sucesso! Agora você pode fazer login.");
+      }
+    };
+    
+    checkEmailConfirmation();
+  }, []);
 
-  // Redirect to dashboard if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       setIsRedirecting(true);
-      const from = location.state?.from || '/dashboard';
       
+      if (needsOnboarding) {
+        setRedirectMessage('Login bem-sucedido. Redirecionando para configuração inicial...');
+        toast.success("Login bem-sucedido!", { duration: 2000 });
+        
+        const redirectTimer = setTimeout(() => {
+          navigate('/onboarding', { replace: true });
+        }, 1000);
+        
+        return () => clearTimeout(redirectTimer);
+      }
+      
+      const from = location.state?.from || '/dashboard';
       toast.success("Login bem-sucedido!", { duration: 2000 });
       
       const redirectTimer = setTimeout(() => {
         navigate(from, { replace: true });
-      }, 1000); // Pequeno delay para mostrar a mensagem de redirecionamento
+      }, 1000);
       
       return () => clearTimeout(redirectTimer);
     }
-  }, [isAuthenticated, navigate, location]);
+  }, [isAuthenticated, needsOnboarding, navigate, location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,8 +65,6 @@ const Login = () => {
     
     try {
       await login(usernameOrEmail, password);
-      setIsRedirecting(true);
-      // A redireção será feita pelo useEffect acima quando isAuthenticated mudar
     } catch (err: any) {
       const errorMessage = err?.message || 'Falha no login. Por favor, verifique suas credenciais.';
       setError(errorMessage);
@@ -64,7 +86,7 @@ const Login = () => {
             </div>
           )}
           
-          {isRedirecting && <LoadingBanner message="Login bem-sucedido. Redirecionando..." />}
+          {isRedirecting && <LoadingBanner message={redirectMessage} />}
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">

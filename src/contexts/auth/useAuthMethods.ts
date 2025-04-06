@@ -43,6 +43,17 @@ export const useAuthMethods = (user: UserProfile | null) => {
         throw error;
       }
 
+      if (!data.user) {
+        throw new Error("Falha no login. Por favor verifique suas credenciais.");
+      }
+
+      // Verificar se o email foi confirmado
+      if (!data.user.email_confirmed_at) {
+        // Fazer logout e informar o usuário que precisa confirmar o email
+        await supabase.auth.signOut();
+        throw new Error("Por favor, confirme seu email antes de fazer login. Verifique sua caixa de entrada.");
+      }
+
       toast.success("Login realizado com sucesso!");
       // User data will be set by the auth state listener
       
@@ -92,14 +103,13 @@ export const useAuthMethods = (user: UserProfile | null) => {
       }
 
       if (data.user) {
-        // The trigger should create the profile, but let's give it a second to complete
-        toast.success("Cadastro realizado com sucesso! Você tem acesso ao plano Pro por 7 dias.");
+        toast.success("Cadastro realizado com sucesso! Verifique seu email para ativar sua conta.");
         
+        // Deslogar o usuário após o registro para que ele só faça login após confirmar o email
+        await supabase.auth.signOut();
+
         // Wait a moment for the database trigger to create the user
         await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Verify the user was created correctly in the database
-        // (Não precisamos mais verificar aqui já que redirecionaremos para a página de confirmação)
       } else {
         toast.info("Por favor, verifique seu email para confirmar o cadastro.");
       }

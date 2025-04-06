@@ -1,212 +1,154 @@
+
 import React, { useState } from 'react';
 import { toast } from "sonner";
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@/contexts/auth/AuthContext';
-import { Sparkles, Image as ImageIcon, Palette, Download } from 'lucide-react';
 import { useLinks } from '@/contexts/LinksContext';
-
-// Backgrounds simulados de IA
-const mockBackgrounds = [
-  'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1000&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1557682250-33bd709cbe85?q=80&w=1000&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1579546929662-711aa81148cf?q=80&w=1000&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1579546928686-286c9fbde1ec?q=80&w=1000&auto=format&fit=crop'
-];
-
-// Fundos temáticos pré-definidos
-const presetBackgrounds = [
-  { name: 'Gradiente Roxo', url: 'https://images.unsplash.com/photo-1557682260-96655317b5e9?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Ondulação Azul', url: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Minimalista', url: 'https://images.unsplash.com/photo-1558591710-8570b99f5292?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Cores Vibrantes', url: 'https://images.unsplash.com/photo-1558591710-8a42d7059a9e?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Neon Moderno', url: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Vintage', url: 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Urbano', url: 'https://images.unsplash.com/photo-1520262494112-9fe481d36ec3?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Natureza', url: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Abstrato', url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Tecnologia', url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Minimalista Preto', url: 'https://images.unsplash.com/photo-1499578124509-1611b77778c8?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Gradiente Suave', url: 'https://images.unsplash.com/photo-1579546929662-711aa81148cf?q=80&w=1000&auto=format&fit=crop' }
-];
+import { BackgroundSelector } from '@/components/backgrounds/BackgroundSelector';
+import { AiBackgroundSuggestor } from '@/components/backgrounds/AiBackgroundSuggestor';
 
 const BackgroundGenerator = () => {
   const { profile, updateProfile } = useLinks();
-  const { user } = useAuth();
-  const [prompt, setPrompt] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedBackgrounds, setGeneratedBackgrounds] = useState<string[]>([]);
-  const [selectedBackground, setSelectedBackground] = useState<string | undefined>(profile.backgroundImage);
-
-  const canUseAI = user?.plan && (user.plan !== 'free' && user.plan !== 'starter');
-
-  const handleGenerate = () => {
-    if (!canUseAI) {
-      toast.error('Faça upgrade para o plano Pro ou superior para usar a geração de planos de fundo com IA.');
-      return;
-    }
-
-    if (!prompt) {
-      toast.error('Por favor, digite uma descrição para gerar o plano de fundo.');
-      return;
-    }
-
-    setIsGenerating(true);
-    // Simulando o tempo de geração da IA
-    setTimeout(() => {
-      setGeneratedBackgrounds(mockBackgrounds);
-      setIsGenerating(false);
-      toast.success('Fundos gerados com sucesso!');
-    }, 2000);
-  };
-
-  const handleSelectBackground = (url: string) => {
-    setSelectedBackground(url);
-  };
+  const [backgroundType, setBackgroundType] = useState<'image' | 'color'>(
+    profile.background_type === 'image' ? 'image' : 'color'
+  );
+  const [selectedImage, setSelectedImage] = useState<string | null>(
+    profile.backgroundImage || null
+  );
+  const [selectedColor, setSelectedColor] = useState<string | null>(
+    profile.themeColor || '#893bf2'
+  );
+  const [opacity, setOpacity] = useState<number>(
+    profile.opacity !== undefined ? profile.opacity : 1.0
+  );
+  const [grayscale, setGrayscale] = useState<boolean>(
+    profile.grayscale || false
+  );
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleApplyBackground = async () => {
-    if (selectedBackground) {
+    if (!selectedImage && !selectedColor) {
+      toast.error('Por favor, selecione uma imagem ou cor para o plano de fundo.');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
       await updateProfile({ 
-        backgroundImage: selectedBackground,
-        background_type: 'image'
+        backgroundImage: backgroundType === 'image' ? selectedImage : undefined,
+        background_type: backgroundType,
+        themeColor: backgroundType === 'color' ? selectedColor : undefined,
+        opacity,
+        grayscale
       });
       toast.success('Plano de fundo aplicado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao aplicar plano de fundo.');
+      console.error(error);
+    } finally {
+      setIsSaving(false);
     }
+  };
+
+  const handleSelectAiBackground = (url: string) => {
+    setBackgroundType('image');
+    setSelectedImage(url);
+    setSelectedColor(null);
+  };
+
+  const handleSelectAiColor = (color: string) => {
+    setBackgroundType('color');
+    setSelectedColor(color);
+    setSelectedImage(null);
   };
 
   return (
     <DashboardLayout>
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Gerador de Plano de Fundo</h1>
+        <h1 className="text-2xl font-bold mb-6">Planos de Fundo</h1>
 
-        <Tabs defaultValue="ai" className="mb-6">
-          <TabsList className="grid w-full md:w-[400px] grid-cols-2">
-            <TabsTrigger value="ai" className="flex items-center">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Geração por IA
-            </TabsTrigger>
-            <TabsTrigger value="preset" className="flex items-center">
-              <Palette className="mr-2 h-4 w-4" />
-              Fundos Prontos
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="ai" className="mt-4 space-y-6">
+        <div className="grid gap-6 md:grid-cols-7">
+          <div className="md:col-span-4">
             <Card>
               <CardHeader>
-                <CardTitle>Gere planos de fundo com IA</CardTitle>
+                <CardTitle>Escolha seu Plano de Fundo</CardTitle>
                 <CardDescription>
-                  Descreva como deseja que seu plano de fundo seja, e nossa IA criará opções personalizadas.
+                  Selecione entre imagens pré-definidas ou cores sólidas para personalizar sua página
                 </CardDescription>
-                {!canUseAI && (
-                  <div className="bg-secondary/10 text-secondary p-3 rounded-md mt-2 text-sm">
-                    Este recurso está disponível apenas para planos Pro ou superior. 
-                    <Button variant="link" className="p-0 h-auto text-secondary" asChild>
-                      <a href="/dashboard/settings">Fazer upgrade</a>
-                    </Button>
-                  </div>
-                )}
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Textarea
-                      placeholder="Descreva o plano de fundo que você deseja. Exemplo: Gradiente colorido suave com ondas em azul e roxo"
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      className="min-h-[120px]"
-                      disabled={!canUseAI}
-                    />
-                  </div>
-                  <div className="flex justify-end">
-                    <Button 
-                      onClick={handleGenerate} 
-                      disabled={isGenerating || !canUseAI}
-                    >
-                      {isGenerating ? 'Gerando...' : 'Gerar opções'}
-                      <Sparkles className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {generatedBackgrounds.length > 0 && (
-                    <div className="mt-6 space-y-4">
-                      <h3 className="text-lg font-medium">Resultados</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        {generatedBackgrounds.map((bg, index) => (
-                          <div 
-                            key={index}
-                            className={`relative aspect-[9/16] rounded-lg overflow-hidden cursor-pointer transition-all hover:scale-[1.02] border-2 ${
-                              selectedBackground === bg ? 'border-primary' : 'border-transparent'
-                            }`}
-                            onClick={() => handleSelectBackground(bg)}
-                          >
-                            <img 
-                              src={bg} 
-                              alt={`Fundo gerado ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                              <Button variant="secondary" size="sm">
-                                <Download className="mr-2 h-4 w-4" />
-                                Selecionar
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                <BackgroundSelector 
+                  backgroundType={backgroundType}
+                  setBackgroundType={setBackgroundType}
+                  selectedImage={selectedImage}
+                  setSelectedImage={setSelectedImage}
+                  selectedColor={selectedColor}
+                  setSelectedColor={setSelectedColor}
+                  opacity={opacity}
+                  setOpacity={setOpacity}
+                  grayscale={grayscale}
+                  setGrayscale={setGrayscale}
+                />
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="preset" className="mt-4">
+          <div className="md:col-span-3 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Fundos Pré-definidos</CardTitle>
+                <CardTitle>Pré-visualização</CardTitle>
                 <CardDescription>
-                  Escolha entre nossos designs profissionais
+                  Veja como seu plano de fundo ficará em sua página
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {presetBackgrounds.map((bg, index) => (
-                    <div 
-                      key={index}
-                      className={`relative aspect-[9/16] rounded-lg overflow-hidden cursor-pointer transition-all hover:scale-[1.02] border-2 ${
-                        selectedBackground === bg.url ? 'border-primary' : 'border-transparent'
-                      }`}
-                      onClick={() => handleSelectBackground(bg.url)}
-                    >
+              <CardContent className="flex justify-center py-4">
+                <div className="w-40 h-[320px] overflow-hidden rounded-xl relative">
+                  {/* Background */}
+                  <div className="absolute inset-0 w-full h-full">
+                    {backgroundType === 'image' && selectedImage ? (
                       <img 
-                        src={bg.url} 
-                        alt={bg.name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                        src={selectedImage} 
+                        alt="Background"
+                        className={`w-full h-full object-cover ${grayscale ? 'grayscale' : ''}`}
+                        style={{ opacity }}
                       />
-                      <div className="absolute bottom-0 inset-x-0 bg-black bg-opacity-50 p-2">
-                        <p className="text-white text-sm truncate">{bg.name}</p>
-                      </div>
-                    </div>
-                  ))}
+                    ) : (
+                      <div 
+                        className={`w-full h-full ${grayscale ? 'grayscale' : ''}`}
+                        style={{ 
+                          backgroundColor: selectedColor || '#893bf2', 
+                          opacity 
+                        }}
+                      ></div>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
-
-        {selectedBackground && (
-          <div className="flex justify-end">
-            <Button onClick={handleApplyBackground}>
-              Aplicar plano de fundo
+            
+            <AiBackgroundSuggestor
+              onSelectBackground={handleSelectAiBackground}
+              onSelectColor={handleSelectAiColor}
+            />
+            
+            <Button 
+              onClick={handleApplyBackground} 
+              className="w-full"
+              disabled={isSaving || (!selectedImage && !selectedColor)}
+            >
+              {isSaving ? (
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                  Aplicando...
+                </>
+              ) : (
+                'Aplicar e Salvar'
+              )}
             </Button>
           </div>
-        )}
+        </div>
       </div>
     </DashboardLayout>
   );
