@@ -24,7 +24,7 @@ type AuthContextType = {
   user: UserProfile | null;
   session: Session | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (usernameOrEmail: string, password: string) => Promise<void>;
   register: (email: string, password: string, username: string) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .from('users')
         .select('*')
         .eq('id', userId)
-        .maybeSingle(); // Alterado de .single() para .maybeSingle()
+        .maybeSingle();
 
       if (userError) {
         console.error('Error fetching user data:', userError);
@@ -137,24 +137,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Nova função para criar o registro do usuário quando ele existe na auth mas não na tabela users
+  // Função para criar o registro do usuário quando ele existe na auth mas não na tabela users
+  const createUserRecord = async () => {
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser();
   
-const createUserRecord = async () => {
-    try {
-      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        console.error('Erro ao obter usuário da autenticação:', error);
+        return;
+      }
   
-      if (error || !user) {
-        console.error('Erro ao obter usuário da autenticação:', error);
-        return;
-      }
+      const userEmail = user.email || '';
+      const username = user.user_metadata?.username || userEmail.split('@')[0];
+      const name = user.user_metadata?.name || username;
   
-      const userEmail = user.email || '';
-      const username = user.user_metadata?.username || userEmail.split('@')[0];
-      const name = user.user_metadata?.name || username;
-  
-      const { error: insertError } = await supabase
-        .from('users')
-        .insert([
+      const { error: insertError } = await supabase
+        .from('users')
+        .insert([
             {
            id: user.id,
            email: userEmail,
@@ -196,12 +195,35 @@ const createUserRecord = async () => {
     return Math.max(0, diffDays);
   };
 
-  const login = async (email: string, password: string) => {
+  // Função para verificar se o input é um email
+  const isEmail = (input: string): boolean => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+  };
+
+  // Login modificado para aceitar username ou email
+  const login = async (usernameOrEmail: string, password: string) => {
     try {
       setLoading(true);
       
+      let emailToUse = usernameOrEmail;
+      
+      // Se não for um email, buscar o email correspondente ao username
+      if (!isEmail(usernameOrEmail)) {
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('email')
+          .eq('username', usernameOrEmail)
+          .maybeSingle();
+          
+        if (userError || !userData || !userData.email) {
+          throw new Error("Usuário não encontrado. Verifique seu username.");
+        }
+        
+        emailToUse = userData.email;
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: emailToUse,
         password
       });
 
@@ -247,6 +269,7 @@ const createUserRecord = async () => {
             username,
             name: username, // Default name to username initially
           },
+          emailRedirectTo: window.location.origin + '/login',
         }
       });
 
@@ -264,7 +287,7 @@ const createUserRecord = async () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // Verify the user was created correctly in the database
-        await fetchUserData(data.user.id);
+        // (Não precisamos mais verificar aqui já que redirecionaremos para a página de confirmação)
       } else {
         toast.info("Por favor, verifique seu email para confirmar o cadastro.");
       }

@@ -1,11 +1,18 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import MainLayout from "@/components/layout/MainLayout";
 import { Sparkles, Link2, Calendar, PanelLeft, Star, Clock, Zap } from 'lucide-react';
 
 const Index = () => {
+  const featuresRef = useRef<HTMLElement>(null);
+  const pricingRef = useRef<HTMLElement>(null);
+
+  const scrollToFeatures = () => {
+    featuresRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <MainLayout>
       {/* Seção Hero */}
@@ -65,7 +72,7 @@ const Index = () => {
       </section>
 
       {/* Seção de Recursos */}
-      <section className="py-12 md:py-16 bg-muted/30">
+      <section ref={featuresRef} className="py-12 md:py-16 bg-muted/30">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
             <div className="space-y-2">
@@ -89,9 +96,13 @@ const Index = () => {
               <p className="text-muted-foreground mt-2">
                 Crie uma bio-página incrível com links ilimitados, estilos personalizados e temas.
               </p>
-              <div className="mt-4 flex items-center text-sm text-festa-amarelo group-hover:underline">
+              <Button 
+                variant="link" 
+                onClick={scrollToFeatures}
+                className="mt-4 flex items-center text-sm text-festa-amarelo p-0 h-auto"
+              >
                 Saiba mais
-              </div>
+              </Button>
             </div>
             <div className="relative overflow-hidden rounded-lg border bg-background p-6 shadow-sm group">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted mb-4">
@@ -101,9 +112,13 @@ const Index = () => {
               <p className="text-muted-foreground mt-2">
                 Agende suas postagens de redes sociais com antecedência com nosso assistente de conteúdo com IA.
               </p>
-              <div className="mt-4 flex items-center text-sm text-festa-amarelo group-hover:underline">
-                Saiba mais
-              </div>
+              <Button 
+                variant="link" 
+                asChild
+                className="mt-4 flex items-center text-sm text-festa-amarelo p-0 h-auto"
+              >
+                <Link to="/features">Saiba mais</Link>
+              </Button>
             </div>
             <div className="relative overflow-hidden rounded-lg border bg-background p-6 shadow-sm group">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted mb-4">
@@ -113,16 +128,20 @@ const Index = () => {
               <p className="text-muted-foreground mt-2">
                 Receba sugestões potencializadas por IA para sua biografia, links e conteúdo de mídias sociais.
               </p>
-              <div className="mt-4 flex items-center text-sm text-festa-amarelo group-hover:underline">
-                Saiba mais
-              </div>
+              <Button 
+                variant="link" 
+                asChild
+                className="mt-4 flex items-center text-sm text-festa-amarelo p-0 h-auto"
+              >
+                <Link to="/features">Saiba mais</Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Seção de Preços */}
-      <section className="py-12 md:py-16">
+      <section ref={pricingRef} className="py-12 md:py-16">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
             <div className="space-y-2">
@@ -137,7 +156,38 @@ const Index = () => {
               </p>
             </div>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Plano Gratuito */}
+            <div className="relative overflow-hidden rounded-lg border bg-background p-6 shadow-sm flex flex-col">
+              <div className="mb-4">
+                <h3 className="text-2xl font-bold">Gratuito</h3>
+                <div className="mt-2 flex items-baseline text-foreground">
+                  <span className="text-3xl font-bold tracking-tight">R$ 0</span>
+                  <span className="ml-1 text-sm text-muted-foreground">/mês</span>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Perfeito para experimentar.
+                </p>
+              </div>
+              <div className="space-y-3 mt-2 flex-grow">
+                <div className="flex items-center">
+                  <Clock className="h-4 w-4 text-festa-amarelo mr-2" />
+                  <span className="text-sm">Até 5 links</span>
+                </div>
+                <div className="flex items-center">
+                  <PanelLeft className="h-4 w-4 text-festa-amarelo mr-2" />
+                  <span className="text-sm">Tema básico</span>
+                </div>
+                <div className="flex items-center">
+                  <Sparkles className="h-4 w-4 text-festa-amarelo mr-2" />
+                  <span className="text-sm">Personalização limitada</span>
+                </div>
+              </div>
+              <Button className="mt-6" variant="outline" asChild>
+                <Link to="/register">Começar grátis</Link>
+              </Button>
+            </div>
+            
             {/* Plano Inicial */}
             <div className="relative overflow-hidden rounded-lg border bg-background p-6 shadow-sm flex flex-col">
               <div className="mb-4">
@@ -165,7 +215,7 @@ const Index = () => {
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 text-festa-amarelo mr-2" />
-                  <span className="text-sm">Agendamento de até 20 posts/mês</span>
+                  <span className="text-sm">Até 20 posts/mês</span>
                 </div>
               </div>
               <Button className="mt-6 bg-festa-amarelo hover:bg-festa-laranja text-white" asChild>
@@ -199,7 +249,7 @@ const Index = () => {
                 </div>
                 <div className="flex items-center">
                   <Zap className="h-4 w-4 text-festa-amarelo mr-2" />
-                  <span className="text-sm">Adicionar logotipo da própria marca</span>
+                  <span className="text-sm">Adicionar logotipo próprio</span>
                 </div>
                 <div className="flex items-center">
                   <Sparkles className="h-4 w-4 text-festa-amarelo mr-2" />
@@ -230,11 +280,11 @@ const Index = () => {
                 </div>
                 <div className="flex items-center">
                   <Star className="h-4 w-4 text-festa-amarelo mr-2" />
-                  <span className="text-sm">Análises avançadas da bio-page</span>
+                  <span className="text-sm">Análises avançadas</span>
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 text-festa-amarelo mr-2" />
-                  <span className="text-sm">Postagens ilimitadas para até 3 marcas</span>
+                  <span className="text-sm">Posts ilimitados (3 marcas)</span>
                 </div>
                 <div className="flex items-center">
                   <Sparkles className="h-4 w-4 text-festa-amarelo mr-2" />

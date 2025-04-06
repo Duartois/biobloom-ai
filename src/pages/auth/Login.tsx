@@ -13,7 +13,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, loading, isAuthenticated } = useAuth();
-  const [email, setEmail] = useState('');
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
@@ -39,7 +39,7 @@ const Login = () => {
     setError(null);
     
     try {
-      await login(email, password);
+      await login(usernameOrEmail, password);
       setIsRedirecting(true);
       // A redireção será feita pelo useEffect acima quando isAuthenticated mudar
     } catch (err: any) {
@@ -72,13 +72,13 @@ const Login = () => {
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="usernameOrEmail">E-mail ou nome de usuário</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="nome@exemplo.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="usernameOrEmail"
+                type="text"
+                placeholder="nome@exemplo.com ou seu_username"
+                value={usernameOrEmail}
+                onChange={(e) => setUsernameOrEmail(e.target.value)}
                 required
               />
             </div>

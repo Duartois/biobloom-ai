@@ -13,6 +13,7 @@ import Pricing from "./pages/Pricing";
 import Features from "./pages/Features";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import ConfirmEmail from "./pages/auth/ConfirmEmail";
 import Onboarding from "./pages/onboarding/Onboarding";
 import Dashboard from "./pages/dashboard/Dashboard";
 import LinksManager from "./pages/dashboard/LinksManager";
@@ -66,6 +67,14 @@ const App = () => (
                 element={
                   <GuestRoute>
                     <Register />
+                  </GuestRoute>
+                } 
+              />
+              <Route 
+                path="/auth/confirm-email" 
+                element={
+                  <GuestRoute>
+                    <ConfirmEmail />
                   </GuestRoute>
                 } 
               />

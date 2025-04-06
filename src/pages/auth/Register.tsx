@@ -37,7 +37,7 @@ const Register = () => {
   useEffect(() => {
     if (isAuthenticated) {
       setIsRedirecting(true);
-      // Se for primeiro login, redirecionar para onboarding, caso contrário para dashboard
+      // Redirecionar para onboarding se for primeiro login
       const redirectTimer = setTimeout(() => {
         navigate('/onboarding', { replace: true });
       }, 1000);
@@ -103,8 +103,8 @@ const Register = () => {
     
     try {
       await registerUser(email, password, username);
-      setIsRedirecting(true);
-      // A redireção para onboarding será feita pelo useEffect acima quando isAuthenticated mudar
+      // Após registro bem-sucedido, redirecionar para página de confirmação de email
+      navigate('/auth/confirm-email', { replace: true });
     } catch (err: any) {
       setError(err.message || 'Falha no registro. Por favor tente novamente.');
       console.error(err);
