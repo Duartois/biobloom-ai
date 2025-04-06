@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { toast } from "sonner";
@@ -89,16 +88,6 @@ export const useAuthState = () => {
           trialEndDate: userData.teste_expira_em ? new Date(userData.teste_expira_em) : undefined,
         };
 
-        setUser(userProfile);
-        
-        // Check if trial has expired
-        if (userProfile.plan === 'trial' && !isTrialActive(userProfile)) {
-          // Trial expired, downgrade to free
-          await updateUserPlanInDb(userId, 'free');
-          userProfile.plan = 'free';
-          toast.info("Seu período de teste gratuito expirou. Seu plano foi alterado para gratuito.");
-        }
-
         // Verificar se o usuário precisa passar pelo onboarding
         const { data: profileData } = await supabase
           .from('profiles')
@@ -114,6 +103,18 @@ export const useAuthState = () => {
            
         setNeedsOnboarding(requiresOnboarding);
         console.log('Needs onboarding?', requiresOnboarding, profileData);
+        
+        // Set the needsOnboarding property on the user profile
+        userProfile.needsOnboarding = requiresOnboarding;
+        setUser(userProfile);
+        
+        // Check if trial has expired
+        if (userProfile.plan === 'trial' && !isTrialActive(userProfile)) {
+          // Trial expired, downgrade to free
+          await updateUserPlanInDb(userId, 'free');
+          userProfile.plan = 'free';
+          toast.info("Seu período de teste gratuito expirou. Seu plano foi alterado para gratuito.");
+        }
       } else {
         // Usuário não encontrado na tabela users
         await createUserRecord();
