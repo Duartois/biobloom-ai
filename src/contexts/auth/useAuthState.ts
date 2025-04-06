@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { toast } from "sonner";
@@ -97,9 +98,9 @@ export const useAuthState = () => {
 
         // Considerar que precisa de onboarding se não tiver bio ou plano de fundo definidos
         const requiresOnboarding = !profileData || 
-          (!profileData.bio || 
-           (!profileData.imagem_fundo && profileData.background_type === 'image') ||
-           (!profileData.cor_fundo && profileData.background_type === 'color'));
+          !profileData.bio || 
+          !profileData.background_type ||
+          !profileData.cor_fundo;
            
         setNeedsOnboarding(requiresOnboarding);
         console.log('Needs onboarding?', requiresOnboarding, profileData);

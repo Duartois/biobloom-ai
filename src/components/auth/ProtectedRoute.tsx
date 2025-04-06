@@ -1,16 +1,32 @@
 
 import React, { useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requireOnboarding?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requireOnboarding = false 
+}) => {
+  const { isAuthenticated, loading, needsOnboarding } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // If authenticated and needs onboarding, redirect to onboarding
+    // But only if not already on the onboarding page
+    if (isAuthenticated && 
+        needsOnboarding && 
+        !loading && 
+        location.pathname !== '/onboarding') {
+      navigate('/onboarding', { replace: true });
+    }
+  }, [isAuthenticated, needsOnboarding, loading, navigate, location]);
 
   // Show loading state while checking authentication
   if (loading) {
