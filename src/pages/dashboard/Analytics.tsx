@@ -1,15 +1,13 @@
-
 import React, { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth/AuthContext";
 import { LineChart, BarChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Calendar, ArrowUpRight, Users, MousePointerClick, Clock, BarChart3, Link, LinkIcon, Download, Lock } from 'lucide-react';
 
-// Dados simulados para os gráficos
 const mockData = {
   visits: [
     { name: 'Seg', visits: 240 },

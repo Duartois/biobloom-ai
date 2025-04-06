@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { toast } from "sonner";
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -7,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/contexts/auth/AuthContext';
 import { Sparkles, Image as ImageIcon, Palette, Download } from 'lucide-react';
 import { useLinks } from '@/contexts/LinksContext';
 

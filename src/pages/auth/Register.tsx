@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import MainLayout from "@/components/layout/MainLayout";
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { RegistrationForm } from './components/RegistrationForm';
 import { LoadingBanner } from './components/LoadingBanner';

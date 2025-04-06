@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useLinks, Link as LinkType } from '@/contexts/LinksContext';
 import { Link, PlusCircle, Pencil, Trash2, MoveUp, MoveDown, GripVertical } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/AuthContext';
 
 const LinksManager = () => {
   const { user } = useAuth();
@@ -34,7 +33,6 @@ const LinksManager = () => {
     style: 'default',
   });
 
-  // Check if the user has reached their link limit based on plan
   const isLinkLimitReached = () => {
     if (!user) return true;
     
@@ -91,14 +89,12 @@ const LinksManager = () => {
     e.preventDefault();
     
     if (currentLink) {
-      // Edit mode
       await updateLink(currentLink.id, {
         title: formData.title,
         url: formData.url,
         style: formData.style as LinkType['style'],
       });
     } else {
-      // Add mode
       await addLink({
         title: formData.title,
         url: formData.url,
@@ -115,7 +111,6 @@ const LinksManager = () => {
     }
   };
 
-  // Function to ensure URL has a protocol
   const ensureProtocol = (url: string) => {
     if (!url) return '';
     return url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
@@ -188,7 +183,6 @@ const LinksManager = () => {
         </CardContent>
       </Card>
       
-      {/* Add/Edit Link Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
