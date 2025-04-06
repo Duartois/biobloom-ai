@@ -1,12 +1,7 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, ArrowRight, Loader2, Image, Palette } from 'lucide-react';
+import { Sparkles, ArrowRight, Loader2 } from 'lucide-react';
 import MainLayout from "@/components/layout/MainLayout";
 import { useAuth } from '@/contexts/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
@@ -59,7 +54,7 @@ const Onboarding = () => {
           bio: profile.bio,
           backgroundImage: selectedImage,
           background_type: backgroundType,
-          cor_fundo: selectedColor || undefined, // This line causes the error
+          themeColor: selectedColor || undefined, // Changed from cor_fundo to themeColor to match ProfileData
           opacity,
           grayscale,
         });

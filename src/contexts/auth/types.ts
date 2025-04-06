@@ -12,4 +12,5 @@ export type UserProfile = {
   createdAt: Date;
   trialStartDate?: Date;
   trialEndDate?: Date;
+  backgroundColor?: string; // Added this field to match with the property used in the code
 };
