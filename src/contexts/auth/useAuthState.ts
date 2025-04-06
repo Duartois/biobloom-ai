@@ -102,13 +102,18 @@ export const useAuthState = () => {
         // Verificar se o usuário precisa passar pelo onboarding
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('bio, imagem_fundo, background_type')
+          .select('bio, imagem_fundo, background_type, cor_fundo')
           .eq('user_id', userId)
           .maybeSingle();
 
-        // Considerar que precisa de onboarding se não tiver bio ou imagem de fundo definidos
-        const requiresOnboarding = !profileData || (!profileData.bio && !profileData.imagem_fundo);
+        // Considerar que precisa de onboarding se não tiver bio ou plano de fundo definidos
+        const requiresOnboarding = !profileData || 
+          (!profileData.bio || 
+           (!profileData.imagem_fundo && profileData.background_type === 'image') ||
+           (!profileData.cor_fundo && profileData.background_type === 'color'));
+           
         setNeedsOnboarding(requiresOnboarding);
+        console.log('Needs onboarding?', requiresOnboarding, profileData);
       } else {
         // Usuário não encontrado na tabela users
         await createUserRecord();

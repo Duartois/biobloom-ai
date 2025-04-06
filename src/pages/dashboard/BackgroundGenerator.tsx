@@ -8,8 +8,10 @@ import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
 import { BackgroundSelector } from '@/components/backgrounds/BackgroundSelector';
 import { AiBackgroundSuggestor } from '@/components/backgrounds/AiBackgroundSuggestor';
+import BioPagePreview from '@/components/profile/BioPagePreview';
 
 const BackgroundGenerator = () => {
+  const { user } = useAuth();
   const { profile, updateProfile } = useLinks();
   const [backgroundType, setBackgroundType] = useState<'image' | 'color'>(
     profile.background_type === 'image' ? 'image' : 'color'
@@ -27,6 +29,7 @@ const BackgroundGenerator = () => {
     profile.grayscale || false
   );
   const [isSaving, setIsSaving] = useState(false);
+  const isPaidUser = user?.plan === 'starter' || user?.plan === 'pro' || user?.plan === 'premium';
 
   const handleApplyBackground = async () => {
     if (!selectedImage && !selectedColor) {
@@ -62,6 +65,16 @@ const BackgroundGenerator = () => {
     setBackgroundType('color');
     setSelectedColor(color);
     setSelectedImage(null);
+  };
+
+  // Create a modified profile for the preview
+  const previewProfile = {
+    ...profile,
+    background_type: backgroundType,
+    backgroundImage: selectedImage,
+    themeColor: selectedColor,
+    opacity,
+    grayscale
   };
 
   return (
@@ -104,34 +117,20 @@ const BackgroundGenerator = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center py-4">
-                <div className="w-40 h-[320px] overflow-hidden rounded-xl relative">
-                  {/* Background */}
-                  <div className="absolute inset-0 w-full h-full">
-                    {backgroundType === 'image' && selectedImage ? (
-                      <img 
-                        src={selectedImage} 
-                        alt="Background"
-                        className={`w-full h-full object-cover ${grayscale ? 'grayscale' : ''}`}
-                        style={{ opacity }}
-                      />
-                    ) : (
-                      <div 
-                        className={`w-full h-full ${grayscale ? 'grayscale' : ''}`}
-                        style={{ 
-                          backgroundColor: selectedColor || '#893bf2', 
-                          opacity 
-                        }}
-                      ></div>
-                    )}
-                  </div>
-                </div>
+                <BioPagePreview 
+                  profile={previewProfile}
+                  username={user?.username}
+                  compact
+                />
               </CardContent>
             </Card>
             
-            <AiBackgroundSuggestor
-              onSelectBackground={handleSelectAiBackground}
-              onSelectColor={handleSelectAiColor}
-            />
+            {isPaidUser && (
+              <AiBackgroundSuggestor
+                onSelectBackground={handleSelectAiBackground}
+                onSelectColor={handleSelectAiColor}
+              />
+            )}
             
             <Button 
               onClick={handleApplyBackground} 

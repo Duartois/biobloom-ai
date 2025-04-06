@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -18,10 +17,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
-import { Laptop, Save, Eye } from 'lucide-react';
+import { Save, Eye, Crown, Lock } from 'lucide-react';
 import { BackgroundSelector } from '@/components/backgrounds/BackgroundSelector';
 import { AiBackgroundSuggestor } from '@/components/backgrounds/AiBackgroundSuggestor';
 import { toast } from 'sonner';
+import BioPagePreview from '@/components/profile/BioPagePreview';
 
 const BioPageEditor = () => {
   const { user } = useAuth();
@@ -40,6 +40,7 @@ const BioPageEditor = () => {
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const isPaidUser = user?.plan === 'starter' || user?.plan === 'pro' || user?.plan === 'premium';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -102,19 +103,17 @@ const BioPageEditor = () => {
     }
   };
 
-  // Get styles for the preview based on theme selection
-  const getPreviewStyles = () => {
-    switch(formData.theme) {
-      case 'minimal':
-        return 'border border-gray-200 dark:border-gray-800';
-      case 'neobrutal':
-        return 'neo-card border-2 border-black dark:border-white';
-      case 'glass':
-        return 'glass-card';
-      case 'default':
-      default:
-        return 'bg-white dark:bg-black shadow-lg';
-    }
+  // Create a modified profile for the preview
+  const previewProfile = {
+    ...profile,
+    name: formData.name,
+    bio: formData.bio,
+    theme: formData.theme,
+    themeColor: formData.themeColor,
+    background_type: formData.background_type,
+    backgroundImage: formData.backgroundImage,
+    opacity: formData.opacity,
+    grayscale: formData.grayscale,
   };
 
   return (
@@ -239,79 +238,52 @@ const BioPageEditor = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center text-base font-medium">
-                <Laptop className="mr-2 h-4 w-4" />
+              <CardTitle className="text-base font-medium">
                 Pré-visualização
               </CardTitle>
             </CardHeader>
             <CardContent className="flex justify-center pt-0">
-              <div className="w-56 h-[460px] overflow-hidden rounded-xl relative">
-                {/* Background */}
-                <div className="absolute inset-0 w-full h-full">
-                  {formData.background_type === 'image' && formData.backgroundImage ? (
-                    <img 
-                      src={formData.backgroundImage} 
-                      alt="Background"
-                      className={`w-full h-full object-cover ${formData.grayscale ? 'grayscale' : ''}`}
-                      style={{ opacity: formData.opacity }}
-                    />
-                  ) : (
-                    <div 
-                      className={`w-full h-full ${formData.grayscale ? 'grayscale' : ''}`}
-                      style={{ 
-                        backgroundColor: formData.themeColor, 
-                        opacity: formData.opacity 
-                      }}
-                    ></div>
-                  )}
-                  <div className="absolute inset-0 bg-black bg-opacity-30"></div>
-                </div>
-                
-                {/* Content */}
-                <div className="absolute inset-0 flex flex-col items-center p-4">
-                  {/* Avatar */}
-                  <div className="w-20 h-20 rounded-full bg-white border-2 border-white mt-6 mb-3"></div>
-                  
-                  {/* Name & Bio */}
-                  <h3 className="text-lg font-bold text-white mb-1">{formData.name || 'Seu Nome'}</h3>
-                  <p className="text-xs text-white/80 mb-6 text-center">{formData.bio || 'Sua descrição aparecerá aqui'}</p>
-                  
-                  {/* Links */}
-                  <div className="w-full space-y-2">
-                    {profile.links.slice(0, 4).map((link, index) => (
-                      <div 
-                        key={index} 
-                        className={`link-card ${getPreviewStyles()}`}
-                        style={{
-                          backgroundColor: link.style === 'default' ? formData.themeColor : 'transparent',
-                          borderColor: link.style === 'outline' ? formData.themeColor : 'transparent',
-                        }}
-                      >
-                        <span className="text-sm">{link.title}</span>
-                      </div>
-                    ))}
-                    
-                    {profile.links.length === 0 && (
-                      <>
-                        <div className={`link-card ${getPreviewStyles()}`}>
-                          <span className="text-sm">Seu Primeiro Link</span>
-                        </div>
-                        <div className={`link-card ${getPreviewStyles()}`}>
-                          <span className="text-sm">Segundo Link</span>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <BioPagePreview 
+                profile={previewProfile} 
+                username={user?.username}
+              />
             </CardContent>
           </Card>
           
-          {/* AI Background Suggestions Component */}
-          <AiBackgroundSuggestor 
-            onSelectBackground={handleBackgroundSelection}
-            onSelectColor={handleColorSelection}
-          />
+          {/* AI Background Suggestions Component - Only for paid plans */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-medium flex items-center">
+                <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                Sugestões de plano de fundo com IA
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isPaidUser ? (
+                <AiBackgroundSuggestor 
+                  onSelectBackground={handleBackgroundSelection}
+                  onSelectColor={handleColorSelection}
+                />
+              ) : (
+                <div className="relative rounded-lg p-4 border border-dashed">
+                  <div className="backdrop-blur-sm bg-black/5 absolute inset-0 rounded-lg flex items-center justify-center flex-col">
+                    <Lock className="h-6 w-6 text-muted-foreground mb-2" />
+                    <p className="text-sm text-center text-muted-foreground mb-2">
+                      Recurso exclusivo para planos pagos
+                    </p>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link to="/pricing">
+                        Fazer upgrade
+                      </Link>
+                    </Button>
+                  </div>
+                  <div className="h-24 flex items-center justify-center opacity-30">
+                    Obtenha sugestões de plano de fundo personalizadas com IA
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </DashboardLayout>

@@ -79,7 +79,7 @@ const PublicProfile = () => {
   if (error || !profile) {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center p-4 text-center">
-        <h1 className="text-2xl font-bold mb-4">Profile Not Found</h1>
+        <h1 className="text-2xl font-bold mb-4">Perfil não encontrado</h1>
         <p className="text-muted-foreground mb-6">
           O perfil que você está procurando não existe ou foi removido.
         </p>
@@ -112,7 +112,7 @@ const PublicProfile = () => {
             }}
           ></div>
         )}
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
       </div>
       
       {/* Content */}
@@ -138,7 +138,7 @@ const PublicProfile = () => {
           <p className="text-white/90 text-center mb-6 max-w-xs">{profile.bio}</p>
         )}
         
-        {/* Social Links - TO BE IMPLEMENTED */}
+        {/* Social Links */}
         {profile.socialLinks && (
           <div className="flex space-x-3 mb-6">
             {profile.socialLinks.instagram && (
@@ -210,7 +210,7 @@ const PublicProfile = () => {
             href="/"
             className="text-white/70 text-xs hover:text-white transition-colors"
           >
-            Created with BioBloom
+            Criado com BioBloom
           </a>
         </div>
       </div>

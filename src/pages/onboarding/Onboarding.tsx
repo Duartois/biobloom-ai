@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, Loader2 } from 'lucide-react';
@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
 import { ProfileForm } from './components/ProfileForm';
 import { BackgroundSelector } from '@/components/backgrounds/BackgroundSelector';
+import BioPagePreview from '@/components/profile/BioPagePreview';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const Onboarding = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [backgroundType, setBackgroundType] = useState<'image' | 'color'>('image');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>('#893bf2');
   const [opacity, setOpacity] = useState<number>(1);
   const [grayscale, setGrayscale] = useState<boolean>(false);
   
@@ -28,6 +29,14 @@ const Onboarding = () => {
     bio: '',
     interests: '',
   });
+
+  // Check if user already completed onboarding and redirect if needed
+  useEffect(() => {
+    // If user is already logged in and has completed onboarding
+    if (user && !isLoading && user.name && !user.needsOnboarding) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate, isLoading]);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -67,6 +76,18 @@ const Onboarding = () => {
         setIsLoading(false);
       }
     }
+  };
+
+  // Create a preview profile for the bio page preview
+  const previewProfile = {
+    name: profile.name,
+    bio: profile.bio,
+    background_type: backgroundType,
+    backgroundImage: selectedImage,
+    themeColor: selectedColor,
+    opacity,
+    grayscale,
+    links: [], // Empty links for new users
   };
 
   return (
@@ -110,18 +131,30 @@ const Onboarding = () => {
 
           {/* Step 2: Background selection */}
           {step === 2 && (
-            <BackgroundSelector
-              backgroundType={backgroundType}
-              setBackgroundType={setBackgroundType}
-              selectedImage={selectedImage}
-              setSelectedImage={setSelectedImage}
-              selectedColor={selectedColor}
-              setSelectedColor={setSelectedColor}
-              opacity={opacity}
-              setOpacity={setOpacity}
-              grayscale={grayscale}
-              setGrayscale={setGrayscale}
-            />
+            <div className="grid md:grid-cols-5 gap-6">
+              <div className="md:col-span-3">
+                <BackgroundSelector
+                  backgroundType={backgroundType}
+                  setBackgroundType={setBackgroundType}
+                  selectedImage={selectedImage}
+                  setSelectedImage={setSelectedImage}
+                  selectedColor={selectedColor}
+                  setSelectedColor={setSelectedColor}
+                  opacity={opacity}
+                  setOpacity={setOpacity}
+                  grayscale={grayscale}
+                  setGrayscale={setGrayscale}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <div className="sticky top-4">
+                  <h3 className="font-medium mb-3 text-center">Pré-visualização</h3>
+                  <div className="flex justify-center">
+                    <BioPagePreview profile={previewProfile} />
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           {/* Navigation buttons */}

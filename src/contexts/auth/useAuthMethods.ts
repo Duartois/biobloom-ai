@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,7 +27,7 @@ export const useAuthMethods = (user: UserProfile | null) => {
           .maybeSingle();
           
         if (userError || !userData || !userData.email) {
-          throw new Error("Usuário não encontrado. Verifique seu username.");
+          throw new Error("Usuário não encontrado. Verifique seu nome de usuário.");
         }
         
         emailToUse = userData.email;
@@ -40,6 +39,10 @@ export const useAuthMethods = (user: UserProfile | null) => {
       });
 
       if (error) {
+        // Personalizar a mensagem de erro
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error("Senha incorreta. Por favor, tente novamente.");
+        }
         throw error;
       }
 

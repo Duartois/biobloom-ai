@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { Image as ImageIcon, Palette } from 'lucide-react';
 import { HexColorPicker } from 'react-colorful';
 
@@ -67,8 +67,6 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
   setGrayscale,
   className = '',
 }) => {
-  const [showColorPicker, setShowColorPicker] = useState(false);
-
   return (
     <div className={`space-y-6 ${className}`}>
       <Tabs defaultValue={backgroundType} onValueChange={(value) => setBackgroundType(value as 'image' | 'color')}>
@@ -175,14 +173,27 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
             ))}
           </div>
           
-          <div className="pt-4 border-t mt-4">
-            <h4 className="font-medium mb-3">Ou decida você mesmo!</h4>
-            <div className="flex flex-col md:flex-row gap-4 items-start">
-              <div className="w-full md:w-1/2">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Label htmlFor="customColor">Código hexadecimal:</Label>
+          <div className="pt-6 mt-6 border-t">
+            <h4 className="font-medium mb-4 text-center">Ou decida você mesmo!</h4>
+            
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative w-full max-w-xs mx-auto">
+                <HexColorPicker 
+                  color={selectedColor || '#893bf2'} 
+                  onChange={(color) => {
+                    setSelectedColor(color);
+                    setSelectedImage(null);
+                    setBackgroundType('color');
+                  }}
+                  className="w-full"
+                />
+                
+                <div className="mt-4 flex items-center gap-2">
+                  <div className="w-10 h-10 rounded-md border border-gray-200" 
+                    style={{ backgroundColor: selectedColor || '#893bf2' }}>
+                  </div>
+                  
                   <Input
-                    id="customColor"
                     type="text"
                     placeholder="#RRGGBB"
                     value={selectedColor || ''}
@@ -191,36 +202,10 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                       setSelectedImage(null);
                       setBackgroundType('color');
                     }}
-                    className="w-32"
+                    className="flex-grow font-mono text-center"
                   />
-                  {selectedColor && (
-                    <div 
-                      className="w-6 h-6 rounded-full border" 
-                      style={{ backgroundColor: selectedColor }}
-                    ></div>
-                  )}
                 </div>
-                <button 
-                  onClick={() => setShowColorPicker(!showColorPicker)} 
-                  className="text-sm text-primary underline mt-1"
-                >
-                  {showColorPicker ? 'Fechar seletor' : 'Abrir seletor de cores'}
-                </button>
               </div>
-              
-              {showColorPicker && (
-                <div className="w-full md:w-1/2">
-                  <HexColorPicker 
-                    color={selectedColor || '#893bf2'} 
-                    onChange={(color) => {
-                      setSelectedColor(color);
-                      setSelectedImage(null);
-                      setBackgroundType('color');
-                    }}
-                    className="w-full max-w-[240px]"
-                  />
-                </div>
-              )}
             </div>
           </div>
         </TabsContent>
