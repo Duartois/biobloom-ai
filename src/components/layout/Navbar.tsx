@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/auth/AuthContext"; // Updated import path
 import { Menu, X, UserCircle, LogOut, Settings, HelpCircle, ChevronDown } from 'lucide-react';
 import Logo from "@/components/assets/BioBloom.svg"
 import {
