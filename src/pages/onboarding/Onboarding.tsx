@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight, Loader2 } from 'lucide-react';
 import MainLayout from "@/components/layout/MainLayout";
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/auth/AuthContext'; // Changed from '@/contexts/AuthContext' to '@/contexts/auth/AuthContext'
 import { useLinks } from '@/contexts/LinksContext';
 import { BackgroundSelector } from './components/BackgroundSelector';
 import { ProfileForm } from './components/ProfileForm';

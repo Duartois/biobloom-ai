@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from './auth/AuthContext'; // Changed from './AuthContext' to './auth/AuthContext'
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
