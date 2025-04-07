@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
-import { Image as ImageIcon, Palette } from 'lucide-react';
+import { Image as ImageIcon, Palette, Check } from 'lucide-react';
 import { HexColorPicker } from 'react-colorful';
 
 // Background image suggestions - same 20 images used across all pages
@@ -94,7 +94,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                 key={image.id}
                 className={`relative aspect-video rounded-md overflow-hidden cursor-pointer border-2 transition-all ${
                   selectedImage === image.url 
-                    ? 'border-biobloom-600 ring-2 ring-biobloom-300' 
+                    ? 'border-blue-800 ring-2 ring-blue-400' 
                     : 'border-transparent hover:border-muted'
                 }`}
                 onClick={() => {
@@ -113,10 +113,8 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                   loading="lazy"
                 />
                 {selectedImage === image.url && (
-                  <div className="absolute top-2 right-2 bg-biobloom-600 text-white rounded-full p-1 shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
+                  <div className="absolute top-2 right-2 bg-blue-800 text-white rounded-full p-1 shadow-sm">
+                    <Check className="h-4 w-4" />
                   </div>
                 )}
               </div>
@@ -144,7 +142,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                 key={index}
                 className={`aspect-square rounded-md overflow-hidden cursor-pointer border-2 transition-all ${
                   selectedColor === color 
-                    ? 'border-biobloom-600 ring-2 ring-biobloom-300' 
+                    ? 'border-blue-800 ring-2 ring-blue-400' 
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
                 style={{ backgroundColor: color }}
@@ -156,19 +154,10 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
               >
                 {selectedColor === color && (
                   <div className="flex items-center justify-center h-full">
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      width="24" 
-                      height="24" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
+                    <Check 
+                      className="h-5 w-5"
                       stroke={parseInt(color.slice(1), 16) > 0xffffff / 2 ? 'black' : 'white'} 
-                      strokeWidth="2" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                    >
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
+                    />
                   </div>
                 )}
               </div>
@@ -181,7 +170,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
             <div className="flex flex-col items-center gap-4">
               <div className="relative w-full max-w-xs mx-auto">
                 <HexColorPicker 
-                  color={selectedColor || '#893bf2'} 
+                  color={selectedColor || '#0f172a'} 
                   onChange={(color) => {
                     setSelectedColor(color);
                     setSelectedImage(null);
@@ -192,7 +181,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                 
                 <div className="mt-4 flex items-center gap-2">
                   <div className="w-10 h-10 rounded-md border border-gray-200" 
-                    style={{ backgroundColor: selectedColor || '#893bf2' }}>
+                    style={{ backgroundColor: selectedColor || '#0f172a' }}>
                   </div>
                   
                   <Input
@@ -238,7 +227,7 @@ const ImageOptions = ({ opacity, setOpacity, grayscale, setGrayscale }: ImageOpt
         step="0.05"
         value={opacity}
         onChange={(e) => setOpacity(parseFloat(e.target.value))}
-        className="w-full"
+        className="w-full accent-blue-800"
       />
     </div>
     
@@ -248,7 +237,7 @@ const ImageOptions = ({ opacity, setOpacity, grayscale, setGrayscale }: ImageOpt
         id="grayscale"
         checked={grayscale}
         onChange={(e) => setGrayscale(e.target.checked)}
-        className="rounded border-gray-300"
+        className="rounded border-gray-300 accent-blue-800"
       />
       <Label htmlFor="grayscale">Preto e branco</Label>
     </div>

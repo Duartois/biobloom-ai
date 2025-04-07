@@ -99,8 +99,7 @@ export const useAuthState = () => {
         // Considerar que precisa de onboarding se não tiver bio ou plano de fundo definidos
         const requiresOnboarding = !profileData || 
           !profileData.bio || 
-          !profileData.background_type ||
-          !profileData.cor_fundo;
+          (!profileData.background_type && !profileData.cor_fundo);
            
         setNeedsOnboarding(requiresOnboarding);
         console.log('Needs onboarding?', requiresOnboarding, profileData);

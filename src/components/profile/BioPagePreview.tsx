@@ -39,6 +39,8 @@ const BioPagePreview: React.FC<BioPagePreviewProps> = ({
     return url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
   };
 
+  // Use a default light gray color if no theme color is set
+  const defaultBackgroundColor = '#F8F9FA';
   const containerClasses = compact 
     ? "w-full h-full max-w-full" 
     : "w-[280px] h-[560px] border rounded-3xl shadow-lg";
@@ -58,7 +60,7 @@ const BioPagePreview: React.FC<BioPagePreviewProps> = ({
           <div 
             className={`w-full h-full ${profile.grayscale ? 'grayscale' : ''}`}
             style={{ 
-              backgroundColor: profile.themeColor || '#FFFFFF',
+              backgroundColor: profile.themeColor || defaultBackgroundColor,
               opacity: profile.opacity
             }}
           ></div>

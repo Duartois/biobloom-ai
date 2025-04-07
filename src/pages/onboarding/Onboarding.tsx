@@ -6,8 +6,9 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
 import { ProfileForm, ProfileFormData } from './components/ProfileForm';
-import { BackgroundSelector, BackgroundData } from './components/BackgroundSelector';
+import { BackgroundData } from './components/BackgroundSelector';
 import BioPagePreview from '@/components/profile/BioPagePreview';
+import { BackgroundSelector } from '@/components/backgrounds/BackgroundSelector';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const Onboarding = () => {
     bio: profile.bio || '',
     backgroundType: profile.background_type || 'color',
     backgroundImage: profile.backgroundImage || '',
-    backgroundColor: profile.themeColor || '#FFFFFF',
+    backgroundColor: profile.themeColor || '#F8F9FA',
     opacity: profile.opacity || 1.0,
     grayscale: profile.grayscale || false,
   });
@@ -30,11 +31,6 @@ const Onboarding = () => {
   const handleProfileFormSubmit = async (data: ProfileFormData) => {
     setFormData(prev => ({ ...prev, ...data }));
     setCurrentStep(2);
-  };
-
-  const handleBackgroundSubmit = async (data: BackgroundData) => {
-    setFormData(prev => ({ ...prev, ...data }));
-    handleCompleteOnboarding();
   };
 
   const handleCompleteOnboarding = async () => {
@@ -72,11 +68,15 @@ const Onboarding = () => {
     grayscale: formData.grayscale,
   };
 
+  const handleBackgroundChange = (data: BackgroundData) => {
+    setFormData(prev => ({ ...prev, ...data }));
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col">
       <main className="flex-1 max-w-screen-xl mx-auto w-full px-4 py-8">
         <header className="mb-8 text-center">
-          <h1 className="text-2xl md:text-3xl font-bold">Vamos configurar seu perfil</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Vamos configurar seu perfil</h1>
           <p className="text-muted-foreground mt-2">
             Personalize sua Bio-page para compartilhar seus links
           </p>
@@ -94,23 +94,83 @@ const Onboarding = () => {
                     onSubmit={handleProfileFormSubmit}
                   />
                 ) : (
-                  <BackgroundSelector
-                    backgroundType={formData.backgroundType as 'image' | 'color'}
-                    backgroundImage={formData.backgroundImage}
-                    backgroundColor={formData.backgroundColor}
-                    opacity={formData.opacity}
-                    grayscale={formData.grayscale}
-                    onSubmit={handleBackgroundSubmit}
-                    onBack={() => setCurrentStep(1)}
-                    isSubmitting={isSubmitting}
-                  />
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center text-sm text-muted-foreground">
+                        <span>Passo 2 de 2</span>
+                        <span>100% completo</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div className="bg-blue-800 h-2.5 rounded-full" style={{ width: '100%' }}></div>
+                      </div>
+                    </div>
+
+                    <BackgroundSelector
+                      backgroundType={formData.backgroundType as 'image' | 'color'}
+                      setBackgroundType={(type) => setFormData(prev => ({ ...prev, backgroundType: type }))}
+                      selectedImage={formData.backgroundImage}
+                      setSelectedImage={(url) => {
+                        if (url) setFormData(prev => ({ 
+                          ...prev, 
+                          backgroundImage: url, 
+                          backgroundType: 'image'
+                        }));
+                      }}
+                      selectedColor={formData.backgroundColor}
+                      setSelectedColor={(color) => {
+                        if (color) setFormData(prev => ({ 
+                          ...prev, 
+                          backgroundColor: color,
+                          backgroundType: 'color'
+                        }));
+                      }}
+                      opacity={formData.opacity}
+                      setOpacity={(value) => setFormData(prev => ({ ...prev, opacity: value }))}
+                      grayscale={formData.grayscale}
+                      setGrayscale={(value) => setFormData(prev => ({ ...prev, grayscale: value }))}
+                    />
+
+                    <div className="flex items-center justify-between pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep(1)}
+                        className="flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium transition-colors hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Voltar
+                      </button>
+                      
+                      <button 
+                        type="button"
+                        onClick={handleCompleteOnboarding}
+                        disabled={isSubmitting}
+                        className="bg-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                            Configurando...
+                          </>
+                        ) : (
+                          <>
+                            Concluir
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
                 )}
               </CardContent>
             </Card>
           </div>
           
           <div className="hidden md:flex flex-col space-y-4">
-            <div className="text-sm font-medium">Preview</div>
+            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Preview</div>
             <div className="flex justify-center h-full">
               <BioPagePreview 
                 profile={previewProfile}

@@ -31,7 +31,7 @@ const BioPageEditor = () => {
     name: profile.name || user?.name || '',
     bio: profile.bio || '',
     theme: profile.theme || 'default',
-    themeColor: profile.themeColor || '#FFFFFF',
+    themeColor: profile.themeColor || '#F8F9FA',
     background_type: profile.background_type || 'color',
     backgroundImage: profile.backgroundImage || '',
     opacity: profile.opacity !== undefined ? profile.opacity : 1.0,
@@ -131,8 +131,7 @@ const BioPageEditor = () => {
           <Button 
             type="submit"
             form="bio-form"
-            className="bg-black hover:bg-black/90 text-white dark:bg-white dark:text-black dark:hover:bg-white/90"
-            disabled={isSaving}
+            className="bg-blue-800 hover:bg-blue-700 text-white"
           >
             {isSaving ? (
               <>
@@ -168,7 +167,7 @@ const BioPageEditor = () => {
                       value={formData.name}
                       onChange={handleInputChange}
                       placeholder="Seu nome ou nome da marca"
-                      className="focus:ring-2 focus:ring-offset-1 focus:ring-primary/50"
+                      className="focus:ring-2 focus:ring-offset-1 focus:ring-blue-800"
                     />
                     <p className="text-xs text-muted-foreground">
                       Este nome será exibido na sua Bio-page
@@ -184,7 +183,7 @@ const BioPageEditor = () => {
                       onChange={handleInputChange}
                       placeholder="Uma breve descrição sobre você ou sua marca"
                       rows={3}
-                      className="resize-none focus:ring-2 focus:ring-offset-1 focus:ring-primary/50"
+                      className="resize-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-800"
                     />
                     <p className="text-xs text-muted-foreground">
                       Máximo de 160 caracteres
@@ -211,7 +210,7 @@ const BioPageEditor = () => {
                       value={formData.theme}
                       onValueChange={(value) => handleSelectChange('theme', value)}
                     >
-                      <SelectTrigger className="w-full focus:ring-2 focus:ring-offset-1 focus:ring-primary/50">
+                      <SelectTrigger className="w-full focus:ring-2 focus:ring-offset-1 focus:ring-blue-800">
                         <SelectValue placeholder="Selecione um estilo" />
                       </SelectTrigger>
                       <SelectContent>

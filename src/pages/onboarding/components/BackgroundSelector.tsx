@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
@@ -20,14 +19,24 @@ const backgroundImages = [
   { id: 10, url: "https://images.unsplash.com/photo-1553356084-58ef4a67b2a7?q=80&w=500&auto=format&fit=crop" },
   { id: 11, url: "https://images.unsplash.com/photo-1579548122080-c35fd6820ecb?q=80&w=500&auto=format&fit=crop" },
   { id: 12, url: "https://images.unsplash.com/photo-1508614999368-9260051292e5?q=80&w=500&auto=format&fit=crop" },
+  { id: 13, url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=500&auto=format&fit=crop" },
+  { id: 14, url: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=500&auto=format&fit=crop" },
+  { id: 15, url: "https://images.unsplash.com/photo-1518895949257-7621c3c786d7?q=80&w=500&auto=format&fit=crop" },
+  { id: 16, url: "https://images.unsplash.com/photo-1517483000871-1dbf64a6e1c6?q=80&w=500&auto=format&fit=crop" },
+  { id: 17, url: "https://images.unsplash.com/photo-1508615070457-7baeba4003ab?q=80&w=500&auto=format&fit=crop" },
+  { id: 18, url: "https://images.unsplash.com/photo-1579546929662-711aa81148cf?q=80&w=500&auto=format&fit=crop" },
+  { id: 19, url: "https://images.unsplash.com/photo-1567359781514-3b964e2b04d6?q=80&w=500&auto=format&fit=crop" },
+  { id: 20, url: "https://images.unsplash.com/photo-1465101162946-4377e57745c3?q=80&w=500&auto=format&fit=crop" },
 ];
 
 // Palette of solid colors with more neutral tones
 const colorPalette = [
-  "#FFFFFF", "#F5F5F5", "#EEEEEE", "#E0E0E0", "#CCCCCC", 
-  "#AAAAAA", "#888888", "#666666", "#444444", "#222222", 
-  "#F9F9F9", "#F0F0F0", "#EAEAEA", "#D9D9D9", "#BFBFBF", 
-  "#F8F9FA", "#E9ECEF", "#DEE2E6", "#CED4DA", "#ADB5BD",
+  "#F8F9FA", "#E9ECEF", "#DEE2E6", "#CED4DA", "#ADB5BD", 
+  "#6C757D", "#495057", "#343A40", "#212529", "#F8BBD0", 
+  "#F48FB1", "#FF80AB", "#D0F0C0", "#A8E6CF", "#1DE9B6", 
+  "#90CAF9", "#64B5F6", "#42A5F5", "#FFF176", "#FFEE58", 
+  "#FFCA28", "#FFA726", "#FF7043", "#8C9EFF", "#536DFE", 
+  "#7C4DFF", "#E1BEE7", "#CE93D8", "#BA68C8",
 ];
 
 export type BackgroundData = {
@@ -52,7 +61,7 @@ export type BackgroundSelectorProps = {
 export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
   backgroundType = 'color',
   backgroundImage = '',
-  backgroundColor = '#FFFFFF',
+  backgroundColor = '#F8F9FA',
   opacity = 1.0,
   grayscale = false,
   onSubmit,
@@ -134,7 +143,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                   key={index}
                   className={`aspect-square rounded-md overflow-hidden cursor-pointer border-2 transition-all ${
                     formData.backgroundColor === color 
-                      ? 'border-black dark:border-white ring-2 ring-offset-2' 
+                      ? 'border-blue-800 ring-2 ring-blue-400' 
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                   style={{ backgroundColor: color }}
@@ -183,7 +192,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                   key={image.id}
                   className={`relative aspect-video rounded-md overflow-hidden cursor-pointer border-2 transition-all ${
                     formData.backgroundImage === image.url 
-                      ? 'border-black dark:border-white ring-2 ring-offset-2' 
+                      ? 'border-blue-800 ring-2 ring-blue-400' 
                       : 'border-transparent hover:border-gray-200'
                   }`}
                   onClick={() => setSelectedImage(image.url)}
@@ -195,7 +204,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                     loading="lazy"
                   />
                   {formData.backgroundImage === image.url && (
-                    <div className="absolute top-2 right-2 bg-black text-white rounded-full p-1 shadow-sm">
+                    <div className="absolute top-2 right-2 bg-blue-800 text-white rounded-full p-1 shadow-sm">
                       <Check className="h-4 w-4" />
                     </div>
                   )}
@@ -226,7 +235,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
           <Button 
             type="submit"
             disabled={isSubmitting}
-            className="bg-black hover:bg-black/90 text-white dark:bg-white dark:text-black dark:hover:bg-white/90 flex items-center"
+            className="bg-blue-800 hover:bg-blue-700 text-white flex items-center"
           >
             {isSubmitting ? (
               <>
@@ -268,7 +277,7 @@ const ImageOptions = ({ opacity, setOpacity, grayscale, setGrayscale }: ImageOpt
         step="0.05"
         value={opacity}
         onChange={(e) => setOpacity(parseFloat(e.target.value))}
-        className="w-full accent-black dark:accent-white"
+        className="w-full accent-blue-800"
       />
     </div>
     
@@ -278,7 +287,7 @@ const ImageOptions = ({ opacity, setOpacity, grayscale, setGrayscale }: ImageOpt
         id="grayscale"
         checked={grayscale}
         onChange={(e) => setGrayscale(e.target.checked)}
-        className="rounded border-gray-300 accent-black dark:accent-white"
+        className="rounded border-gray-300 accent-blue-800"
       />
       <label htmlFor="grayscale" className="text-sm font-medium">Preto e branco</label>
     </div>

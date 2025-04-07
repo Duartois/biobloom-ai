@@ -71,7 +71,7 @@ const PublicProfile = () => {
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-black dark:text-white" />
+        <Loader2 className="h-12 w-12 animate-spin text-blue-800 dark:text-white" />
       </div>
     );
   }
@@ -83,7 +83,7 @@ const PublicProfile = () => {
         <p className="text-muted-foreground mb-6">
           O perfil que você está procurando não existe ou foi removido.
         </p>
-        <Button asChild className="bg-black hover:bg-black/90 text-white">
+        <Button asChild className="bg-blue-800 hover:bg-blue-700 text-white">
           <Link to="/">
             Voltar para o Início
           </Link>
@@ -92,8 +92,9 @@ const PublicProfile = () => {
     );
   }
 
+  const defaultBackgroundColor = '#F8F9FA';
   const isDarkBg = profile.background_type === 'color' && 
-    parseInt((profile.themeColor || '#FFFFFF').replace('#', ''), 16) < 0xffffff / 2;
+    parseInt((profile.themeColor || defaultBackgroundColor).replace('#', ''), 16) < 0xffffff / 2;
 
   return (
     <div className="flex flex-col min-h-screen relative">
@@ -110,7 +111,7 @@ const PublicProfile = () => {
           <div 
             className={`w-full h-full ${profile.grayscale ? 'grayscale' : ''}`}
             style={{ 
-              backgroundColor: profile.themeColor || '#FFFFFF',
+              backgroundColor: profile.themeColor || defaultBackgroundColor,
               opacity: profile.opacity
             }}
           ></div>
