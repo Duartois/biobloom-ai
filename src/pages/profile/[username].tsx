@@ -1,9 +1,9 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, Link as RouterLink } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useLinks, ProfileData } from '@/contexts/LinksContext';
-import { Instagram, Twitter, Linkedin, Youtube, Loader2 } from 'lucide-react';
+import { Instagram, Twitter, Linkedin, Youtube, Loader2, ExternalLink } from 'lucide-react';
 
 const PublicProfile = () => {
   const { username } = useParams<{ username: string }>();
@@ -43,22 +43,22 @@ const PublicProfile = () => {
 
   // Generate a className for links based on the theme
   const getLinkClassName = (style?: string) => {
-    const baseClasses = "w-full p-3 rounded-lg mb-3 transition-all duration-200";
+    const baseClasses = "w-full p-3.5 rounded-lg mb-3 transition-all text-center flex items-center justify-center";
     
     switch(style || profile?.theme) {
       case 'minimal':
-        return `${baseClasses} bg-white/90 dark:bg-black/80 border border-gray-200 dark:border-gray-800 hover:shadow-md`;
+        return `${baseClasses} bg-white/90 dark:bg-black/80 border border-gray-200 dark:border-gray-700 hover:scale-[1.01] hover:shadow-sm`;
       case 'neobrutal':
-        return `${baseClasses} neo-card border-2 border-black dark:border-white bg-white dark:bg-black hover:-translate-y-1`;
+        return `${baseClasses} border-2 border-black dark:border-white bg-white/90 dark:bg-black/80 hover:-translate-y-1 shadow-[3px_3px_0px_#000000] dark:shadow-[3px_3px_0px_#ffffff]`;
       case 'glass':
-        return `${baseClasses} glass-card hover:bg-white/40 dark:hover:bg-black/40`;
+        return `${baseClasses} backdrop-blur-md bg-white/20 dark:bg-black/20 border border-white/20 dark:border-black/20 hover:bg-white/30 dark:hover:bg-black/30`;
       case 'outline':
         return `${baseClasses} bg-transparent border-2 hover:bg-white/10 dark:hover:bg-black/10`;
       case 'ghost':
         return `${baseClasses} bg-white/10 dark:bg-black/10 hover:bg-white/20 dark:hover:bg-black/20`;
       case 'default':
       default:
-        return `${baseClasses} bg-white/90 dark:bg-black/80 shadow hover:shadow-md`;
+        return `${baseClasses} bg-white/90 dark:bg-black/80 shadow-sm hover:shadow`;
     }
   };
 
@@ -71,7 +71,7 @@ const PublicProfile = () => {
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-biobloom-600" />
+        <Loader2 className="h-12 w-12 animate-spin text-black dark:text-white" />
       </div>
     );
   }
@@ -83,14 +83,17 @@ const PublicProfile = () => {
         <p className="text-muted-foreground mb-6">
           O perfil que você está procurando não existe ou foi removido.
         </p>
-        <Button asChild>
-          <RouterLink to="/">
+        <Button asChild className="bg-black hover:bg-black/90 text-white">
+          <Link to="/">
             Voltar para o Início
-          </RouterLink>
+          </Link>
         </Button>
       </div>
     );
   }
+
+  const isDarkBg = profile.background_type === 'color' && 
+    parseInt((profile.themeColor || '#FFFFFF').replace('#', ''), 16) < 0xffffff / 2;
 
   return (
     <div className="flex flex-col min-h-screen relative">
@@ -107,18 +110,18 @@ const PublicProfile = () => {
           <div 
             className={`w-full h-full ${profile.grayscale ? 'grayscale' : ''}`}
             style={{ 
-              backgroundColor: profile.themeColor || '#893bf2',
+              backgroundColor: profile.themeColor || '#FFFFFF',
               opacity: profile.opacity
             }}
           ></div>
         )}
-        <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30"></div>
       </div>
       
       {/* Content */}
-      <div className="relative z-10 flex-grow flex flex-col items-center px-4 py-8 max-w-md mx-auto w-full">
+      <div className="relative z-10 flex-grow flex flex-col items-center px-4 py-10 max-w-md mx-auto w-full">
         {/* Profile Picture */}
-        <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-2 border-white shadow-lg">
+        <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg">
           {profile.profilePicture ? (
             <img 
               src={profile.profilePicture} 
@@ -126,14 +129,15 @@ const PublicProfile = () => {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-biobloom-600 flex items-center justify-center text-white text-xl font-bold">
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600 text-xl font-bold">
               {profile.name?.[0] || '?'}
             </div>
           )}
         </div>
         
         {/* Profile Info */}
-        <h1 className="text-xl font-bold text-white mb-1">{profile.name}</h1>
+        <h1 className="text-xl font-bold text-white mb-2 text-center">{profile.name}</h1>
+        <div className="w-12 h-1 bg-white/50 rounded-full mb-3"></div>
         {profile.bio && (
           <p className="text-white/90 text-center mb-6 max-w-xs">{profile.bio}</p>
         )}
@@ -185,7 +189,7 @@ const PublicProfile = () => {
         )}
         
         {/* Links */}
-        <div className="w-full max-w-xs space-y-3 mt-2">
+        <div className="w-full max-w-sm space-y-3 mt-2">
           {profile.links.map((link) => (
             <a
               key={link.id}
@@ -194,12 +198,15 @@ const PublicProfile = () => {
               rel="noopener noreferrer"
               className={getLinkClassName(link.style)}
               style={{
-                backgroundColor: link.style === 'default' ? (profile.themeColor || '#893bf2') : undefined,
-                borderColor: link.style === 'outline' ? (profile.themeColor || '#893bf2') : undefined,
-                color: link.style === 'default' ? '#fff' : undefined,
+                backgroundColor: link.style === 'default' ? (profile.themeColor || '#F5F5F5') : undefined,
+                borderColor: link.style === 'outline' ? (profile.themeColor || '#F5F5F5') : undefined,
+                color: link.style === 'default' && 
+                  profile.background_type === 'color' && 
+                  parseInt((profile.themeColor || '#FFFFFF').replace('#', ''), 16) > 0xffffff / 2 ? 
+                  '#000' : '#fff',
               }}
             >
-              <span>{link.title}</span>
+              <span className="font-medium">{link.title}</span>
             </a>
           ))}
         </div>
@@ -208,7 +215,7 @@ const PublicProfile = () => {
         <div className="mt-auto pt-10 text-center">
           <a
             href="/"
-            className="text-white/70 text-xs hover:text-white transition-colors"
+            className="text-white/70 text-xs hover:text-white transition-colors flex items-center justify-center gap-1"
           >
             Criado com BioBloom
           </a>

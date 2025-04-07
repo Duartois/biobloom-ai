@@ -17,11 +17,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
-import { Save, Eye, Crown, Lock } from 'lucide-react';
-import { BackgroundSelector } from '@/components/backgrounds/BackgroundSelector';
-import { AiBackgroundSuggestor } from '@/components/backgrounds/AiBackgroundSuggestor';
+import { Save, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import BioPagePreview from '@/components/profile/BioPagePreview';
+import { BackgroundSelector } from '@/components/backgrounds/BackgroundSelector';
 
 const BioPageEditor = () => {
   const { user } = useAuth();
@@ -32,7 +31,7 @@ const BioPageEditor = () => {
     name: profile.name || user?.name || '',
     bio: profile.bio || '',
     theme: profile.theme || 'default',
-    themeColor: profile.themeColor || '#893bf2',
+    themeColor: profile.themeColor || '#FFFFFF',
     background_type: profile.background_type || 'color',
     backgroundImage: profile.backgroundImage || '',
     opacity: profile.opacity !== undefined ? profile.opacity : 1.0,
@@ -40,7 +39,6 @@ const BioPageEditor = () => {
   });
 
   const [isSaving, setIsSaving] = useState(false);
-  const isPaidUser = user?.plan === 'starter' || user?.plan === 'pro' || user?.plan === 'premium';
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -133,7 +131,7 @@ const BioPageEditor = () => {
           <Button 
             type="submit"
             form="bio-form"
-            className="bg-biobloom-600 hover:bg-biobloom-700"
+            className="bg-black hover:bg-black/90 text-white dark:bg-white dark:text-black dark:hover:bg-white/90"
             disabled={isSaving}
           >
             {isSaving ? (
@@ -161,7 +159,7 @@ const BioPageEditor = () => {
             
             <form id="bio-form" onSubmit={handleSubmit}>
               <TabsContent value="profile" className="p-4 border rounded-md mt-2">
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="name">Nome de Exibição</Label>
                     <Input
@@ -170,7 +168,11 @@ const BioPageEditor = () => {
                       value={formData.name}
                       onChange={handleInputChange}
                       placeholder="Seu nome ou nome da marca"
+                      className="focus:ring-2 focus:ring-offset-1 focus:ring-primary/50"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Este nome será exibido na sua Bio-page
+                    </p>
                   </div>
                   
                   <div className="space-y-2">
@@ -181,8 +183,12 @@ const BioPageEditor = () => {
                       value={formData.bio}
                       onChange={handleInputChange}
                       placeholder="Uma breve descrição sobre você ou sua marca"
-                      rows={4}
+                      rows={3}
+                      className="resize-none focus:ring-2 focus:ring-offset-1 focus:ring-primary/50"
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Máximo de 160 caracteres
+                    </p>
                   </div>
                   
                   <div className="flex items-center justify-between pt-2">
@@ -200,13 +206,13 @@ const BioPageEditor = () => {
               <TabsContent value="appearance" className="p-4 border rounded-md mt-2">
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="theme">Tema da Página</Label>
+                    <Label htmlFor="theme">Estilo dos Links</Label>
                     <Select
                       value={formData.theme}
                       onValueChange={(value) => handleSelectChange('theme', value)}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um tema" />
+                      <SelectTrigger className="w-full focus:ring-2 focus:ring-offset-1 focus:ring-primary/50">
+                        <SelectValue placeholder="Selecione um estilo" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="default">Padrão</SelectItem>
@@ -215,21 +221,31 @@ const BioPageEditor = () => {
                         <SelectItem value="glass">Vidro</SelectItem>
                       </SelectContent>
                     </Select>
+                    <p className="text-xs text-muted-foreground">
+                      Escolha como seus links serão exibidos
+                    </p>
                   </div>
                   
-                  <BackgroundSelector
-                    backgroundType={formData.background_type as 'image' | 'color'}
-                    setBackgroundType={handleBackgroundTypeChange}
-                    selectedImage={formData.backgroundImage}
-                    setSelectedImage={handleBackgroundSelection}
-                    selectedColor={formData.themeColor}
-                    setSelectedColor={handleColorSelection}
-                    opacity={formData.opacity}
-                    setOpacity={handleOpacityChange}
-                    grayscale={formData.grayscale}
-                    setGrayscale={handleGrayscaleChange}
-                    showOpacityOnPreviewOnly={true}
-                  />
+                  <div className="space-y-2">
+                    <h3 className="text-base font-medium">Plano de Fundo</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Personalize o fundo da sua Bio-page
+                    </p>
+                    
+                    <BackgroundSelector
+                      backgroundType={formData.background_type as 'image' | 'color'}
+                      setBackgroundType={handleBackgroundTypeChange}
+                      selectedImage={formData.backgroundImage}
+                      setSelectedImage={handleBackgroundSelection}
+                      selectedColor={formData.themeColor}
+                      setSelectedColor={handleColorSelection}
+                      opacity={formData.opacity}
+                      setOpacity={handleOpacityChange}
+                      grayscale={formData.grayscale}
+                      setGrayscale={handleGrayscaleChange}
+                      showOpacityOnPreviewOnly={true}
+                    />
+                  </div>
                 </div>
               </TabsContent>
             </form>
@@ -243,46 +259,11 @@ const BioPageEditor = () => {
                 Pré-visualização
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex justify-center pt-0">
+            <CardContent className="flex justify-center pt-2">
               <BioPagePreview 
                 profile={previewProfile} 
                 username={user?.username}
               />
-            </CardContent>
-          </Card>
-          
-          {/* AI Background Suggestions Component - Only for paid plans */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-medium flex items-center">
-                <Crown className="mr-2 h-4 w-4 text-amber-500" />
-                Sugestões de plano de fundo com IA
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isPaidUser ? (
-                <AiBackgroundSuggestor 
-                  onSelectBackground={handleBackgroundSelection}
-                  onSelectColor={handleColorSelection}
-                />
-              ) : (
-                <div className="relative rounded-lg p-4 border border-dashed">
-                  <div className="backdrop-blur-sm bg-black/5 absolute inset-0 rounded-lg flex items-center justify-center flex-col">
-                    <Lock className="h-6 w-6 text-muted-foreground mb-2" />
-                    <p className="text-sm text-center text-muted-foreground mb-2">
-                      Recurso exclusivo para planos pagos
-                    </p>
-                    <Button size="sm" variant="outline" asChild>
-                      <Link to="/pricing">
-                        Fazer upgrade
-                      </Link>
-                    </Button>
-                  </div>
-                  <div className="h-24 flex items-center justify-center opacity-30">
-                    Obtenha sugestões de plano de fundo personalizadas com IA
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>

@@ -8,48 +8,56 @@
 
 @layer base {
   :root {
-    --background: 46 33% 96%;   /* #F5EFE7 */
-    --foreground: 210 54% 23%;  /* #213555 */
+    --background: 0 0% 98%;   /* #FAFAFA */
+    --foreground: 240 10% 16%;  /* #24252D */
     --card: 0 0% 100%;         /* #FFFFFF */
-    --card-foreground: 210 54% 23%; /* #213555 */
+    --card-foreground: 240 10% 16%; /* #24252D */
     --popover: 0 0% 100%;      /* #FFFFFF */
-    --popover-foreground: 210 54% 23%; /* #213555 */
-    --primary: 45 100% 50%;     /* #FFAA00 - Amarelo */
-    --primary-foreground: 210 54% 23%; /* #213555 */
-    --secondary: 330 82% 45%;   /* #D11571 - Rosa */
-    --secondary-foreground: 0 0% 100%; /* #FFFFFF */
-    --muted: 45 29% 87%;        /* #F0E9DD */
-    --muted-foreground: 215 32% 36%; /* #3E5879 */
-    --accent: 22 87% 47%;       /* #E25B0E - Laranja */
-    --accent-foreground: 0 0% 100%; /* #FFFFFF */
-    --destructive: 330 82% 45%;
-    --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-    --border: 23 24% 84%;       /* #D8C4B6 */
-    --input: 23 24% 84%;        /* #D8C4B6 */
-    --ring: 45 100% 50%;        /* #FFAA00 */
+    --popover-foreground: 240 10% 16%; /* #24252D */
+    --primary: 240 5.9% 10%;     /* #161618 - Black */
+    --primary-foreground: 0 0% 98%; /* #FAFAFA - White */
+    --secondary: 240 5.2% 33.9%;   /* #53555F - Gray */
+    --secondary-foreground: 0 0% 98%; /* #FAFAFA */
+    --muted: 240 4.8% 95.9%;        /* #F4F4F5 */
+    --muted-foreground: 240 3.8% 46.1%; /* #71727A */
+    --accent: 240 4.8% 95.9%;       /* #F4F4F5 */
+    --accent-foreground: 240 10% 16%; /* #24252D */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%; /* #FAFAFA */
+    --border: 240 5.9% 90%;       /* #E4E4E7 */
+    --input: 240 5.9% 90%;        /* #E4E4E7 */
+    --ring: 240 5.9% 10%;        /* #161618 */
     --radius: 0.75rem;
+
+    --biobloom: 202 82% 47%;      /* #0EA5E9 - Modern blue replacing the purple */
+    --biobloom-light: 202 81% 86%; /* #BAE6FD */
+    --biobloom-dark: 201 96% 32%;  /* #0369A1 */
   }
 
   .dark {
-    --background: 210 54% 23%;  /* #213555 */
-    --foreground: 46 33% 96%;   /* #F5EFE7 */
-    --card: 215 32% 36%;        /* #3E5879 */
-    --card-foreground: 46 33% 96%; /* #F5EFE7 */
-    --popover: 210 54% 23%;     /* #213555 */
-    --popover-foreground: 46 33% 96%; /* #F5EFE7 */
-    --primary: 45 100% 50%;      /* #FFAA00 - Amarelo */
-    --primary-foreground: 210 54% 23%; /* #213555 */
-    --secondary: 330 82% 45%;    /* #D11571 - Rosa */
-    --secondary-foreground: 0 0% 100%; /* #FFFFFF */
-    --muted: 215 32% 30%;       /* #32465C */
-    --muted-foreground: 23 24% 84%; /* #D8C4B6 */
-    --accent: 22 87% 47%;       /* #E25B0E - Laranja */
-    --accent-foreground: 0 0% 100%; /* #FFFFFF */
-    --destructive: 330 82% 45%;
-    --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-    --border: 215 32% 36%;      /* #3E5879 */
-    --input: 215 32% 36%;       /* #3E5879 */
-    --ring: 45 100% 50%;         /* #FFAA00 */
+    --background: 240 10% 4%;  /* #09090B */
+    --foreground: 0 0% 95%;   /* #F2F2F2 */
+    --card: 240 10% 8%;        /* #18181B */
+    --card-foreground: 0 0% 95%; /* #F2F2F2 */
+    --popover: 240 10% 4%;     /* #09090B */
+    --popover-foreground: 0 0% 95%; /* #F2F2F2 */
+    --primary: 0 0% 98%;      /* #FAFAFA - White */
+    --primary-foreground: 240 10% 4%; /* #09090B - Black */
+    --secondary: 240 3.7% 15.9%;    /* #27272A - Light Gray */
+    --secondary-foreground: 0 0% 98%; /* #FAFAFA */
+    --muted: 240 3.7% 15.9%;       /* #27272A */
+    --muted-foreground: 240 5% 64.9%; /* #A1A1AA */
+    --accent: 240 3.7% 15.9%;       /* #27272A */
+    --accent-foreground: 0 0% 98%; /* #FAFAFA */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%; /* #FAFAFA */
+    --border: 240 3.7% 15.9%;      /* #27272A */
+    --input: 240 3.7% 15.9%;       /* #27272A */
+    --ring: 240 4.9% 83.9%;         /* #D4D4D8 */
+
+    --biobloom: 199 89% 48%;      /* #0EA5E9 - Blue in dark mode */
+    --biobloom-light: 201 90% 27%; /* #075985 */
+    --biobloom-dark: 202 80% 91%;  /* #E0F2FE */
   }
 }
 
@@ -67,7 +75,7 @@
 }
 
 .neo-card {
-  @apply border-2 border-black dark:border-white shadow-neobrutal dark:shadow-[4px_4px_0px_#ffffff];
+  @apply border-2 border-black dark:border-white shadow-[3px_3px_0px_#000000] dark:shadow-[3px_3px_0px_#ffffff];
 }
 
 .animated-card {
@@ -90,7 +98,7 @@
 
 .vintage-bg {
   background-color: #f5f8fa;
-  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17.5v-15H2.5v15H10zm17.5-17.5H20v20h7.5V0zm12.5 0h-7.5v20H40V0zM10 0H2.5v2.5H10V0zm0 5H2.5v2.5H10V5zm0 5H2.5v2.5H10V10zm0 5H2.5v2.5H10V15zm17.5-15h-7.5v2.5h7.5V0zm0 5h-7.5v2.5h7.5V5zm0 5h-7.5v2.5h7.5V10zm0 5h-7.5v2.5h7.5V15zM40 0h-7.5v2.5H40V0zm0 5h-7.5v2.5H40V5zm0 5h-7.5v2.5H40V10zm0 5h-7.5v2.5H40V15z' fill='%23FFAA00' fill-opacity='0.15' fill-rule='evenodd'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 17.5v-15H2.5v15H10zm17.5-17.5H20v20h7.5V0zm12.5 0h-7.5v20H40V0zM10 0H2.5v2.5H10V0zm0 5H2.5v2.5H10V5zm0 5H2.5v2.5H10V10zm0 5H2.5v2.5H10V15zm17.5-15h-7.5v2.5h7.5V0zm0 5h-7.5v2.5h7.5V5zm0 5h-7.5v2.5h7.5V10zm0 5h-7.5v2.5h7.5V15zM40 0h-7.5v2.5H40V0zm0 5h-7.5v2.5H40V5zm0 5h-7.5v2.5H40V10zm0 5h-7.5v2.5H40V15z' fill='%23CCCCCC' fill-opacity='0.15' fill-rule='evenodd'/%3E%3C/svg%3E");
 }
 
 /* Add responsive utilities */
@@ -98,4 +106,36 @@
   .container {
     @apply px-4;
   }
+}
+
+/* Scrollbar styles */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Shadow for glass morphism */
+.shadow-glass {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Animation for hover effects */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.hover-float:hover {
+  animation: float 1.5s ease-in-out infinite;
 }
