@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth/AuthContext';
@@ -7,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Laptop, Layout, LinkIcon, Calendar, Settings, 
   PlusSquare, Home, ChevronLeft, ChevronRight, LogOut,
-  ImageIcon, LineChart, Sparkles
+  LineChart, Sparkles
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -31,7 +32,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     { name: 'Dashboard', icon: <Layout className="h-5 w-5" />, path: '/dashboard' },
     { name: 'Minha Bio-page', icon: <Laptop className="h-5 w-5" />, path: '/dashboard/bio' },
     { name: 'Links', icon: <LinkIcon className="h-5 w-5" />, path: '/dashboard/links' },
-    { name: 'Planos de Fundo', icon: <ImageIcon className="h-5 w-5" />, path: '/dashboard/background' },
     { name: 'Agendamento', icon: <Calendar className="h-5 w-5" />, path: '/dashboard/scheduled', 
       badge: user?.plan === 'free' ? 'PRO' : undefined },
     { name: 'Análises', icon: <LineChart className="h-5 w-5" />, path: '/dashboard/analytics', 

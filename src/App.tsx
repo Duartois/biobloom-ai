@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/auth/AuthContext"; // Confirm this is the correct path
+import { AuthProvider } from "./contexts/auth/AuthContext"; 
 import { LinksProvider } from "./contexts/LinksContext";
 
 // Pages
@@ -19,7 +19,6 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import LinksManager from "./pages/dashboard/LinksManager";
 import BioPageEditor from "./pages/dashboard/BioPageEditor";
 import ScheduleContent from "./pages/dashboard/ScheduleContent";
-import BackgroundGenerator from "./pages/dashboard/BackgroundGenerator";
 import Analytics from "./pages/dashboard/Analytics";
 import Settings from "./pages/dashboard/Settings";
 import PublicProfile from "./pages/profile/[username]";
@@ -118,14 +117,6 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <ScheduleContent />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/dashboard/background" 
-                element={
-                  <ProtectedRoute>
-                    <BackgroundGenerator />
                   </ProtectedRoute>
                 } 
               />

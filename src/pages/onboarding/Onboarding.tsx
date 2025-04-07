@@ -1,201 +1,189 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowRight, Loader2 } from 'lucide-react';
-import MainLayout from "@/components/layout/MainLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
 import { ProfileForm } from './components/ProfileForm';
-import { BackgroundSelector } from '@/components/backgrounds/BackgroundSelector';
+import { BackgroundSelector } from './components/BackgroundSelector';
 import BioPagePreview from '@/components/profile/BioPagePreview';
 
 const Onboarding = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { updateProfile } = useLinks();
+  const { profile, updateProfile } = useLinks();
   
-  const [step, setStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [backgroundType, setBackgroundType] = useState<'image' | 'color'>('image');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string | null>('#893bf2');
-  const [opacity, setOpacity] = useState<number>(1);
-  const [grayscale, setGrayscale] = useState<boolean>(false);
-  
-  // Form state
-  const [profile, setProfile] = useState({
-    name: user?.name || '',
-    bio: '',
-    interests: '',
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: profile.name || user?.name || '',
+    username: user?.username || '',
+    bio: profile.bio || '',
+    backgroundType: profile.background_type || 'color',
+    backgroundImage: profile.backgroundImage || '',
+    backgroundColor: profile.themeColor || '#893bf2',
+    opacity: profile.opacity || 1.0,
+    grayscale: profile.grayscale || false,
   });
 
-  // Check if user already completed onboarding and redirect if needed
-  useEffect(() => {
-    // If user is already logged in and has completed onboarding
-    if (user && !isLoading && user.name && !user.needsOnboarding) {
+  const handleProfileFormSubmit = async (data: any) => {
+    setFormData(prev => ({ ...prev, ...data }));
+    setCurrentStep(2);
+  };
+
+  const handleBackgroundSubmit = async (background: any) => {
+    setFormData(prev => ({ ...prev, ...background }));
+    handleCompleteOnboarding();
+  };
+
+  const handleCompleteOnboarding = async () => {
+    setIsSubmitting(true);
+    try {
+      await updateProfile({
+        name: formData.name,
+        bio: formData.bio,
+        background_type: formData.backgroundType,
+        backgroundImage: formData.backgroundType === 'image' ? formData.backgroundImage : undefined,
+        themeColor: formData.backgroundType === 'color' ? formData.backgroundColor : undefined,
+        opacity: formData.opacity,
+        grayscale: formData.grayscale,
+      });
+      toast.success('Perfil configurado com sucesso!');
+      // Redirect immediately to dashboard after successful onboarding
       navigate('/dashboard', { replace: true });
-    }
-  }, [user, navigate, isLoading]);
-
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleNextStep = async () => {
-    if (step === 1) {
-      // In a real app, here we would send profile.interests to an AI service
-      // to get background suggestions based on interests
-      setIsLoading(true);
-      
-      // Simulate API call
-      setTimeout(() => {
-        setIsLoading(false);
-        setStep(2);
-      }, 1000);
-    } else if (step === 2 && (selectedImage || selectedColor)) {
-      // Final step completion - save everything and go to dashboard
-      setIsLoading(true);
-      
-      try {
-        await updateProfile({
-          name: profile.name,
-          bio: profile.bio,
-          backgroundImage: selectedImage,
-          background_type: backgroundType,
-          themeColor: selectedColor || undefined,
-          opacity,
-          grayscale,
-        });
-        
-        navigate('/dashboard');
-      } catch (error) {
-        console.error('Error saving profile:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error('Erro ao configurar perfil. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Create a preview profile for the bio page preview
+  // Create a preview profile for the current step
   const previewProfile = {
-    name: profile.name,
-    bio: profile.bio,
-    background_type: backgroundType,
-    backgroundImage: selectedImage,
-    themeColor: selectedColor,
-    opacity,
-    grayscale,
-    links: [], // Empty links for new users
+    ...profile,
+    name: formData.name,
+    bio: formData.bio,
+    background_type: formData.backgroundType,
+    backgroundImage: formData.backgroundImage,
+    themeColor: formData.backgroundColor,
+    opacity: formData.opacity,
+    grayscale: formData.grayscale,
   };
 
   return (
-    <MainLayout hideFooter>
-      <div className="container max-w-2xl mx-auto px-4 py-12">
-        <div className="flex flex-col space-y-2 text-center mb-8">
-          <div className="flex justify-center">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-biobloom-100 text-biobloom-700 mb-4">
-              <Sparkles className="h-5 w-5" />
-            </div>
-          </div>
-          <h1 className="text-2xl font-bold">Vamos configurar sua página BioBloom</h1>
-          <p className="text-muted-foreground">Ajudaremos você a criar uma página bonita que reflita sua marca</p>
-        </div>
-
-        <div className="bg-background p-6 rounded-lg border shadow-sm">
-          {/* Step indicator */}
-          <div className="flex items-center justify-center mb-8">
-            <div className="flex items-center">
-              <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
-                step >= 1 ? 'border-biobloom-600 bg-biobloom-600 text-white' : 'border-muted'
-              }`}>
-                1
-              </div>
-              <div className={`h-1 w-12 ${step >= 2 ? 'bg-biobloom-600' : 'bg-muted'}`}></div>
-              <div className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
-                step >= 2 ? 'border-biobloom-600 bg-biobloom-600 text-white' : 'border-muted'
-              }`}>
-                2
-              </div>
-            </div>
-          </div>
-
-          {/* Step 1: Basic info */}
-          {step === 1 && (
-            <ProfileForm 
-              profile={profile}
-              onChange={handleProfileChange}
-            />
-          )}
-
-          {/* Step 2: Background selection */}
-          {step === 2 && (
-            <div className="grid md:grid-cols-5 gap-6">
-              <div className="md:col-span-3">
-                <BackgroundSelector
-                  backgroundType={backgroundType}
-                  setBackgroundType={setBackgroundType}
-                  selectedImage={selectedImage}
-                  setSelectedImage={setSelectedImage}
-                  selectedColor={selectedColor}
-                  setSelectedColor={setSelectedColor}
-                  opacity={opacity}
-                  setOpacity={setOpacity}
-                  grayscale={grayscale}
-                  setGrayscale={setGrayscale}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <div className="sticky top-4">
-                  <h3 className="font-medium mb-3 text-center">Pré-visualização</h3>
-                  <div className="flex justify-center">
-                    <BioPagePreview profile={previewProfile} />
+    <div className="flex min-h-screen bg-muted/20">
+      <div className="flex-1 flex flex-col max-w-screen-xl mx-auto px-4 py-8">
+        <header className="mb-8 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold">Bem-vindo ao BioBloom</h1>
+          <p className="text-muted-foreground mt-2">
+            Vamos configurar seu perfil para você começar a usar a plataforma.
+          </p>
+        </header>
+        
+        <div className="grid md:grid-cols-3 gap-6 flex-1">
+          <div className="md:col-span-2">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>
+                      {currentStep === 1 ? 'Informações do Perfil' : 'Plano de Fundo'}
+                    </CardTitle>
+                    <CardDescription>
+                      {currentStep === 1 
+                        ? 'Conte um pouco sobre você ou sua marca'
+                        : 'Escolha a aparência da sua Bio-page'
+                      }
+                    </CardDescription>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Passo {currentStep} de 2
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* Navigation buttons */}
-          <div className="flex justify-end mt-8">
-            {step === 2 && (
-              <Button 
-                variant="outline" 
-                onClick={() => setStep(1)} 
-                className="mr-2"
-                disabled={isLoading}
-              >
-                Voltar
-              </Button>
-            )}
-            <Button 
-              onClick={handleNextStep}
-              className="bg-biobloom-600 hover:bg-biobloom-700"
-              disabled={
-                (step === 1 && (!profile.name || !profile.bio)) || 
-                (step === 2 && !selectedImage && !selectedColor) ||
-                isLoading
-              }
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processando
-                </>
-              ) : step === 2 ? (
-                'Concluir Configuração'
-              ) : (
-                <>
-                  Próximo
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
+              </CardHeader>
+              <CardContent>
+                {currentStep === 1 ? (
+                  <ProfileForm 
+                    defaultValues={{
+                      name: formData.name,
+                      bio: formData.bio,
+                    }}
+                    onSubmit={handleProfileFormSubmit}
+                  />
+                ) : (
+                  <div className="space-y-6">
+                    <BackgroundSelector
+                      defaultValues={{
+                        backgroundType: formData.backgroundType,
+                        backgroundImage: formData.backgroundImage,
+                        backgroundColor: formData.backgroundColor,
+                        opacity: formData.opacity,
+                        grayscale: formData.grayscale,
+                      }}
+                      onSubmit={handleBackgroundSubmit}
+                      isSubmitting={isSubmitting}
+                    />
+                    
+                    <div className="flex items-center justify-between pt-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setCurrentStep(1)}
+                        className="flex items-center"
+                      >
+                        <ChevronLeft className="mr-2 h-4 w-4" />
+                        Voltar
+                      </Button>
+                      
+                      <Button 
+                        type="submit"
+                        form="background-form"
+                        disabled={isSubmitting}
+                        className="flex items-center"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+                            Configurando...
+                          </>
+                        ) : (
+                          <>
+                            Concluir
+                            <ChevronRight className="ml-2 h-4 w-4" />
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Pré-visualização</CardTitle>
+                <CardDescription>
+                  Veja como sua bio-page ficará
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center pt-0">
+                <BioPagePreview 
+                  profile={previewProfile}
+                  username={user?.username}
+                />
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-    </MainLayout>
+    </div>
   );
 };
 

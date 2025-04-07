@@ -228,6 +228,7 @@ const BioPageEditor = () => {
                     setOpacity={handleOpacityChange}
                     grayscale={formData.grayscale}
                     setGrayscale={handleGrayscaleChange}
+                    showOpacityOnPreviewOnly={true}
                   />
                 </div>
               </TabsContent>

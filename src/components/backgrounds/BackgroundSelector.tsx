@@ -52,6 +52,7 @@ export type BackgroundSelectorProps = {
   grayscale: boolean;
   setGrayscale: (grayscale: boolean) => void;
   className?: string;
+  showOpacityOnPreviewOnly?: boolean;
 };
 
 export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
@@ -66,6 +67,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
   grayscale,
   setGrayscale,
   className = '',
+  showOpacityOnPreviewOnly = false,
 }) => {
   return (
     <div className={`space-y-6 ${className}`}>
@@ -107,7 +109,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                   className={`w-full h-full object-cover transition-all ${
                     grayscale ? 'grayscale' : ''
                   }`}
-                  style={{ opacity }}
+                  style={{ opacity: showOpacityOnPreviewOnly ? 1 : opacity }}
                   loading="lazy"
                 />
                 {selectedImage === image.url && (
