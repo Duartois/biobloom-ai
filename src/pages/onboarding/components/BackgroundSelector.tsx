@@ -1,9 +1,12 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import { Image as ImageIcon, Palette, ChevronRight, ChevronLeft, Check } from 'lucide-react';
-import { HexColorPicker } from 'react-colorful';
 import { Progress } from "@/components/ui/progress";
+import { ColorPickerSection } from '@/components/backgrounds/ColorPickerSection';
+import { ColorPalette } from '@/components/backgrounds/ColorPalette';
+import { ImageOptions } from '@/components/backgrounds/ImageOptions';
 
 // Background image suggestions - consistent with main BackgroundSelector
 const backgroundImages = [
@@ -27,16 +30,6 @@ const backgroundImages = [
   { id: 18, url: "https://images.unsplash.com/photo-1579546929662-711aa81148cf?q=80&w=500&auto=format&fit=crop" },
   { id: 19, url: "https://images.unsplash.com/photo-1567359781514-3b964e2b04d6?q=80&w=500&auto=format&fit=crop" },
   { id: 20, url: "https://images.unsplash.com/photo-1465101162946-4377e57745c3?q=80&w=500&auto=format&fit=crop" },
-];
-
-// Palette of solid colors with more neutral tones
-const colorPalette = [
-  "#F8F9FA", "#E9ECEF", "#DEE2E6", "#CED4DA", "#ADB5BD", 
-  "#6C757D", "#495057", "#343A40", "#212529", "#F8BBD0", 
-  "#F48FB1", "#FF80AB", "#D0F0C0", "#A8E6CF", "#1DE9B6", 
-  "#90CAF9", "#64B5F6", "#42A5F5", "#FFF176", "#FFEE58", 
-  "#FFCA28", "#FFA726", "#FF7043", "#8C9EFF", "#536DFE", 
-  "#7C4DFF", "#E1BEE7", "#CE93D8", "#BA68C8",
 ];
 
 export type BackgroundData = {
@@ -87,13 +80,21 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
 
   const setSelectedImage = (url: string | null) => {
     if (url) {
-      setFormData(prev => ({ ...prev, backgroundImage: url }));
+      setFormData(prev => ({ 
+        ...prev, 
+        backgroundImage: url,
+        backgroundType: 'image'
+      }));
     }
   };
 
   const setSelectedColor = (color: string | null) => {
     if (color) {
-      setFormData(prev => ({ ...prev, backgroundColor: color }));
+      setFormData(prev => ({ 
+        ...prev, 
+        backgroundColor: color,
+        backgroundType: 'color'
+      }));
     }
   };
 
@@ -137,41 +138,15 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
               Escolha uma cor para o fundo da sua página
             </p>
             
-            <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 gap-3">
-              {colorPalette.map((color, index) => (
-                <div 
-                  key={index}
-                  className={`aspect-square rounded-md overflow-hidden cursor-pointer border-2 transition-all ${
-                    formData.backgroundColor === color 
-                      ? 'border-blue-800 ring-2 ring-blue-400' 
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => setSelectedColor(color)}
-                >
-                  {formData.backgroundColor === color && (
-                    <div className="flex items-center justify-center h-full">
-                      <Check 
-                        className="h-5 w-5"
-                        stroke={parseInt(color.slice(1), 16) > 0xffffff / 2 ? 'black' : 'white'} 
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+            <ColorPalette 
+              selectedColor={formData.backgroundColor} 
+              onSelectColor={setSelectedColor}
+            />
             
-            <div className="pt-6 mt-6 border-t">
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative w-full max-w-xs mx-auto">
-                  <HexColorPicker 
-                    color={formData.backgroundColor} 
-                    onChange={(color) => setSelectedColor(color)}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </div>
+            <ColorPickerSection 
+              selectedColor={formData.backgroundColor} 
+              onSelectColor={setSelectedColor} 
+            />
 
             <ImageOptions 
               opacity={formData.opacity} 
@@ -192,7 +167,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                   key={image.id}
                   className={`relative aspect-video rounded-md overflow-hidden cursor-pointer border-2 transition-all ${
                     formData.backgroundImage === image.url 
-                      ? 'border-blue-800 ring-2 ring-blue-400' 
+                      ? 'border-primary ring-2 ring-primary/40' 
                       : 'border-transparent hover:border-gray-200'
                   }`}
                   onClick={() => setSelectedImage(image.url)}
@@ -204,7 +179,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
                     loading="lazy"
                   />
                   {formData.backgroundImage === image.url && (
-                    <div className="absolute top-2 right-2 bg-blue-800 text-white rounded-full p-1 shadow-sm">
+                    <div className="absolute top-2 right-2 bg-primary text-white rounded-full p-1 shadow-sm">
                       <Check className="h-4 w-4" />
                     </div>
                   )}
@@ -235,7 +210,7 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
           <Button 
             type="submit"
             disabled={isSubmitting}
-            className="bg-blue-800 hover:bg-blue-700 text-white flex items-center"
+            className="bg-primary hover:bg-primary/90 text-white flex items-center"
           >
             {isSubmitting ? (
               <>
@@ -254,42 +229,3 @@ export const BackgroundSelector: React.FC<BackgroundSelectorProps> = ({
     </div>
   );
 };
-
-interface ImageOptionsProps {
-  opacity: number;
-  setOpacity: (opacity: number) => void;
-  grayscale: boolean;
-  setGrayscale: (grayscale: boolean) => void;
-}
-
-const ImageOptions = ({ opacity, setOpacity, grayscale, setGrayscale }: ImageOptionsProps) => (
-  <div className="space-y-4 pt-4 border-t mt-4">
-    <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <label htmlFor="opacity" className="text-sm font-medium">Opacidade</label>
-        <span className="text-sm text-muted-foreground">{Math.round(opacity * 100)}%</span>
-      </div>
-      <input
-        type="range"
-        id="opacity"
-        min="0.2"
-        max="1"
-        step="0.05"
-        value={opacity}
-        onChange={(e) => setOpacity(parseFloat(e.target.value))}
-        className="w-full accent-blue-800"
-      />
-    </div>
-    
-    <div className="flex items-center space-x-2">
-      <input
-        type="checkbox"
-        id="grayscale"
-        checked={grayscale}
-        onChange={(e) => setGrayscale(e.target.checked)}
-        className="rounded border-gray-300 accent-blue-800"
-      />
-      <label htmlFor="grayscale" className="text-sm font-medium">Preto e branco</label>
-    </div>
-  </div>
-);

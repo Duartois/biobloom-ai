@@ -33,15 +33,19 @@ const Onboarding = () => {
     setCurrentStep(2);
   };
 
+  const handleBackgroundChange = (data: BackgroundData) => {
+    setFormData(prev => ({ ...prev, ...data }));
+  };
+
   const handleCompleteOnboarding = async () => {
     setIsSubmitting(true);
     try {
       await updateProfile({
         name: formData.name,
-        bio: formData.bio,
+        bio: formData.bio || '', // Permite bio vazia
         background_type: formData.backgroundType,
-        backgroundImage: formData.backgroundType === 'image' ? formData.backgroundImage : undefined,
-        themeColor: formData.backgroundType === 'color' ? formData.backgroundColor : undefined,
+        backgroundImage: formData.backgroundType === 'image' ? formData.backgroundImage : '',
+        themeColor: formData.backgroundType === 'color' ? formData.backgroundColor : '#F8F9FA',
         opacity: formData.opacity,
         grayscale: formData.grayscale,
       });
@@ -66,10 +70,6 @@ const Onboarding = () => {
     themeColor: formData.backgroundColor,
     opacity: formData.opacity,
     grayscale: formData.grayscale,
-  };
-
-  const handleBackgroundChange = (data: BackgroundData) => {
-    setFormData(prev => ({ ...prev, ...data }));
   };
 
   return (
@@ -101,33 +101,18 @@ const Onboarding = () => {
                         <span>100% completo</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                        <div className="bg-blue-800 h-2.5 rounded-full" style={{ width: '100%' }}></div>
+                        <div className="bg-primary h-2.5 rounded-full" style={{ width: '100%' }}></div>
                       </div>
                     </div>
 
                     <BackgroundSelector
                       backgroundType={formData.backgroundType as 'image' | 'color'}
-                      setBackgroundType={(type) => setFormData(prev => ({ ...prev, backgroundType: type }))}
-                      selectedImage={formData.backgroundImage}
-                      setSelectedImage={(url) => {
-                        if (url) setFormData(prev => ({ 
-                          ...prev, 
-                          backgroundImage: url, 
-                          backgroundType: 'image'
-                        }));
-                      }}
-                      selectedColor={formData.backgroundColor}
-                      setSelectedColor={(color) => {
-                        if (color) setFormData(prev => ({ 
-                          ...prev, 
-                          backgroundColor: color,
-                          backgroundType: 'color'
-                        }));
-                      }}
+                      backgroundImage={formData.backgroundImage}
+                      backgroundColor={formData.backgroundColor}
                       opacity={formData.opacity}
-                      setOpacity={(value) => setFormData(prev => ({ ...prev, opacity: value }))}
                       grayscale={formData.grayscale}
-                      setGrayscale={(value) => setFormData(prev => ({ ...prev, grayscale: value }))}
+                      onSubmit={handleBackgroundChange}
+                      onBack={() => setCurrentStep(1)}
                     />
 
                     <div className="flex items-center justify-between pt-4">
@@ -146,7 +131,7 @@ const Onboarding = () => {
                         type="button"
                         onClick={handleCompleteOnboarding}
                         disabled={isSubmitting}
-                        className="bg-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center"
+                        className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center"
                       >
                         {isSubmitting ? (
                           <>

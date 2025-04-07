@@ -101,8 +101,8 @@ const BioPagePreview: React.FC<BioPagePreviewProps> = ({
               key={index} 
               className={getLinkClassName(link.style)}
               style={{
-                backgroundColor: link.style === 'default' ? (profile.themeColor || '#F5F5F5') : undefined,
-                borderColor: link.style === 'outline' ? (profile.themeColor || '#F5F5F5') : undefined,
+                backgroundColor: link.style === 'default' ? (profile.themeColor || '#F8F9FA') : undefined,
+                borderColor: link.style === 'outline' ? (profile.themeColor || '#F8F9FA') : undefined,
                 color: link.style === 'default' && parseInt((profile.themeColor || '#FFFFFF').replace('#', ''), 16) > 0xffffff / 2 ? '#000' : '#fff',
               }}
             >

@@ -53,6 +53,20 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Definindo as cores do tema customizado
+        marinho: {
+          50: "#E9EDF2",
+          100: "#C8D3E0",
+          200: "#A6B9CD",
+          300: "#849FB9",
+          400: "#628AAB",
+          500: "#40759C", 
+          600: "#336182", // Base azul marinho
+          700: "#1B3B5A", // Azul marinho escuro
+          800: "#0F2540",
+          900: "#051226",
+          950: "#020A15",
+        },
         festa: {
           amarelo: "#FFAA00", // Amarelo
           laranja: "#E25B0E", // Laranja
@@ -68,17 +82,17 @@ export default {
           accent: "#FF5B85",
         },
         biobloom: {
-          50: "#fff3db",
-          100: "#ffe3ad",
-          200: "#ffd27a",
-          300: "#ffc147",
-          400: "#ffb114",
-          500: "#e69700",
-          600: "#b37500",
-          700: "#805300",
-          800: "#4d3200",
-          900: "#1e1000",
-          950: "#000000",
+          50: "#E9EDF2",
+          100: "#C8D3E0",
+          200: "#A6B9CD",
+          300: "#849FB9",
+          400: "#628AAB",
+          500: "#40759C", 
+          600: "#336182",
+          700: "#1B3B5A", // Azul marinho escuro - cor principal
+          800: "#0F2540",
+          900: "#051226",
+          950: "#020A15",
         },
       },
       fontFamily: {
