@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Image, Palette } from 'lucide-react';
 
 // Background image suggestions
@@ -31,64 +32,56 @@ const backgroundImages = [
 
 // Palette of solid colors
 const colorPalette = [
-  "#F8F9FA", // White
-  "#E9ECEF", // Light Gray
-  "#DEE2E6", // Gray
-  "#CED4DA", // Medium Gray
-  "#ADB5BD", // Dark Gray
-  "#6C757D", // Charcoal
-  "#495057", // Dark Charcoal
-  "#343A40", // Almost Black
-  "#212529", // Black
-  "#F8BBD0", // Light Pink
-  "#F48FB1", // Pink
-  "#FF80AB", // Hot Pink
-  "#D0F0C0", // Light Green
-  "#A8E6CF", // Mint Green
-  "#1DE9B6", // Teal
-  "#90CAF9", // Light Blue
-  "#64B5F6", // Blue
-  "#42A5F5", // Medium Blue
-  "#FFF176", // Light Yellow
-  "#FFEE58", // Yellow
-  "#FFCA28", // Amber
-  "#FFA726", // Orange
-  "#FF7043", // Deep Orange
-  "#8C9EFF", // Light Indigo
-  "#536DFE", // Indigo
-  "#7C4DFF", // Purple
-  "#E1BEE7", // Light Lavender
-  "#CE93D8", // Lavender
-  "#BA68C8", // Deep Purple
+  "#F8F9FA", "#E9ECEF", "#DEE2E6", "#CED4DA", "#ADB5BD", 
+  "#6C757D", "#495057", "#343A40", "#212529", "#F8BBD0", 
+  "#F48FB1", "#FF80AB", "#D0F0C0", "#A8E6CF", "#1DE9B6", 
+  "#90CAF9", "#64B5F6", "#42A5F5", "#FFF176", "#FFEE58", 
+  "#FFCA28", "#FFA726", "#FF7043", "#8C9EFF", "#536DFE", 
+  "#7C4DFF", "#E1BEE7", "#CE93D8", "#BA68C8"
 ];
 
-type BackgroundSelectorProps = {
-  backgroundType: 'image' | 'color';
-  setBackgroundType: (type: 'image' | 'color') => void;
-  selectedImage: string | null;
-  setSelectedImage: (url: string | null) => void;
-  selectedColor: string | null;
-  setSelectedColor: (color: string | null) => void;
-  opacity: number;
-  setOpacity: (opacity: number) => void;
-  grayscale: boolean;
-  setGrayscale: (grayscale: boolean) => void;
+export type BackgroundSelectorProps = {
+  defaultValues: {
+    backgroundType: 'image' | 'color';
+    backgroundImage: string;
+    backgroundColor: string;
+    opacity: number;
+    grayscale: boolean;
+  };
+  onSubmit: (background: {
+    backgroundType: 'image' | 'color';
+    backgroundImage: string;
+    backgroundColor: string;
+    opacity: number;
+    grayscale: boolean;
+  }) => void;
+  isSubmitting?: boolean;
 };
 
 export const BackgroundSelector = ({
-  backgroundType,
-  setBackgroundType,
-  selectedImage,
-  setSelectedImage,
-  selectedColor,
-  setSelectedColor,
-  opacity,
-  setOpacity,
-  grayscale,
-  setGrayscale
+  defaultValues,
+  onSubmit,
+  isSubmitting = false
 }: BackgroundSelectorProps) => {
+  const [backgroundType, setBackgroundType] = useState<'image' | 'color'>(defaultValues.backgroundType);
+  const [selectedImage, setSelectedImage] = useState<string | null>(defaultValues.backgroundImage || null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(defaultValues.backgroundColor || null);
+  const [opacity, setOpacity] = useState(defaultValues.opacity);
+  const [grayscale, setGrayscale] = useState(defaultValues.grayscale);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    onSubmit({
+      backgroundType,
+      backgroundImage: selectedImage || '',
+      backgroundColor: selectedColor || '#893bf2',
+      opacity,
+      grayscale
+    });
+  };
+
   return (
-    <div className="space-y-6">
+    <form id="background-form" onSubmit={handleSubmit} className="space-y-6">
       <Tabs defaultValue={backgroundType} onValueChange={(value) => setBackgroundType(value as 'image' | 'color')}>
         <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-4">
           <TabsTrigger value="image" className="flex items-center justify-center">
@@ -123,10 +116,7 @@ export const BackgroundSelector = ({
                 <img 
                   src={image.url} 
                   alt="Background option" 
-                  className={`w-full h-full object-cover transition-all ${
-                    grayscale ? 'grayscale' : ''
-                  }`}
-                  style={{ opacity }}
+                  className="w-full h-full object-cover"
                   loading="lazy"
                 />
                 {selectedImage === image.url && (
@@ -212,7 +202,7 @@ export const BackgroundSelector = ({
           </div>
         </TabsContent>
       </Tabs>
-    </div>
+    </form>
   );
 };
 

@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth/AuthContext';
@@ -119,7 +118,7 @@ const Onboarding = () => {
                   <div className="space-y-6">
                     <BackgroundSelector
                       defaultValues={{
-                        backgroundType: formData.backgroundType,
+                        backgroundType: formData.backgroundType as 'image' | 'color',
                         backgroundImage: formData.backgroundImage,
                         backgroundColor: formData.backgroundColor,
                         opacity: formData.opacity,
