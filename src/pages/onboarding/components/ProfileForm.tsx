@@ -18,13 +18,15 @@ export type ProfileFormProps = {
   bio: string;
   username?: string;
   onSubmit: (data: ProfileFormData) => void;
+  onChange?: (data: ProfileFormData) => void;
 };
 
 export const ProfileForm: React.FC<ProfileFormProps> = ({ 
   name = "", 
   bio = "", 
   username = "", 
-  onSubmit 
+  onSubmit,
+  onChange
 }) => {
   const [formData, setFormData] = React.useState<ProfileFormData>({
     name,
@@ -34,7 +36,13 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const updatedData = { ...formData, [name]: value };
+    setFormData(updatedData);
+    
+    // For real-time preview updates
+    if (onChange) {
+      onChange(updatedData);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -47,10 +55,10 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
       {/* Progress indicator */}
       <div className="space-y-2">
         <div className="flex justify-between items-center text-sm text-muted-foreground">
-          <span>Passo 1 de 2</span>
-          <span>50% completo</span>
+          <span>Passo 1 de 3</span>
+          <span>33% completo</span>
         </div>
-        <Progress value={50} className="h-2" />
+        <Progress value={33} className="h-2" />
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -108,7 +116,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
         <div className="pt-4">
           <Button 
             type="submit" 
-            className="w-full sm:w-auto flex items-center justify-center text-white bg-black hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
+            className="w-full sm:w-auto flex items-center justify-center text-white bg-[#1B3B5A] hover:bg-[#1B3B5A]/90"
           >
             Próximo
             <ChevronRight className="ml-2 h-4 w-4" />

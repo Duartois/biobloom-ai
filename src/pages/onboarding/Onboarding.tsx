@@ -5,15 +5,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
+import { supabase } from "@/integrations/supabase/client";
 import { ProfileForm, ProfileFormData } from './components/ProfileForm';
+import { BackgroundSelector } from './components/BackgroundSelector';
 import { BackgroundData } from './components/BackgroundSelector';
+import { LinksForm, LinkData } from './components/LinksForm';
 import BioPagePreview from '@/components/profile/BioPagePreview';
-import { BackgroundSelector } from '@/components/backgrounds/BackgroundSelector';
 
 const Onboarding = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { profile, updateProfile } = useLinks();
+  const { profile, updateProfile, createLink } = useLinks();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,9 +23,10 @@ const Onboarding = () => {
     name: profile.name || user?.name || '',
     username: user?.username || '',
     bio: profile.bio || '',
+    links: [] as LinkData[],
     backgroundType: profile.background_type || 'color',
     backgroundImage: profile.backgroundImage || '',
-    backgroundColor: profile.themeColor || '#F8F9FA',
+    backgroundColor: profile.themeColor || '#F4F4F5',
     opacity: profile.opacity || 1.0,
     grayscale: profile.grayscale || false,
   });
@@ -32,23 +35,50 @@ const Onboarding = () => {
     setFormData(prev => ({ ...prev, ...data }));
     setCurrentStep(2);
   };
-
-  const handleBackgroundChange = (data: BackgroundData) => {
+  
+  const handleProfileChange = (data: ProfileFormData) => {
     setFormData(prev => ({ ...prev, ...data }));
   };
-
-  const handleCompleteOnboarding = async () => {
+  
+  const handleLinksSubmit = async (links: LinkData[]) => {
+    setFormData(prev => ({ ...prev, links }));
+    setCurrentStep(3);
+  };
+  
+  const handleLinksChange = (links: LinkData[]) => {
+    setFormData(prev => ({ ...prev, links }));
+  };
+  
+  const handleBackgroundSubmit = async (data: BackgroundData) => {
     setIsSubmitting(true);
     try {
+      // Save profile data
       await updateProfile({
         name: formData.name,
         bio: formData.bio || '', // Permite bio vazia
-        background_type: formData.backgroundType,
-        backgroundImage: formData.backgroundType === 'image' ? formData.backgroundImage : '',
-        themeColor: formData.backgroundType === 'color' ? formData.backgroundColor : '#F8F9FA',
-        opacity: formData.opacity,
-        grayscale: formData.grayscale,
+        background_type: data.backgroundType,
+        backgroundImage: data.backgroundType === 'image' ? data.backgroundImage : '',
+        themeColor: data.backgroundType === 'color' ? data.backgroundColor : '#F4F4F5',
+        opacity: data.opacity,
+        grayscale: data.grayscale,
       });
+      
+      // Save links if any exist
+      if (formData.links.length > 0) {
+        // Save each link
+        for (let i = 0; i < formData.links.length; i++) {
+          const link = formData.links[i];
+          if (link.title && link.url) {
+            await createLink({
+              title: link.title,
+              url: link.url,
+              style: link.style || 'default',
+              ordem: i
+            });
+          }
+        }
+      }
+      
       toast.success('Perfil configurado com sucesso!');
       // Redirect immediately to dashboard after successful onboarding
       navigate('/dashboard', { replace: true });
@@ -70,6 +100,10 @@ const Onboarding = () => {
     themeColor: formData.backgroundColor,
     opacity: formData.opacity,
     grayscale: formData.grayscale,
+    links: formData.links.map(link => ({
+      ...link,
+      style: link.style || 'default'
+    }))
   };
 
   return (
@@ -92,66 +126,31 @@ const Onboarding = () => {
                     bio={formData.bio}
                     username={formData.username}
                     onSubmit={handleProfileFormSubmit}
+                    onChange={handleProfileChange}
+                  />
+                ) : currentStep === 2 ? (
+                  <LinksForm
+                    links={formData.links}
+                    onSubmit={handleLinksSubmit}
+                    onBack={() => setCurrentStep(1)}
+                    onChange={handleLinksChange}
                   />
                 ) : (
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center text-sm text-muted-foreground">
-                        <span>Passo 2 de 2</span>
-                        <span>100% completo</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                        <div className="bg-primary h-2.5 rounded-full" style={{ width: '100%' }}></div>
-                      </div>
-                    </div>
-
-                    <BackgroundSelector
-                      backgroundType={formData.backgroundType as 'image' | 'color'}
-                      setBackgroundType={(type) => setFormData(prev => ({...prev, backgroundType: type}))}
-                      selectedImage={formData.backgroundImage}
-                      setSelectedImage={(url) => setFormData(prev => ({...prev, backgroundImage: url || ''}))}
-                      selectedColor={formData.backgroundColor}
-                      setSelectedColor={(color) => setFormData(prev => ({...prev, backgroundColor: color || '#F8F9FA'}))}
-                      opacity={formData.opacity}
-                      setOpacity={(value) => setFormData(prev => ({...prev, opacity: value}))}
-                      grayscale={formData.grayscale}
-                      setGrayscale={(value) => setFormData(prev => ({...prev, grayscale: value}))}
-                    />
-
-                    <div className="flex items-center justify-between pt-4">
-                      <button
-                        type="button"
-                        onClick={() => setCurrentStep(1)}
-                        className="flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium transition-colors hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                        Voltar
-                      </button>
-                      
-                      <button 
-                        type="button"
-                        onClick={handleCompleteOnboarding}
-                        disabled={isSubmitting}
-                        className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-                            Configurando...
-                          </>
-                        ) : (
-                          <>
-                            Concluir
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
+                  <BackgroundSelector
+                    backgroundType={formData.backgroundType as 'image' | 'color'}
+                    setBackgroundType={(type) => setFormData(prev => ({...prev, backgroundType: type}))}
+                    selectedImage={formData.backgroundImage}
+                    setSelectedImage={(url) => setFormData(prev => ({...prev, backgroundImage: url || ''}))}
+                    selectedColor={formData.backgroundColor}
+                    setSelectedColor={(color) => setFormData(prev => ({...prev, backgroundColor: color || '#F4F4F5'}))}
+                    opacity={formData.opacity}
+                    setOpacity={(value) => setFormData(prev => ({...prev, opacity: value}))}
+                    grayscale={formData.grayscale}
+                    setGrayscale={(value) => setFormData(prev => ({...prev, grayscale: value}))}
+                    onSubmit={handleBackgroundSubmit}
+                    onBack={() => setCurrentStep(2)}
+                    isSubmitting={isSubmitting}
+                  />
                 )}
               </CardContent>
             </Card>

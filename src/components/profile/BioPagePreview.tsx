@@ -29,7 +29,7 @@ const BioPagePreview: React.FC<BioPagePreviewProps> = ({
         return `${baseClasses} backdrop-blur-md bg-white/20 dark:bg-black/20 border border-white/20 dark:border-black/20 hover:bg-white/30 dark:hover:bg-black/30`;
       case 'default':
       default:
-        return `${baseClasses} bg-white/90 dark:bg-black/80 shadow-sm hover:shadow`;
+        return `${baseClasses} bg-[#1B3B5A]/90 text-white hover:bg-[#1B3B5A]/80 shadow-sm hover:shadow`;
     }
   };
 
@@ -40,7 +40,7 @@ const BioPagePreview: React.FC<BioPagePreviewProps> = ({
   };
 
   // Use a default light gray color if no theme color is set
-  const defaultBackgroundColor = '#F8F9FA';
+  const defaultBackgroundColor = '#F4F4F5';
   const containerClasses = compact 
     ? "w-full h-full max-w-full" 
     : "w-[280px] h-[560px] border rounded-3xl shadow-lg";
@@ -101,9 +101,8 @@ const BioPagePreview: React.FC<BioPagePreviewProps> = ({
               key={index} 
               className={getLinkClassName(link.style)}
               style={{
-                backgroundColor: link.style === 'default' ? (profile.themeColor || '#F8F9FA') : undefined,
-                borderColor: link.style === 'outline' ? (profile.themeColor || '#F8F9FA') : undefined,
-                color: link.style === 'default' && parseInt((profile.themeColor || '#FFFFFF').replace('#', ''), 16) > 0xffffff / 2 ? '#000' : '#fff',
+                backgroundColor: link.style === 'default' ? (profile.themeColor || '#1B3B5A') : undefined,
+                borderColor: link.style === 'outline' ? (profile.themeColor || '#1B3B5A') : undefined,
               }}
             >
               <span className="font-medium">{link.title || 'Link'}</span>
