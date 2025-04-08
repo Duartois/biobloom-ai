@@ -88,8 +88,13 @@ const Onboarding = () => {
       }
       
       toast.success('Perfil configurado com sucesso!');
-      // Redirect immediately to dashboard after successful onboarding
+      // Alterar para usar history.replace para evitar que o usuário volte ao onboarding usando o botão voltar
       navigate('/dashboard', { replace: true });
+      
+      // Garantir que o redirecionamento aconteça mesmo se houver algum problema com o navigateCallback
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 1000);
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Erro ao configurar perfil. Tente novamente.');
