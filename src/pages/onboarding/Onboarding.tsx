@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,7 +13,7 @@ import BioPagePreview from '@/components/profile/BioPagePreview';
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, setOnboardingCompleted } = useAuth();
   const { profile, updateProfile, addLink } = useLinks();
   
   const [currentStep, setCurrentStep] = useState(1);
@@ -87,11 +86,15 @@ const Onboarding = () => {
         }
       }
       
+      // Marcar onboarding como concluído
+      setOnboardingCompleted();
+      
       toast.success('Perfil configurado com sucesso!');
-      // Alterar para usar history.replace para evitar que o usuário volte ao onboarding usando o botão voltar
+      
+      // Usar replace para evitar que o usuário volte ao onboarding usando o botão voltar
       navigate('/dashboard', { replace: true });
       
-      // Garantir que o redirecionamento aconteça mesmo se houver algum problema com o navigateCallback
+      // Garantir que o redirecionamento aconteça mesmo se houver algum problema
       setTimeout(() => {
         window.location.href = '/dashboard';
       }, 1000);

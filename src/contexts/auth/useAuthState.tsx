@@ -1,156 +1,140 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Session } from '@supabase/supabase-js';
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from '@/integrations/supabase/client';
 import { UserProfile } from './types';
 import { createUserRecord } from './userOperations';
 
-export const useAuthState = () => {
-  const [user, setUser] = useState<UserProfile | null>(null);
+export function useAuthState() {
   const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
-  // Set up auth state listener
-  useEffect(() => {
-    console.log('Setting up auth state listener');
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, currentSession) => {
-        console.log('Auth state changed:', event, currentSession?.user?.id);
-        setSession(currentSession);
-        
-        // Only perform synchronous updates in the callback
-        if (currentSession?.user) {
-          // Defer Supabase calls with setTimeout to avoid deadlocks
-          setTimeout(() => {
-            fetchUserData(currentSession.user.id);
-          }, 0);
-        } else {
-          setUser(null);
-          setNeedsOnboarding(false);
-        }
-      }
-    );
+  // Função para verificar se o usuário precisa fazer onboarding
+  const checkNeedsOnboarding = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('bio, imagem_fundo, background_type, cor_fundo')
+        .eq('user_id', userId)
+        .single();
 
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      console.log('Checking existing session:', currentSession?.user?.id);
-      setSession(currentSession);
+      console.info('Needs onboarding?', !data?.bio, data);
       
-      if (currentSession?.user) {
-        fetchUserData(currentSession.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
+      // Usuário precisa de onboarding se não tiver um perfil com bio definida
+      setNeedsOnboarding(!data?.bio);
+      return !data?.bio;
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+      // Em caso de erro, assumimos que o usuário precisa de onboarding
+      setNeedsOnboarding(true);
+      return true;
+    }
+  };
 
-    return () => subscription.unsubscribe();
-  }, []);
-
+  // Função para buscar dados do usuário
   const fetchUserData = async (userId: string) => {
     try {
-      console.log('Fetching user data for:', userId);
-      
-      // Fetch user data from our custom users table
-      const { data: userData, error: userError } = await supabase
+      const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
-        .maybeSingle();
+        .single();
 
-      if (userError) {
-        console.error('Error fetching user data:', userError);
-        setLoading(false);
-        
-        // Verificar se o usuário existe na auth mas não na tabela users
-        if (userError.code === 'PGRST116') {
-          // O usuário existe na autenticação mas não na tabela users
-          // Vamos criar o usuário manualmente
-          await createUserRecord();
-          return;
-        }
-        
-        setUser(null);
-        return;
+      console.info('User data fetched:', data);
+
+      if (error) {
+        console.error('Error fetching user data:', error);
+        return null;
       }
 
-      if (userData) {
-        console.log('User data fetched:', userData);
-        // Convert string dates to Date objects
-        const userProfile: UserProfile = {
-          id: userData.id,
-          username: userData.username,
-          email: userData.email || '',
-          name: userData.name,
-          plan: userData.plano_atual as any,
-          createdAt: new Date(userData.created_at),
-          trialStartDate: userData.teste_ativo ? new Date(userData.created_at) : undefined,
-          trialEndDate: userData.teste_expira_em ? new Date(userData.teste_expira_em) : undefined,
-        };
-
-        // Verificar se o usuário precisa passar pelo onboarding
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('bio, imagem_fundo, background_type, cor_fundo')
-          .eq('user_id', userId)
-          .maybeSingle();
-
-        // Considerar que precisa de onboarding se não tiver bio ou plano de fundo definidos
-        const requiresOnboarding = !profileData || 
-          !profileData.bio || 
-          (!profileData.background_type && !profileData.cor_fundo);
-           
-        setNeedsOnboarding(requiresOnboarding);
-        console.log('Needs onboarding?', requiresOnboarding, profileData);
-        
-        // Set the needsOnboarding property on the user profile
-        userProfile.needsOnboarding = requiresOnboarding;
-        setUser(userProfile);
-        
-        // Check if trial has expired
-        if (userProfile.plan === 'trial' && !isTrialActive(userProfile)) {
-          // Trial expired, downgrade to free
-          await updateUserPlanInDb(userId, 'free');
-          userProfile.plan = 'free';
-          toast.info("Seu período de teste gratuito expirou. Seu plano foi alterado para gratuito.");
-        }
-      } else {
-        // Usuário não encontrado na tabela users
-        await createUserRecord();
-        await fetchUserData(userId);
-      }
+      await checkNeedsOnboarding(userId);
+      return data;
     } catch (error) {
-      console.error('Failed to fetch user data', error);
-    } finally {
-      setLoading(false);
+      console.error('Error in fetchUserData:', error);
+      return null;
     }
   };
 
-  // Helper to check if trial is active
-  const isTrialActive = (userToCheck: UserProfile | null) => {
-    if (!userToCheck) return false;
-    if (userToCheck.plan !== 'trial') return false;
-    if (!userToCheck.trialEndDate) return false;
-    
-    const now = new Date();
-    return now < userToCheck.trialEndDate;
+  // Marcar onboarding como concluído
+  const setOnboardingCompleted = () => {
+    setNeedsOnboarding(false);
   };
 
-  const updateUserPlanInDb = async (userId: string, plan: string) => {
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({ plano_atual: plan })
-        .eq('id', userId);
+  useEffect(() => {
+    // Configurar o listener de mudança de estado de autenticação
+    console.info('Setting up auth state listener');
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.info('Auth state changed:', event, session?.user?.id);
+      setSession(session);
 
-      if (error) throw error;
+      if (session?.user) {
+        console.info('Fetching user data for:', session.user.id);
+        const userData = await fetchUserData(session.user.id);
+        
+        // Configurar o objeto de usuário com dados do banco e da sessão
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          username: userData?.username || session.user.user_metadata.username || '',
+          name: userData?.name || session.user.user_metadata.name || '',
+          plan: userData?.plano_atual || 'trial',
+          createdAt: session.user.created_at || '',
+          trialExpiresAt: userData?.teste_expira_em || null,
+          trialActive: userData?.teste_ativo || false,
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    // Verificar sessão existente ao inicializar
+    const initSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      console.info('Checking existing session:', data.session?.user?.id);
       
-    } catch (error: any) {
-      console.error('Error updating user plan:', error);
-      throw error;
-    }
-  };
+      setSession(data.session);
+      
+      if (data.session?.user) {
+        console.info('Fetching user data for:', data.session.user.id);
+        const userData = await fetchUserData(data.session.user.id);
+        
+        if (userData) {
+          setUser({
+            id: data.session.user.id,
+            email: data.session.user.email!,
+            username: userData.username || data.session.user.user_metadata.username || '',
+            name: userData.name || data.session.user.user_metadata.name || '',
+            plan: userData.plano_atual || 'trial',
+            createdAt: data.session.user.created_at || '',
+            trialExpiresAt: userData.teste_expira_em || null,
+            trialActive: userData.teste_ativo || false,
+          });
+        } else {
+          // Se não conseguir buscar dados do usuário, tentar criar um registro
+          await createUserRecord();
+        }
+      }
+      
+      setLoading(false);
+    };
 
-  return { user, setUser, session, loading, needsOnboarding };
-};
+    initSession();
+
+    // Limpar listener ao desmontar componente
+    return () => {
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
+    };
+  }, []);
+
+  return {
+    user,
+    session,
+    loading,
+    needsOnboarding,
+    setOnboardingCompleted,
+  };
+}

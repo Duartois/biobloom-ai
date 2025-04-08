@@ -17,12 +17,13 @@ type AuthContextType = {
   getRemainingTrialDays: () => number;
   isTrialActive: () => boolean;
   needsOnboarding: boolean;
+  setOnboardingCompleted: () => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const { user, session, loading, needsOnboarding } = useAuthState();
+  const { user, session, loading, needsOnboarding, setOnboardingCompleted: completeOnboarding } = useAuthState();
   const { 
     login, 
     register, 
@@ -46,6 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         getRemainingTrialDays,
         isTrialActive,
         needsOnboarding,
+        setOnboardingCompleted: completeOnboarding,
       }}
     >
       {children}

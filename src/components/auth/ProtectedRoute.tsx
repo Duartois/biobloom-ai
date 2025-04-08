@@ -18,13 +18,25 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const navigate = useNavigate();
 
   useEffect(() => {
-    // If authenticated and needs onboarding, redirect to onboarding
-    // But only if not already on the onboarding page
+    // Se autenticado e precisando de onboarding, redirecionar para onboarding
+    // Mas apenas se não estiver já na página de onboarding
     if (isAuthenticated && 
         needsOnboarding && 
         !loading && 
         location.pathname !== '/onboarding') {
+      console.log('Redirecting to onboarding page from:', location.pathname);
       navigate('/onboarding', { replace: true });
+      return;
+    }
+
+    // Se já completou onboarding e estiver tentando acessar /onboarding, redirecionar para dashboard
+    if (isAuthenticated && 
+        !needsOnboarding && 
+        !loading && 
+        location.pathname === '/onboarding') {
+      console.log('Onboarding already completed, redirecting to dashboard');
+      navigate('/dashboard', { replace: true });
+      return;
     }
   }, [isAuthenticated, needsOnboarding, loading, navigate, location]);
 
