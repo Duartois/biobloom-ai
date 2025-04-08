@@ -107,12 +107,15 @@ const Onboarding = () => {
 
                     <BackgroundSelector
                       backgroundType={formData.backgroundType as 'image' | 'color'}
-                      backgroundImage={formData.backgroundImage}
-                      backgroundColor={formData.backgroundColor}
+                      setBackgroundType={(type) => setFormData(prev => ({...prev, backgroundType: type}))}
+                      selectedImage={formData.backgroundImage}
+                      setSelectedImage={(url) => setFormData(prev => ({...prev, backgroundImage: url || ''}))}
+                      selectedColor={formData.backgroundColor}
+                      setSelectedColor={(color) => setFormData(prev => ({...prev, backgroundColor: color || '#F8F9FA'}))}
                       opacity={formData.opacity}
+                      setOpacity={(value) => setFormData(prev => ({...prev, opacity: value}))}
                       grayscale={formData.grayscale}
-                      onSubmit={handleBackgroundChange}
-                      onBack={() => setCurrentStep(1)}
+                      setGrayscale={(value) => setFormData(prev => ({...prev, grayscale: value}))}
                     />
 
                     <div className="flex items-center justify-between pt-4">
