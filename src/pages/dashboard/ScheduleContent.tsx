@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -297,61 +298,62 @@ const ScheduleContent = () => {
           <Card>
             <CardHeader>
               <CardTitle>Publicações Agendadas</CardTitle>
+              {/* Fixed: Putting Tabs, TabsList, and TabsTrigger together */}
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="upcoming">Próximas</TabsTrigger>
                   <TabsTrigger value="published">Publicadas</TabsTrigger>
                 </TabsList>
+              
+                {/* Fixed: TabsContent must be used within Tabs component */}
+                <TabsContent value="upcoming" className="h-[500px] overflow-auto mt-2">
+                  <div className="space-y-3">
+                    {mockPosts.length > 0 ? 
+                      mockPosts.map(post => (
+                        <div key={post.id} className="border rounded-md p-3 relative">
+                          <div className="absolute top-3 right-3 flex gap-1 items-center">
+                            {getPlatformIcon(post.platform)}
+                          </div>
+                          <p className="text-sm line-clamp-2 mb-2">{post.content}</p>
+                          {post.image && (
+                            <div className="w-full h-24 mb-2 rounded-md overflow-hidden">
+                              <img src={post.image} alt="Visual da publicação" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <div className="flex items-center">
+                              <CalendarIcon className="h-3 w-3 mr-1" />
+                              {formatScheduleDate(post.scheduledFor)}
+                            </div>
+                            <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
+                              Editar
+                            </Button>
+                          </div>
+                        </div>
+                      )) : (
+                        <div className="flex flex-col items-center justify-center h-[400px] text-center">
+                          <CalendarIcon className="h-12 w-12 text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium">Sem publicações agendadas</h3>
+                          <p className="text-muted-foreground text-sm max-w-[200px] mt-1 mb-4">
+                            Use o formulário para criar e agendar sua primeira publicação
+                          </p>
+                        </div>
+                      )
+                    }
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="published" className="h-[500px] overflow-auto mt-2">
+                  <div className="flex flex-col items-center justify-center h-[400px] text-center">
+                    <Clock className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium">Sem publicações ainda</h3>
+                    <p className="text-muted-foreground text-sm max-w-[200px] mt-1">
+                      Suas publicações aparecerão aqui
+                    </p>
+                  </div>
+                </TabsContent>
               </Tabs>
             </CardHeader>
-            <CardContent>
-              <TabsContent value="upcoming" className="h-[500px] overflow-auto">
-                <div className="space-y-3">
-                  {mockPosts.length > 0 ? 
-                    mockPosts.map(post => (
-                      <div key={post.id} className="border rounded-md p-3 relative">
-                        <div className="absolute top-3 right-3 flex gap-1 items-center">
-                          {getPlatformIcon(post.platform)}
-                        </div>
-                        <p className="text-sm line-clamp-2 mb-2">{post.content}</p>
-                        {post.image && (
-                          <div className="w-full h-24 mb-2 rounded-md overflow-hidden">
-                            <img src={post.image} alt="Visual da publicação" className="w-full h-full object-cover" />
-                          </div>
-                        )}
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <div className="flex items-center">
-                            <CalendarIcon className="h-3 w-3 mr-1" />
-                            {formatScheduleDate(post.scheduledFor)}
-                          </div>
-                          <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
-                            Editar
-                          </Button>
-                        </div>
-                      </div>
-                    )) : (
-                      <div className="flex flex-col items-center justify-center h-[400px] text-center">
-                        <CalendarIcon className="h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-medium">Sem publicações agendadas</h3>
-                        <p className="text-muted-foreground text-sm max-w-[200px] mt-1 mb-4">
-                          Use o formulário para criar e agendar sua primeira publicação
-                        </p>
-                      </div>
-                    )
-                  }
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="published" className="h-[500px] overflow-auto">
-                <div className="flex flex-col items-center justify-center h-[400px] text-center">
-                  <Clock className="h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium">Sem publicações ainda</h3>
-                  <p className="text-muted-foreground text-sm max-w-[200px] mt-1">
-                    Suas publicações aparecerão aqui
-                  </p>
-                </div>
-              </TabsContent>
-            </CardContent>
           </Card>
         </div>
       </div>
