@@ -75,7 +75,7 @@ const Onboarding = () => {
                                link.style === 'ghost' ||
                                link.style === 'neobrutal' ||
                                link.style === 'glass') 
-                               ? link.style 
+                               ? (link.style as 'default' | 'outline' | 'ghost' | 'neobrutal' | 'glass')
                                : 'default';
                                
             await addLink({
@@ -116,7 +116,7 @@ const Onboarding = () => {
                          link.style === 'ghost' ||
                          link.style === 'neobrutal' ||
                          link.style === 'glass') 
-                         ? link.style 
+                         ? (link.style as 'default' | 'outline' | 'ghost' | 'neobrutal' | 'glass')
                          : 'default';
       
       return {
