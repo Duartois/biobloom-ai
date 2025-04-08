@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { UserProfile } from './types';
+import { UserProfile, PlanType } from './types';
 import { createUserRecord } from './userOperations';
 
 export function useAuthState() {
@@ -73,15 +73,19 @@ export function useAuthState() {
         console.info('Fetching user data for:', session.user.id);
         const userData = await fetchUserData(session.user.id);
         
+        // Convert plan to PlanType and handle date conversion
+        const plan = (userData?.plano_atual || 'trial') as PlanType;
+        const trialExpiresAt = userData?.teste_expira_em ? new Date(userData.teste_expira_em) : null;
+        
         // Configurar o objeto de usuário com dados do banco e da sessão
         setUser({
           id: session.user.id,
           email: session.user.email!,
           username: userData?.username || session.user.user_metadata.username || '',
           name: userData?.name || session.user.user_metadata.name || '',
-          plan: userData?.plano_atual || 'trial',
-          createdAt: session.user.created_at || '',
-          trialExpiresAt: userData?.teste_expira_em || null,
+          plan: plan,
+          createdAt: new Date(session.user.created_at || Date.now()),
+          trialExpiresAt: trialExpiresAt,
           trialActive: userData?.teste_ativo || false,
         });
       } else {
@@ -101,14 +105,18 @@ export function useAuthState() {
         const userData = await fetchUserData(data.session.user.id);
         
         if (userData) {
+          // Convert plan to PlanType and handle date conversion
+          const plan = (userData.plano_atual || 'trial') as PlanType;
+          const trialExpiresAt = userData.teste_expira_em ? new Date(userData.teste_expira_em) : null;
+          
           setUser({
             id: data.session.user.id,
             email: data.session.user.email!,
             username: userData.username || data.session.user.user_metadata.username || '',
             name: userData.name || data.session.user.user_metadata.name || '',
-            plan: userData.plano_atual || 'trial',
-            createdAt: data.session.user.created_at || '',
-            trialExpiresAt: userData.teste_expira_em || null,
+            plan: plan,
+            createdAt: new Date(data.session.user.created_at || Date.now()),
+            trialExpiresAt: trialExpiresAt,
             trialActive: userData.teste_ativo || false,
           });
         } else {
