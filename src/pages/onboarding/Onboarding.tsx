@@ -69,10 +69,19 @@ const Onboarding = () => {
         for (let i = 0; i < formData.links.length; i++) {
           const link = formData.links[i];
           if (link.title && link.url) {
+            // Ensure the style is one of the allowed types
+            const validStyle = (link.style === 'default' || 
+                               link.style === 'outline' || 
+                               link.style === 'ghost' ||
+                               link.style === 'neobrutal' ||
+                               link.style === 'glass') 
+                               ? link.style 
+                               : 'default';
+                               
             await addLink({
               title: link.title,
               url: link.url,
-              style: link.style || 'default',
+              style: validStyle,
             });
           }
         }
@@ -100,12 +109,23 @@ const Onboarding = () => {
     opacity: formData.opacity,
     grayscale: formData.grayscale,
     // Convert LinkData[] to Link[] for the preview
-    links: formData.links.map(link => ({
-      id: `temp-${Math.random().toString(36).substr(2, 9)}`, // Generate temporary IDs for preview
-      title: link.title,
-      url: link.url,
-      style: link.style || 'default'
-    }))
+    links: formData.links.map(link => {
+      // Ensure the style is one of the allowed types
+      const validStyle = (link.style === 'default' || 
+                         link.style === 'outline' || 
+                         link.style === 'ghost' ||
+                         link.style === 'neobrutal' ||
+                         link.style === 'glass') 
+                         ? link.style 
+                         : 'default';
+      
+      return {
+        id: `temp-${Math.random().toString(36).substr(2, 9)}`, // Generate temporary IDs for preview
+        title: link.title,
+        url: link.url,
+        style: validStyle
+      };
+    })
   };
 
   return (
