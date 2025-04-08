@@ -85,7 +85,7 @@ export function useAuthState() {
           name: userData?.name || session.user.user_metadata.name || '',
           plan: plan,
           createdAt: new Date(session.user.created_at || Date.now()),
-          trialExpiresAt,
+          trialExpiresAt: trialExpiresAt,
           trialActive: userData?.teste_ativo || false,
         });
       } else {
@@ -116,7 +116,7 @@ export function useAuthState() {
             name: userData.name || data.session.user.user_metadata.name || '',
             plan: plan,
             createdAt: new Date(data.session.user.created_at || Date.now()),
-            trialExpiresAt,
+            trialExpiresAt: trialExpiresAt,
             trialActive: userData.teste_ativo || false,
           });
         } else {

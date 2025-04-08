@@ -12,6 +12,8 @@ export type UserProfile = {
   createdAt: Date;
   trialStartDate?: Date;
   trialEndDate?: Date;
+  trialExpiresAt?: Date | null;
   backgroundColor?: string; // Added this field to match with the property used in the code
   needsOnboarding?: boolean; // Add this property to fix the TypeScript error
+  trialActive?: boolean;
 };
