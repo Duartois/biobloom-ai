@@ -15,7 +15,7 @@ import BioPagePreview from '@/components/profile/BioPagePreview';
 const Onboarding = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { profile, updateProfile, createLink } = useLinks();
+  const { profile, updateProfile, addLink } = useLinks();
   
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,11 +69,10 @@ const Onboarding = () => {
         for (let i = 0; i < formData.links.length; i++) {
           const link = formData.links[i];
           if (link.title && link.url) {
-            await createLink({
+            await addLink({
               title: link.title,
               url: link.url,
               style: link.style || 'default',
-              ordem: i
             });
           }
         }
@@ -100,8 +99,11 @@ const Onboarding = () => {
     themeColor: formData.backgroundColor,
     opacity: formData.opacity,
     grayscale: formData.grayscale,
+    // Convert LinkData[] to Link[] for the preview
     links: formData.links.map(link => ({
-      ...link,
+      id: `temp-${Math.random().toString(36).substr(2, 9)}`, // Generate temporary IDs for preview
+      title: link.title,
+      url: link.url,
       style: link.style || 'default'
     }))
   };
