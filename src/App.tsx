@@ -17,7 +17,7 @@ import ConfirmEmail from "./pages/auth/ConfirmEmail";
 import Onboarding from "./pages/onboarding/Onboarding";
 import Dashboard from "./pages/dashboard/Dashboard";
 import LinksManager from "./pages/dashboard/LinksManager";
-import BioPageEditor from "./pages/dashboard/BioPageEditor";
+import BioPageEditor from "./pages/dashboard/bio/index";
 import ScheduleContent from "./pages/dashboard/ScheduleContent";
 import Analytics from "./pages/dashboard/Analytics";
 import Settings from "./pages/dashboard/Settings";

@@ -9,7 +9,7 @@ interface BioPageFormData {
   bio: string;
   theme: string;
   themeColor: string;
-  background_type: string;
+  background_type: 'color' | 'image';
   backgroundImage: string;
   opacity: number;
   grayscale: boolean;
@@ -25,7 +25,7 @@ export const useBioPageEditor = () => {
     bio: profile.bio || '',
     theme: profile.theme || 'default',
     themeColor: profile.themeColor || '#F8F9FA',
-    background_type: profile.background_type || 'color',
+    background_type: (profile.background_type as 'color' | 'image') || 'color',
     backgroundImage: profile.backgroundImage || '',
     opacity: profile.opacity !== undefined ? profile.opacity : 1.0,
     grayscale: profile.grayscale || false,
