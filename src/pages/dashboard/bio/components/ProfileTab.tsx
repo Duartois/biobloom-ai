@@ -3,15 +3,24 @@ import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 interface ProfileTabProps {
   name: string;
   bio: string;
-  username?: string;
+  username: string;
+  usernameError?: string | null;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
-export const ProfileTab: React.FC<ProfileTabProps> = ({ name, bio, username, onInputChange }) => {
+export const ProfileTab: React.FC<ProfileTabProps> = ({ 
+  name, 
+  bio, 
+  username, 
+  usernameError, 
+  onInputChange 
+}) => {
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -30,6 +39,27 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ name, bio, username, onI
       </div>
       
       <div className="space-y-2">
+        <Label htmlFor="username">Nome de Usuário</Label>
+        <Input
+          id="username"
+          name="username"
+          value={username}
+          onChange={onInputChange}
+          placeholder="username"
+          className="focus:ring-2 focus:ring-offset-1 focus:ring-blue-800"
+        />
+        <p className="text-xs text-muted-foreground">
+          Este nome será usado na URL do seu Bio Link: biobloom.com/{username || 'username'}
+        </p>
+        {usernameError && (
+          <Alert variant="destructive" className="mt-2">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>{usernameError}</AlertDescription>
+          </Alert>
+        )}
+      </div>
+      
+      <div className="space-y-2">
         <Label htmlFor="bio">Bio</Label>
         <Textarea
           id="bio"
@@ -43,16 +73,6 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ name, bio, username, onI
         <p className="text-xs text-muted-foreground">
           Máximo de 160 caracteres
         </p>
-      </div>
-      
-      <div className="flex items-center justify-between pt-2">
-        <span className="text-sm text-muted-foreground">
-          URL do seu bio link
-        </span>
-        <div className="flex items-center bg-muted/50 px-3 py-1 rounded-md">
-          <span className="text-sm text-muted-foreground mr-1">biobloom.com/</span>
-          <span className="text-sm font-medium">{username || 'username'}</span>
-        </div>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth/AuthContext';
@@ -6,6 +7,7 @@ import { useLinks, ProfileData } from '@/contexts/LinksContext';
 interface BioPageFormData {
   name: string;
   bio: string;
+  username: string;  // Added username field
   theme: ProfileData['theme'];
   themeColor: string;
   background_type: 'color' | 'image';
@@ -22,6 +24,7 @@ export const useBioPageEditor = () => {
   const [formData, setFormData] = useState<BioPageFormData>({
     name: profile.name || user?.name || '',
     bio: profile.bio || '',
+    username: user?.username || '',  // Initialize with user's username
     theme: profile.theme || 'default',
     themeColor: profile.themeColor || '#F8F9FA',
     background_type: (profile.background_type as 'color' | 'image') || 'color',
@@ -31,10 +34,20 @@ export const useBioPageEditor = () => {
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'username') {
+      // For username fields, enforce lowercase and remove special characters except underscores
+      const sanitizedValue = value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
+      // Clear any previous error when user is typing
+      setUsernameError(null);
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -75,14 +88,50 @@ export const useBioPageEditor = () => {
     setFormData(prev => ({ ...prev, grayscale }));
   };
 
+  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+    try {
+      // Skip check if username hasn't changed
+      if (username === user?.username) {
+        return true;
+      }
+      
+      // Check if username is available in the database
+      const { data, error } = await supabase
+        .from('users')
+        .select('username')
+        .eq('username', username)
+        .single();
+      
+      // If no data returned, username is available
+      return !data && !error;
+    } catch (error) {
+      console.error('Error checking username availability:', error);
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+    setUsernameError(null);
     
     try {
+      // If username has changed, check availability
+      if (formData.username !== user?.username) {
+        const isAvailable = await checkUsernameAvailability(formData.username);
+        
+        if (!isAvailable) {
+          setUsernameError("Este nome de usuário já está em uso");
+          setIsSaving(false);
+          return;
+        }
+      }
+      
+      // Update profile including username if changed
       await updateProfile({
         name: formData.name,
         bio: formData.bio,
+        username: formData.username,
         theme: formData.theme,
         themeColor: formData.themeColor,
         background_type: formData.background_type,
@@ -90,6 +139,7 @@ export const useBioPageEditor = () => {
         opacity: formData.opacity,
         grayscale: formData.grayscale,
       });
+      
       toast.success('Alterações salvas com sucesso!');
     } catch (error) {
       toast.error('Erro ao salvar alterações.');
@@ -104,6 +154,7 @@ export const useBioPageEditor = () => {
     ...profile,
     name: formData.name,
     bio: formData.bio,
+    username: formData.username,  // Add username to preview
     theme: formData.theme,
     themeColor: formData.themeColor,
     background_type: formData.background_type,
@@ -119,6 +170,7 @@ export const useBioPageEditor = () => {
     setActiveTab,
     isSaving,
     previewProfile,
+    usernameError,
     handleInputChange,
     handleSelectChange,
     handleBackgroundTypeChange,
@@ -129,3 +181,4 @@ export const useBioPageEditor = () => {
     handleSubmit
   };
 };
+

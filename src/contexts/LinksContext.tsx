@@ -229,14 +229,18 @@ export const LinksProvider = ({ children }: { children: ReactNode }) => {
       if (data.grayscale !== undefined) updates['grayscale'] = data.grayscale;
       if (data.profilePicture !== undefined) updates['logotipo'] = data.profilePicture;
 
-      // Update name in users table if provided
-      if (data.name !== undefined) {
-        const { error: nameError } = await supabase
+      // Update users table with name and username if provided
+      const userUpdates: Record<string, any> = {};
+      if (data.name !== undefined) userUpdates.name = data.name;
+      if (data.username !== undefined) userUpdates.username = data.username;
+      
+      if (Object.keys(userUpdates).length > 0) {
+        const { error: userError } = await supabase
           .from('users')
-          .update({ name: data.name })
+          .update(userUpdates)
           .eq('id', user.id);
 
-        if (nameError) throw nameError;
+        if (userError) throw userError;
       }
 
       // Only update profiles table if there are profile updates

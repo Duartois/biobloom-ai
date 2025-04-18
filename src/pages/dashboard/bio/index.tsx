@@ -7,6 +7,7 @@ import { ActionsHeader } from './components/ActionsHeader';
 import { ProfileTab } from './components/ProfileTab';
 import { AppearanceTab } from './components/AppearanceTab';
 import { PreviewCard } from './components/PreviewCard';
+import { supabase } from "@/integrations/supabase/client";
 
 const BioLinkEditor = () => {
   const {
@@ -16,6 +17,7 @@ const BioLinkEditor = () => {
     setActiveTab,
     isSaving,
     previewProfile,
+    usernameError,
     handleInputChange,
     handleSelectChange,
     handleBackgroundTypeChange,
@@ -29,7 +31,7 @@ const BioLinkEditor = () => {
   return (
     <DashboardLayout>
       <ActionsHeader 
-        username={user?.username} 
+        username={formData.username || user?.username} 
         isSaving={isSaving}
         onSubmit={handleSubmit}
       />
@@ -47,7 +49,8 @@ const BioLinkEditor = () => {
                 <ProfileTab
                   name={formData.name}
                   bio={formData.bio}
-                  username={user?.username}
+                  username={formData.username}
+                  usernameError={usernameError}
                   onInputChange={handleInputChange}
                 />
               </TabsContent>
@@ -75,7 +78,7 @@ const BioLinkEditor = () => {
         <div className="space-y-6">
           <PreviewCard 
             profile={previewProfile}
-            username={user?.username}
+            username={formData.username || user?.username}
           />
         </div>
       </div>
