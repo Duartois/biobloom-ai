@@ -17,6 +17,12 @@ const BioLinkPreview: React.FC<BioLinkPreviewProps> = ({
   compact = false,
   className = '' 
 }) => {
+  // Ensure URL has a protocol
+  const ensureProtocol = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+  };
+
   // Get styles for links based on theme selection
   const getLinkClassName = (style?: string) => {
     const baseClasses = "w-full p-3 rounded-lg mb-3 text-center transition-all flex items-center justify-center";
@@ -33,18 +39,12 @@ const BioLinkPreview: React.FC<BioLinkPreviewProps> = ({
         return `${baseClasses} bg-[#1B3B5A]/90 text-white hover:bg-[#1B3B5A]/80 shadow-sm hover:shadow`;
     }
   };
-
-  // Function to ensure URL has a protocol
-  const ensureProtocol = (url: string) => {
-    if (!url) return '';
-    return url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
-  };
-
+  
   // Use a default light gray color if no theme color is set
   const defaultBackgroundColor = '#F4F4F5';
   const containerClasses = compact 
     ? "w-full h-full max-w-full" 
-    : "w-[280px] h-[560px] border rounded-3xl shadow-lg";
+    : "w-[320px] h-[600px] border rounded-3xl shadow-lg";
 
   return (
     <div className={cn(containerClasses, "overflow-hidden relative", className)}>
@@ -66,13 +66,14 @@ const BioLinkPreview: React.FC<BioLinkPreviewProps> = ({
             }}
           ></div>
         )}
+        {/* Overlay gradient for better text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/30"></div>
       </div>
       
       {/* Content */}
-      <div className="absolute inset-0 flex flex-col items-center px-6 py-10">
+      <div className="absolute inset-0 flex flex-col items-center px-6 py-10 overflow-auto scrollbar-none">
         {/* Avatar */}
-        <div className="w-20 h-20 rounded-full bg-white border-4 border-white mb-4 flex items-center justify-center overflow-hidden shadow-md">
+        <div className="w-24 h-24 rounded-full bg-white border-4 border-white mb-4 flex items-center justify-center overflow-hidden shadow-lg">
           {profile.profilePicture ? (
             <img 
               src={profile.profilePicture} 
@@ -87,19 +88,28 @@ const BioLinkPreview: React.FC<BioLinkPreviewProps> = ({
         </div>
         
         {/* Name & Bio */}
-        <h3 className="text-lg font-bold text-white text-center mb-2">
+        <h3 className="text-xl font-bold text-white text-center mb-1">
           {profile.name || 'Seu Nome'}
         </h3>
-        <div className="w-12 h-1 bg-white/50 rounded-full mb-3"></div>
-        <p className="text-xs text-white/90 mb-6 text-center max-w-[90%] line-clamp-3">
+        
+        <div className="text-sm text-white/80 mb-2 text-center">
+          @{username || 'username'}
+        </div>
+        
+        <div className="w-12 h-1 bg-white/50 rounded-full mb-4"></div>
+        
+        <p className="text-sm text-white/90 mb-6 text-center max-w-[90%] line-clamp-3">
           {profile.bio || 'Sua descrição aparecerá aqui. Adicione uma biografia curta para compartilhar quem você é.'}
         </p>
         
         {/* Links */}
-        <div className="w-full space-y-2 flex-grow overflow-y-auto scrollbar-none px-1">
-          {profile.links?.slice(0, 5).map((link, index) => (
-            <div 
+        <div className="w-full space-y-3 flex-grow overflow-y-auto scrollbar-none px-1">
+          {profile.links?.slice(0, 8).map((link, index) => (
+            <a 
               key={index} 
+              href={ensureProtocol(link.url)}
+              target="_blank"
+              rel="noopener noreferrer"
               className={getLinkClassName(link.style)}
               style={{
                 backgroundColor: link.style === 'default' ? (profile.themeColor || '#1B3B5A') : undefined,
@@ -107,18 +117,18 @@ const BioLinkPreview: React.FC<BioLinkPreviewProps> = ({
               }}
             >
               <span className="font-medium">{link.title || 'Link'}</span>
-            </div>
+            </a>
           ))}
           
           {(!profile.links || profile.links.length === 0) && (
             <>
-              <div className={getLinkClassName('default')}>
+              <div className={getLinkClassName()}>
                 <span className="font-medium">Meu Primeiro Link</span>
               </div>
-              <div className={getLinkClassName('default')}>
+              <div className={getLinkClassName()}>
                 <span className="font-medium">Meu Site</span>
               </div>
-              <div className={getLinkClassName('default')}>
+              <div className={getLinkClassName()}>
                 <span className="font-medium">Contato</span>
               </div>
             </>
@@ -127,16 +137,16 @@ const BioLinkPreview: React.FC<BioLinkPreviewProps> = ({
         
         {/* Social Links */}
         {profile.socialLinks && (
-          <div className="flex space-x-3 mt-2 mb-2">
+          <div className="flex space-x-4 mt-4 mb-3">
             {profile.socialLinks.instagram && (
               <a 
                 href={ensureProtocol(profile.socialLinks.instagram)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
                 aria-label="Instagram"
               >
-                <Instagram className="h-4 w-4 text-white" />
+                <Instagram className="h-5 w-5 text-white" />
               </a>
             )}
             {profile.socialLinks.twitter && (
@@ -144,10 +154,10 @@ const BioLinkPreview: React.FC<BioLinkPreviewProps> = ({
                 href={ensureProtocol(profile.socialLinks.twitter)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
                 aria-label="Twitter"
               >
-                <Twitter className="h-4 w-4 text-white" />
+                <Twitter className="h-5 w-5 text-white" />
               </a>
             )}
             {profile.socialLinks.linkedin && (
@@ -155,10 +165,10 @@ const BioLinkPreview: React.FC<BioLinkPreviewProps> = ({
                 href={ensureProtocol(profile.socialLinks.linkedin)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
                 aria-label="LinkedIn"
               >
-                <Linkedin className="h-4 w-4 text-white" />
+                <Linkedin className="h-5 w-5 text-white" />
               </a>
             )}
             {profile.socialLinks.youtube && (
@@ -166,19 +176,19 @@ const BioLinkPreview: React.FC<BioLinkPreviewProps> = ({
                 href={ensureProtocol(profile.socialLinks.youtube)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
                 aria-label="YouTube"
               >
-                <Youtube className="h-4 w-4 text-white" />
+                <Youtube className="h-5 w-5 text-white" />
               </a>
             )}
           </div>
         )}
         
         {/* Footer */}
-        {username && (
+        {username && !compact && (
           <div className="pt-2 text-white/70 text-xs flex items-center">
-            <a href={`/${username}`} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-white">
+            <a href={`/${username}`} target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-white transition-colors">
               Ver bio link <ExternalLink className="h-3 w-3 ml-1" />
             </a>
           </div>
