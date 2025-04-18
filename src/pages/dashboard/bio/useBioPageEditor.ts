@@ -3,11 +3,11 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks, ProfileData } from '@/contexts/LinksContext';
+import { supabase } from "@/integrations/supabase/client";
 
 interface BioPageFormData {
   name: string;
   bio: string;
-  username: string;  // Added username field
   theme: ProfileData['theme'];
   themeColor: string;
   background_type: 'color' | 'image';
@@ -24,7 +24,6 @@ export const useBioPageEditor = () => {
   const [formData, setFormData] = useState<BioPageFormData>({
     name: profile.name || user?.name || '',
     bio: profile.bio || '',
-    username: user?.username || '',  // Initialize with user's username
     theme: profile.theme || 'default',
     themeColor: profile.themeColor || '#F8F9FA',
     background_type: (profile.background_type as 'color' | 'image') || 'color',
@@ -39,14 +38,11 @@ export const useBioPageEditor = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
-    if (name === 'username') {
-      // For username fields, enforce lowercase and remove special characters except underscores
-      const sanitizedValue = value.toLowerCase().replace(/[^a-z0-9_]/g, '');
-      setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
-      // Clear any previous error when user is typing
+    setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear any previous error when user is typing
+    if (name === 'name') {
       setUsernameError(null);
-    } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -90,7 +86,7 @@ export const useBioPageEditor = () => {
 
   const checkUsernameAvailability = async (username: string): Promise<boolean> => {
     try {
-      // Skip check if username hasn't changed
+      // Skip check if username hasn't changed from what the user already has
       if (username === user?.username) {
         return true;
       }
@@ -116,22 +112,31 @@ export const useBioPageEditor = () => {
     setUsernameError(null);
     
     try {
-      // If username has changed, check availability
-      if (formData.username !== user?.username) {
-        const isAvailable = await checkUsernameAvailability(formData.username);
+      // Generate username from name (lowercase, no special characters)
+      const sanitizedUsername = formData.name.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      
+      if (!sanitizedUsername) {
+        setUsernameError("Nome inválido para gerar um nome de usuário");
+        setIsSaving(false);
+        return;
+      }
+      
+      // Check if username is available (only if it changed)
+      if (sanitizedUsername !== user?.username) {
+        const isAvailable = await checkUsernameAvailability(sanitizedUsername);
         
         if (!isAvailable) {
-          setUsernameError("Este nome de usuário já está em uso");
+          setUsernameError("Este nome já está em uso por outro usuário");
           setIsSaving(false);
           return;
         }
       }
       
-      // Update profile including username if changed
+      // Update profile including username derived from name
       await updateProfile({
         name: formData.name,
         bio: formData.bio,
-        username: formData.username,
+        username: sanitizedUsername,
         theme: formData.theme,
         themeColor: formData.themeColor,
         background_type: formData.background_type,
@@ -154,7 +159,7 @@ export const useBioPageEditor = () => {
     ...profile,
     name: formData.name,
     bio: formData.bio,
-    username: formData.username,  // Add username to preview
+    username: formData.name.toLowerCase().replace(/[^a-z0-9_]/g, ''),
     theme: formData.theme,
     themeColor: formData.themeColor,
     background_type: formData.background_type,
@@ -181,4 +186,3 @@ export const useBioPageEditor = () => {
     handleSubmit
   };
 };
-

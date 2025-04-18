@@ -9,7 +9,6 @@ import { AlertTriangle } from "lucide-react";
 interface ProfileTabProps {
   name: string;
   bio: string;
-  username: string;
   usernameError?: string | null;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
@@ -17,7 +16,6 @@ interface ProfileTabProps {
 export const ProfileTab: React.FC<ProfileTabProps> = ({ 
   name, 
   bio, 
-  username, 
   usernameError, 
   onInputChange 
 }) => {
@@ -34,22 +32,10 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           className="focus:ring-2 focus:ring-offset-1 focus:ring-blue-800"
         />
         <p className="text-xs text-muted-foreground">
-          Este nome será exibido no seu Bio Link
+          Este nome será exibido no seu Bio Link e usado como nome de usuário
         </p>
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="username">Nome de Usuário</Label>
-        <Input
-          id="username"
-          name="username"
-          value={username}
-          onChange={onInputChange}
-          placeholder="username"
-          className="focus:ring-2 focus:ring-offset-1 focus:ring-blue-800"
-        />
         <p className="text-xs text-muted-foreground">
-          Este nome será usado na URL do seu Bio Link: biobloom.com/{username || 'username'}
+          Seu URL será: biobloom.com/{name.toLowerCase().replace(/[^a-z0-9_]/g, '') || 'username'}
         </p>
         {usernameError && (
           <Alert variant="destructive" className="mt-2">

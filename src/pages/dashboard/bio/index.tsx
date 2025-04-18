@@ -7,7 +7,6 @@ import { ActionsHeader } from './components/ActionsHeader';
 import { ProfileTab } from './components/ProfileTab';
 import { AppearanceTab } from './components/AppearanceTab';
 import { PreviewCard } from './components/PreviewCard';
-import { supabase } from "@/integrations/supabase/client";
 
 const BioLinkEditor = () => {
   const {
@@ -28,10 +27,13 @@ const BioLinkEditor = () => {
     handleSubmit
   } = useBioPageEditor();
 
+  // Generate username from name for the URL preview
+  const sanitizedUsername = formData.name.toLowerCase().replace(/[^a-z0-9_]/g, '');
+
   return (
     <DashboardLayout>
       <ActionsHeader 
-        username={formData.username || user?.username} 
+        username={sanitizedUsername || user?.username} 
         isSaving={isSaving}
         onSubmit={handleSubmit}
       />
@@ -49,7 +51,6 @@ const BioLinkEditor = () => {
                 <ProfileTab
                   name={formData.name}
                   bio={formData.bio}
-                  username={formData.username}
                   usernameError={usernameError}
                   onInputChange={handleInputChange}
                 />
@@ -78,7 +79,7 @@ const BioLinkEditor = () => {
         <div className="space-y-6">
           <PreviewCard 
             profile={previewProfile}
-            username={formData.username || user?.username}
+            username={sanitizedUsername || user?.username}
           />
         </div>
       </div>
