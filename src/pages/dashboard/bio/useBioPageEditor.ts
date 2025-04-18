@@ -1,13 +1,12 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth/AuthContext';
-import { useLinks } from '@/contexts/LinksContext';
+import { useLinks, ProfileData } from '@/contexts/LinksContext';
 
 interface BioPageFormData {
   name: string;
   bio: string;
-  theme: string;
+  theme: ProfileData['theme'];
   themeColor: string;
   background_type: 'color' | 'image';
   backgroundImage: string;
@@ -39,7 +38,13 @@ export const useBioPageEditor = () => {
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === 'theme') {
+      // Ensure theme is one of the allowed values
+      const themeValue = value as ProfileData['theme'];
+      setFormData(prev => ({ ...prev, [name]: themeValue }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleBackgroundTypeChange = (type: 'color' | 'image') => {
@@ -78,7 +83,7 @@ export const useBioPageEditor = () => {
       await updateProfile({
         name: formData.name,
         bio: formData.bio,
-        theme: formData.theme as any,
+        theme: formData.theme,
         themeColor: formData.themeColor,
         background_type: formData.background_type,
         backgroundImage: formData.background_type === 'image' ? formData.backgroundImage : undefined,

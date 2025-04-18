@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
 import { Link2, Calendar, ExternalLink } from 'lucide-react';
-import BioPagePreview from '@/components/profile/BioPagePreview';
+import BioLinkPreview from '@/components/profile/BioLinkPreview';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -48,11 +47,11 @@ const Dashboard = () => {
         <div className="grid gap-6 md:grid-cols-2 mb-8">
           <Card>
             <CardHeader>
-              <CardTitle>Bio-page Preview</CardTitle>
-              <CardDescription>Veja como sua bio-page está</CardDescription>
+              <CardTitle>Bio Link Preview</CardTitle>
+              <CardDescription>Veja como seu bio link está</CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center p-6 border-t border-b">
-              <BioPagePreview 
+              <BioLinkPreview 
                 profile={profile}
                 username={user?.username}
               />
@@ -61,7 +60,7 @@ const Dashboard = () => {
               <Button variant="outline" asChild>
                 <Link to="/dashboard/bio">
                   <Link2 className="mr-2 h-4 w-4" />
-                  Editar Bio-page
+                  Editar Bio Link
                 </Link>
               </Button>
               <Button variant="default" asChild>
