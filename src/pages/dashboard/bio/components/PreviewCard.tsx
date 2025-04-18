@@ -2,9 +2,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import BioLinkPreview from '@/components/profile/BioLinkPreview';
+import { ProfileData } from '@/contexts/LinksContext';
 
 interface PreviewCardProps {
-  profile: any;
+  profile: Partial<ProfileData>;
   username?: string;
 }
 
@@ -13,7 +14,7 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({ profile, username }) =
     <Card>
       <CardHeader>
         <CardTitle className="text-base font-medium">
-          Pré-visualização
+          Pré-visualização do Bio Link
         </CardTitle>
       </CardHeader>
       <CardContent className="flex justify-center pt-2">

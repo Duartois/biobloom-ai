@@ -31,6 +31,7 @@ const PublicProfile = () => {
         }
         
         setProfile(profileData);
+        console.log('Profile data loaded:', profileData);
       } catch (err) {
         setError('Erro ao carregar o perfil');
         console.error('Error loading profile:', err);
