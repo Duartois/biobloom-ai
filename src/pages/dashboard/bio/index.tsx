@@ -8,7 +8,7 @@ import { ProfileTab } from './components/ProfileTab';
 import { AppearanceTab } from './components/AppearanceTab';
 import { PreviewCard } from './components/PreviewCard';
 
-const BioPageEditor = () => {
+const BioLinkEditor = () => {
   const {
     user,
     formData,
@@ -55,7 +55,7 @@ const BioPageEditor = () => {
               <TabsContent value="appearance" className="p-4 border rounded-md mt-2">
                 <AppearanceTab
                   theme={formData.theme}
-                  backgroundType={formData.background_type as 'image' | 'color'}
+                  backgroundType={formData.background_type}
                   backgroundImage={formData.backgroundImage}
                   themeColor={formData.themeColor}
                   opacity={formData.opacity}
@@ -83,4 +83,4 @@ const BioPageEditor = () => {
   );
 };
 
-export default BioPageEditor;
+export default BioLinkEditor;

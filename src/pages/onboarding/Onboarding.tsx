@@ -1,15 +1,15 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks } from '@/contexts/LinksContext';
-import { supabase } from "@/integrations/supabase/client";
 import { ProfileForm, ProfileFormData } from './components/ProfileForm';
 import { BackgroundSelector } from './components/BackgroundSelector';
 import { BackgroundData } from './components/BackgroundSelector';
 import { LinksForm, LinkData } from './components/LinksForm';
-import BioPagePreview from '@/components/profile/BioPagePreview';
+import BioLinkPreview from '@/components/profile/BioLinkPreview';
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ const Onboarding = () => {
       await updateProfile({
         name: formData.name,
         bio: formData.bio || '', // Permite bio vazia
-        background_type: data.backgroundType,
+        background_type: data.backgroundType as 'color' | 'image',
         backgroundImage: data.backgroundType === 'image' ? data.backgroundImage : '',
         themeColor: data.backgroundType === 'color' ? data.backgroundColor : '#F4F4F5',
         opacity: data.opacity,
@@ -111,7 +111,7 @@ const Onboarding = () => {
     ...profile,
     name: formData.name,
     bio: formData.bio,
-    background_type: formData.backgroundType,
+    background_type: formData.backgroundType as 'color' | 'image',
     backgroundImage: formData.backgroundImage,
     themeColor: formData.backgroundColor,
     opacity: formData.opacity,
@@ -142,7 +142,7 @@ const Onboarding = () => {
         <header className="mb-8 text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">Vamos configurar seu perfil</h1>
           <p className="text-muted-foreground mt-2">
-            Personalize sua Bio-page para compartilhar seus links
+            Personalize seu Bio Link para compartilhar seus links
           </p>
         </header>
         
@@ -189,7 +189,7 @@ const Onboarding = () => {
           <div className="hidden md:flex flex-col space-y-4">
             <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Preview</div>
             <div className="flex justify-center h-full">
-              <BioPagePreview 
+              <BioLinkPreview 
                 profile={previewProfile}
                 username={user?.username}
               />

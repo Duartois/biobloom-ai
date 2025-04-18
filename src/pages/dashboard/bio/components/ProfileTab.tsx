@@ -25,7 +25,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ name, bio, username, onI
           className="focus:ring-2 focus:ring-offset-1 focus:ring-blue-800"
         />
         <p className="text-xs text-muted-foreground">
-          Este nome será exibido na sua Bio-page
+          Este nome será exibido no seu Bio Link
         </p>
       </div>
       
@@ -47,7 +47,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({ name, bio, username, onI
       
       <div className="flex items-center justify-between pt-2">
         <span className="text-sm text-muted-foreground">
-          URL da sua bio-page
+          URL do seu bio link
         </span>
         <div className="flex items-center bg-muted/50 px-3 py-1 rounded-md">
           <span className="text-sm text-muted-foreground mr-1">biobloom.com/</span>

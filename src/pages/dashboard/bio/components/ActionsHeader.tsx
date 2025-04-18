@@ -13,7 +13,7 @@ interface ActionsHeaderProps {
 export const ActionsHeader: React.FC<ActionsHeaderProps> = ({ username, isSaving, onSubmit }) => {
   return (
     <div className="flex items-center justify-between mb-6">
-      <h1 className="text-2xl font-bold">Editar Bio-Page</h1>
+      <h1 className="text-2xl font-bold">Editar Bio Link</h1>
       <div className="flex gap-2">
         <Button 
           variant="outline"

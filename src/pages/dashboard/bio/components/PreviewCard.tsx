@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import BioPagePreview from '@/components/profile/BioPagePreview';
+import BioLinkPreview from '@/components/profile/BioLinkPreview';
 
 interface PreviewCardProps {
   profile: any;
@@ -17,7 +17,7 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({ profile, username }) =
         </CardTitle>
       </CardHeader>
       <CardContent className="flex justify-center pt-2">
-        <BioPagePreview 
+        <BioLinkPreview 
           profile={profile} 
           username={username}
         />
