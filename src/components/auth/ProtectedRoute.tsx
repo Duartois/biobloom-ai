@@ -18,29 +18,28 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Se autenticado e precisando de onboarding, redirecionar para onboarding
-    // Mas apenas se não estiver já na página de onboarding
-    if (isAuthenticated && 
-        needsOnboarding && 
-        !loading && 
-        location.pathname !== '/onboarding') {
-      console.log('Redirecting to onboarding page from:', location.pathname);
-      navigate('/onboarding', { replace: true });
-      return;
-    }
+    // Only redirect if we're not in a loading state
+    if (!loading) {
+      // Se autenticado e precisando de onboarding, redirecionar para onboarding
+      // Mas apenas se não estiver já na página de onboarding
+      if (isAuthenticated && 
+          needsOnboarding && 
+          location.pathname !== '/onboarding') {
+        navigate('/onboarding', { replace: true });
+        return;
+      }
 
-    // Se já completou onboarding e estiver tentando acessar /onboarding, redirecionar para dashboard
-    if (isAuthenticated && 
-        !needsOnboarding && 
-        !loading && 
-        location.pathname === '/onboarding') {
-      console.log('Onboarding already completed, redirecting to dashboard');
-      navigate('/dashboard', { replace: true });
-      return;
+      // Se já completou onboarding e estiver tentando acessar /onboarding, redirecionar para dashboard
+      if (isAuthenticated && 
+          !needsOnboarding && 
+          location.pathname === '/onboarding') {
+        navigate('/dashboard', { replace: true });
+        return;
+      }
     }
-  }, [isAuthenticated, needsOnboarding, loading, navigate, location]);
+  }, [isAuthenticated, needsOnboarding, loading, navigate, location.pathname]);
 
-  // Show loading state while checking authentication
+  // Show loading state while checking authentication - with timeout protection
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">

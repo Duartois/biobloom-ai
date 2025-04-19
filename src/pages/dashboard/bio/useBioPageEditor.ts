@@ -130,6 +130,19 @@ export const useBioPageEditor = () => {
           setIsSaving(false);
           return;
         }
+        
+        // Update username in users table if it changed
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ username: sanitizedUsername })
+          .eq('id', user?.id);
+        
+        if (updateError) {
+          console.error('Error updating username:', updateError);
+          setUsernameError("Erro ao atualizar nome de usuário");
+          setIsSaving(false);
+          return;
+        }
       }
       
       // Update profile including username derived from name

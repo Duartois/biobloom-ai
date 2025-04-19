@@ -19,6 +19,8 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   usernameError, 
   onInputChange 
 }) => {
+  const sanitizedUsername = name?.toLowerCase().replace(/[^a-z0-9_]/g, '') || 'username';
+  
   return (
     <div className="space-y-5">
       <div className="space-y-2">
@@ -32,11 +34,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           className="focus:ring-2 focus:ring-offset-1 focus:ring-blue-800"
         />
         <p className="text-xs text-muted-foreground">
-          Este nome será exibido no seu Bio Link e usado como nome de usuário
+          Este nome será exibido no seu Bio Link e também usado como seu nome de usuário
         </p>
-        <p className="text-xs text-muted-foreground">
-          Seu URL será: biobloom.com/{name.toLowerCase().replace(/[^a-z0-9_]/g, '') || 'username'}
-        </p>
+        <div className="flex flex-col space-y-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-md">
+          <p className="text-xs font-medium">Seu URL será:</p>
+          <p className="text-sm font-semibold text-blue-800 dark:text-blue-400">
+            biobloom.com/{sanitizedUsername}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            (Caracteres especiais e espaços serão removidos automaticamente)
+          </p>
+        </div>
         {usernameError && (
           <Alert variant="destructive" className="mt-2">
             <AlertTriangle className="h-4 w-4" />
