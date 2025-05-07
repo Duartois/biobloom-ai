@@ -9,9 +9,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { BackgroundSelector } from '@/components/backgrounds/BackgroundSelector';
+import { BioPageFormData } from '@/types/bio';
 
 interface AppearanceTabProps {
-  theme: string;
+  theme: BioPageFormData['theme'];
   backgroundType: 'color' | 'image';
   backgroundImage: string;
   themeColor: string;
@@ -47,7 +48,10 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
           value={theme}
           onValueChange={(value) => onSelectChange('theme', value)}
         >
-          <SelectTrigger className="w-full focus:ring-2 focus:ring-offset-1 focus:ring-blue-800">
+          <SelectTrigger 
+            id="theme"
+            className="w-full focus:ring-2 focus:ring-offset-1 focus:ring-blue-800"
+          >
             <SelectValue placeholder="Selecione um estilo" />
           </SelectTrigger>
           <SelectContent>
@@ -71,10 +75,10 @@ export const AppearanceTab: React.FC<AppearanceTabProps> = ({
         <BackgroundSelector
           backgroundType={backgroundType}
           setBackgroundType={onBackgroundTypeChange}
-          selectedImage={backgroundImage}
-          setSelectedImage={onBackgroundSelection}
-          selectedColor={themeColor}
-          setSelectedColor={onColorSelection}
+          selectedImage={backgroundImage || null}
+          setSelectedImage={(url) => onBackgroundSelection(url || '')}
+          selectedColor={themeColor || null}
+          setSelectedColor={(color) => onColorSelection(color || '')}
           opacity={opacity}
           setOpacity={onOpacityChange}
           grayscale={grayscale}

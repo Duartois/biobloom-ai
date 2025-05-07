@@ -20,7 +20,8 @@ export const PreviewCard: React.FC<PreviewCardProps> = ({ profile, username }) =
       <CardContent className="flex justify-center pt-2">
         <BioLinkPreview 
           profile={profile} 
-          username={username}
+          username={username || ''}
+          aria-label="Pré-visualização do seu Bio Link"
         />
       </CardContent>
     </Card>

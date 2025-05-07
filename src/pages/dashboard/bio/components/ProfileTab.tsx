@@ -20,6 +20,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   onInputChange 
 }) => {
   const sanitizedUsername = name?.toLowerCase().replace(/[^a-z0-9_]/g, '') || 'username';
+  const appUrl = window.location.origin;
   
   return (
     <div className="space-y-5">
@@ -32,14 +33,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           onChange={onInputChange}
           placeholder="Seu nome ou nome da marca"
           className="focus:ring-2 focus:ring-offset-1 focus:ring-blue-800"
+          aria-describedby="name-description"
+          maxLength={50}
+          required
         />
-        <p className="text-xs text-muted-foreground">
-          Este nome será exibido no seu Bio Link e também usado como seu nome de usuário
+        <p id="name-description" className="text-xs text-muted-foreground">
+          Este nome será exibido no seu Bio Link e também usado para gerar seu nome de usuário
         </p>
         <div className="flex flex-col space-y-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-md">
           <p className="text-xs font-medium">Seu URL será:</p>
-          <p className="text-sm font-semibold text-blue-800 dark:text-blue-400">
-            biobloom.com/{sanitizedUsername}
+          <p className="text-sm font-semibold text-blue-800 dark:text-blue-400 break-all">
+            {appUrl}/{sanitizedUsername}
           </p>
           <p className="text-xs text-muted-foreground">
             (Caracteres especiais e espaços serão removidos automaticamente)
@@ -63,9 +67,11 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           placeholder="Uma breve descrição sobre você ou sua marca"
           rows={3}
           className="resize-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-800"
+          maxLength={160}
+          aria-describedby="bio-description"
         />
-        <p className="text-xs text-muted-foreground">
-          Máximo de 160 caracteres
+        <p id="bio-description" className="text-xs text-muted-foreground">
+          Máximo de 160 caracteres - {bio ? 160 - bio.length : 160} restantes
         </p>
       </div>
     </div>

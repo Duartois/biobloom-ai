@@ -4,17 +4,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { useLinks, ProfileData } from '@/contexts/LinksContext';
 import { supabase } from "@/integrations/supabase/client";
-
-interface BioPageFormData {
-  name: string;
-  bio: string;
-  theme: ProfileData['theme'];
-  themeColor: string;
-  background_type: 'color' | 'image';
-  backgroundImage: string;
-  opacity: number;
-  grayscale: boolean;
-}
+import { BioPageFormData, DEFAULT_BACKGROUND_COLOR } from '@/types/bio';
 
 export const useBioPageEditor = () => {
   const { user } = useAuth();
@@ -25,7 +15,7 @@ export const useBioPageEditor = () => {
     name: profile.name || user?.name || '',
     bio: profile.bio || '',
     theme: profile.theme || 'default',
-    themeColor: profile.themeColor || '#F8F9FA',
+    themeColor: profile.themeColor || DEFAULT_BACKGROUND_COLOR,
     background_type: (profile.background_type as 'color' | 'image') || 'color',
     backgroundImage: profile.backgroundImage || '',
     opacity: profile.opacity !== undefined ? profile.opacity : 1.0,
@@ -49,7 +39,7 @@ export const useBioPageEditor = () => {
   const handleSelectChange = (name: string, value: string) => {
     if (name === 'theme') {
       // Ensure theme is one of the allowed values
-      const themeValue = value as ProfileData['theme'];
+      const themeValue = value as BioPageFormData['theme'];
       setFormData(prev => ({ ...prev, [name]: themeValue }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -76,7 +66,11 @@ export const useBioPageEditor = () => {
     }));
   };
 
+  // Implementação completa de handleOpacityChange
   const handleOpacityChange = (opacity: number) => {
+    if (opacity < 0.2) opacity = 0.2; // Mínimo de 20% de opacidade para manter legibilidade
+    if (opacity > 1.0) opacity = 1.0; // Máximo de 100% de opacidade
+    
     setFormData(prev => ({ ...prev, opacity }));
   };
 
@@ -84,8 +78,18 @@ export const useBioPageEditor = () => {
     setFormData(prev => ({ ...prev, grayscale }));
   };
 
+  const sanitizeUsername = (name: string): string => {
+    // Remove caracteres especiais e espaços, converter para minúsculas
+    return name.toLowerCase().replace(/[^a-z0-9_]/g, '');
+  };
+
   const checkUsernameAvailability = async (username: string): Promise<boolean> => {
     try {
+      // Validação básica do nome de usuário
+      if (!username || username.length < 3) {
+        return false;
+      }
+      
       // Skip check if username hasn't changed from what the user already has
       if (username === user?.username) {
         return true;
@@ -113,10 +117,10 @@ export const useBioPageEditor = () => {
     
     try {
       // Generate username from name (lowercase, no special characters)
-      const sanitizedUsername = formData.name.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      const sanitizedUsername = sanitizeUsername(formData.name);
       
-      if (!sanitizedUsername) {
-        setUsernameError("Nome inválido para gerar um nome de usuário");
+      if (!sanitizedUsername || sanitizedUsername.length < 3) {
+        setUsernameError("Nome inválido para gerar um nome de usuário. Deve ter pelo menos 3 caracteres alfanuméricos.");
         setIsSaving(false);
         return;
       }
@@ -126,7 +130,7 @@ export const useBioPageEditor = () => {
         const isAvailable = await checkUsernameAvailability(sanitizedUsername);
         
         if (!isAvailable) {
-          setUsernameError("Este nome já está em uso por outro usuário");
+          setUsernameError("Este nome já está em uso por outro usuário ou é inválido");
           setIsSaving(false);
           return;
         }
@@ -172,7 +176,7 @@ export const useBioPageEditor = () => {
     ...profile,
     name: formData.name,
     bio: formData.bio,
-    username: formData.name.toLowerCase().replace(/[^a-z0-9_]/g, ''),
+    username: sanitizeUsername(formData.name),
     theme: formData.theme,
     themeColor: formData.themeColor,
     background_type: formData.background_type,
@@ -196,6 +200,7 @@ export const useBioPageEditor = () => {
     handleColorSelection,
     handleOpacityChange,
     handleGrayscaleChange,
-    handleSubmit
+    handleSubmit,
+    sanitizeUsername
   };
 };

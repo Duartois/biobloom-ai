@@ -16,17 +16,20 @@ const PublicProfile = () => {
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     const loadProfile = async () => {
+      if (!isMounted) return;
+      
       setIsLoading(true);
       setError(null);
       
       // Set a timeout to prevent infinite loading
       const timeoutId = setTimeout(() => {
-        if (isLoading) {
+        if (isMounted && isLoading) {
           setTimedOut(true);
           setError('Tempo esgotado ao carregar o perfil. Por favor, tente novamente.');
         }
-      }, 10000); // 10 seconds timeout
+      }, 8000); // Reduced to 8 seconds timeout
       
       try {
         if (!username) {
@@ -43,36 +46,53 @@ const PublicProfile = () => {
           
         if (userError || !userData) {
           console.log('User not found in database:', userError);
-          setError('Perfil não encontrado');
+          if (isMounted) {
+            setError('Perfil não encontrado');
+            setIsLoading(false);
+          }
+          clearTimeout(timeoutId);
           return;
         }
         
         const profileData = await fetchProfileByUsername(username);
         
-        if (!profileData) {
+        if (!profileData && isMounted) {
           setError('Perfil não encontrado');
+          setIsLoading(false);
+          clearTimeout(timeoutId);
           return;
         }
         
-        setProfile(profileData);
-        console.log('Profile data loaded:', profileData);
+        if (isMounted) {
+          setProfile(profileData);
+          setIsLoading(false);
+        }
       } catch (err) {
         console.error('Error loading profile:', err);
-        setError('Erro ao carregar o perfil');
+        if (isMounted) {
+          setError('Erro ao carregar o perfil');
+          setIsLoading(false);
+        }
       } finally {
-        setIsLoading(false);
         clearTimeout(timeoutId);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     loadProfile();
-  }, [username, fetchProfileByUsername]);
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [username, fetchProfileByUsername, isLoading]);
 
   if (isLoading && !timedOut) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-800 dark:text-white" />
+          <Loader2 className="h-12 w-12 animate-spin text-blue-800 dark:text-white" aria-hidden="true" />
           <p className="text-gray-600 dark:text-gray-300">Carregando perfil...</p>
         </div>
       </div>
@@ -100,8 +120,9 @@ const PublicProfile = () => {
       <div className="w-full max-w-md mx-auto">
         <BioLinkPreview 
           profile={profile}
-          username={username}
+          username={username || ''}
           className="w-full h-[600px] mx-auto"
+          aria-label={`Perfil público de ${profile.name || username}`}
         />
       </div>
     </div>
