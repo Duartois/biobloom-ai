@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
@@ -132,7 +133,7 @@ const Pricing = () => {
           </button>
           <div className="relative w-14 h-7 bg-muted rounded-full">
             <div
-              className={`absolute w-5 h-5 bg-primary rounded-full top-1 transition-all ${
+              className={`absolute w-5 h-5 bg-festa-amarelo rounded-full top-1 transition-all ${
                 duration === 'monthly' ? 'left-1' : 'left-8'
               }`}
             />
@@ -144,7 +145,7 @@ const Pricing = () => {
             onClick={() => setDuration('annual')}
           >
             Anual
-            <span className="ml-2 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
+            <span className="ml-2 bg-festa-amarelo/10 text-festa-amarelo text-xs px-2 py-0.5 rounded-full">
               Economize 20%
             </span>
           </button>
@@ -152,7 +153,7 @@ const Pricing = () => {
 
         {loading ? (
           <div className="flex justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-biobloom-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-festa-amarelo"></div>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -172,7 +173,7 @@ const Pricing = () => {
                 <ul className="space-y-3">
                   {freePlan?.recursos?.map((recurso, idx) => (
                     <li key={idx} className="flex text-sm">
-                      <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                      <Check className="h-5 w-5 text-festa-amarelo mr-2 flex-shrink-0" />
                       <span>{recurso}</span>
                     </li>
                   ))}
@@ -209,7 +210,7 @@ const Pricing = () => {
                 <ul className="space-y-3">
                   {starterPlan?.recursos?.map((recurso, idx) => (
                     <li key={idx} className="flex text-sm">
-                      <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                      <Check className="h-5 w-5 text-festa-amarelo mr-2 flex-shrink-0" />
                       <span>{recurso}</span>
                     </li>
                   ))}
@@ -217,7 +218,7 @@ const Pricing = () => {
                 <Button
                   onClick={() => handleSelectPlan('starter')}
                   variant="outline"
-                  className="w-full mt-6"
+                  className="w-full mt-6 border-festa-amarelo text-festa-amarelo hover:bg-festa-amarelo/10"
                 >
                   Assinar Plano Inicial
                 </Button>
@@ -225,8 +226,8 @@ const Pricing = () => {
             </div>
 
             {/* Pro plan */}
-            <div className="bg-background border-2 border-primary rounded-xl overflow-hidden relative transform hover:scale-105 transition-transform">
-              <div className="absolute -top-3 -right-3 bg-secondary text-white text-xs px-3 py-1 rounded-full transform rotate-12">
+            <div className="bg-background border-2 border-festa-amarelo rounded-xl overflow-hidden relative transform hover:scale-105 transition-transform">
+              <div className="absolute -top-3 -right-3 bg-festa-laranja text-white text-xs px-3 py-1 rounded-full transform rotate-12">
                 Popular
               </div>
               <div className="p-6 border-b">
@@ -249,14 +250,14 @@ const Pricing = () => {
                 <ul className="space-y-3">
                   {proPlan?.recursos?.map((recurso, idx) => (
                     <li key={idx} className="flex text-sm">
-                      <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                      <Check className="h-5 w-5 text-festa-amarelo mr-2 flex-shrink-0" />
                       <span>{recurso}</span>
                     </li>
                   ))}
                 </ul>
                 <Button
                   onClick={() => handleSelectPlan('pro')}
-                  className="w-full mt-6"
+                  className="w-full mt-6 bg-festa-amarelo hover:bg-festa-laranja text-white"
                 >
                   Assinar Plano Pro
                 </Button>
@@ -285,7 +286,7 @@ const Pricing = () => {
                 <ul className="space-y-3">
                   {premiumPlan?.recursos?.map((recurso, idx) => (
                     <li key={idx} className="flex text-sm">
-                      <Check className="h-5 w-5 text-primary mr-2 flex-shrink-0" />
+                      <Check className="h-5 w-5 text-festa-amarelo mr-2 flex-shrink-0" />
                       <span>{recurso}</span>
                     </li>
                   ))}
@@ -293,7 +294,7 @@ const Pricing = () => {
                 <Button
                   onClick={() => handleSelectPlan('premium')}
                   variant="outline"
-                  className="w-full mt-6"
+                  className="w-full mt-6 border-festa-amarelo text-festa-amarelo hover:bg-festa-amarelo/10"
                 >
                   Assinar Plano Premium
                 </Button>
@@ -305,7 +306,7 @@ const Pricing = () => {
         <div className="mt-16 text-center">
           <p className="text-muted-foreground">
             Precisa de um plano personalizado para sua empresa?{' '}
-            <a href="#" className="text-primary underline">
+            <a href="#" className="text-festa-amarelo underline">
               Entre em contato conosco
             </a>
           </p>

@@ -104,7 +104,7 @@ const Login = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Senha</Label>
-                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                <Link to="/forgot-password" className="text-sm text-festa-amarelo hover:underline">
                   Esqueceu sua senha?
                 </Link>
               </div>
@@ -119,7 +119,7 @@ const Login = () => {
             </div>
             <Button 
               type="submit" 
-              className="w-full"
+              className="w-full bg-festa-amarelo hover:bg-festa-laranja text-white"
               disabled={loading || isRedirecting}
             >
               {loading ? (
@@ -139,7 +139,7 @@ const Login = () => {
           </form>
           <div className="mt-4 text-center text-sm">
             Não tem uma conta?{' '}
-            <Link to="/register" className="text-primary hover:underline">
+            <Link to="/register" className="text-festa-amarelo hover:underline">
               Cadastre-se
             </Link>
           </div>
