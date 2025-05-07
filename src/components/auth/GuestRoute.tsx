@@ -10,7 +10,7 @@ interface GuestRouteProps {
 }
 
 const GuestRoute: React.FC<GuestRouteProps> = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, session } = useAuth();
   const location = useLocation();
   const [waitedTooLong, setWaitedTooLong] = useState(false);
   const [authError, setAuthError] = useState<boolean>(false);
@@ -48,7 +48,7 @@ const GuestRoute: React.FC<GuestRouteProps> = ({ children }) => {
         </p>
         <Button 
           onClick={() => window.location.reload()}
-          className="bg-blue-800 hover:bg-blue-700 text-white"
+          className="bg-festa-amarelo hover:bg-festa-laranja text-white"
         >
           Tentar novamente
         </Button>
@@ -61,7 +61,7 @@ const GuestRoute: React.FC<GuestRouteProps> = ({ children }) => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" aria-hidden="true" />
+          <Loader2 className="h-12 w-12 animate-spin text-festa-amarelo" aria-hidden="true" />
           <p className="text-muted-foreground">Verificando autenticação...</p>
         </div>
       </div>

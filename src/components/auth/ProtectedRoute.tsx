@@ -4,6 +4,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -14,11 +15,21 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   requireOnboarding = false 
 }) => {
-  const { isAuthenticated, loading, needsOnboarding } = useAuth();
+  const { isAuthenticated, loading, needsOnboarding, session } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [waitedTooLong, setWaitedTooLong] = useState(false);
   const [authError, setAuthError] = useState<boolean>(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+
+  // Check for session validity
+  useEffect(() => {
+    if (session === null && !loading && !isRetrying) {
+      console.info("No valid session found, redirecting to login");
+      toast.error("Sessão expirada ou inválida. Por favor, faça login novamente.");
+      navigate("/login", { state: { from: location.pathname } });
+    }
+  }, [session, loading, navigate, location.pathname, isRetrying]);
 
   useEffect(() => {
     // Set timeout in case auth takes too long
@@ -45,25 +56,33 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   useEffect(() => {
     // Only redirect if we're not in a loading state
-    if (!loading && !waitedTooLong) {
-      // Se autenticado e precisando de onboarding, redirecionar para onboarding
-      // Mas apenas se não estiver já na página de onboarding
-      if (isAuthenticated && 
-          needsOnboarding && 
+    if (!loading && !waitedTooLong && isAuthenticated) {
+      // If authenticated and needs onboarding, redirect to onboarding
+      // But only if not already on the onboarding page
+      if (needsOnboarding && 
           location.pathname !== '/onboarding') {
         navigate('/onboarding', { replace: true });
         return;
       }
 
-      // Se já completou onboarding e estiver tentando acessar /onboarding, redirecionar para dashboard
-      if (isAuthenticated && 
-          !needsOnboarding && 
+      // If already completed onboarding and trying to access /onboarding, redirect to dashboard
+      if (!needsOnboarding && 
           location.pathname === '/onboarding') {
         navigate('/dashboard', { replace: true });
         return;
       }
     }
   }, [isAuthenticated, needsOnboarding, loading, navigate, location.pathname, waitedTooLong]);
+
+  // Handle retry attempt
+  const handleRetry = () => {
+    setIsRetrying(true);
+    setAuthError(false);
+    setWaitedTooLong(false);
+    
+    // Force refresh page to fully reload authentication
+    window.location.reload();
+  };
 
   // Handle complete auth failure
   if (authError) {
@@ -75,8 +94,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         </p>
         <div className="flex gap-4">
           <Button 
-            onClick={() => window.location.reload()}
-            className="bg-blue-800 hover:bg-blue-700 text-white"
+            onClick={handleRetry}
+            className="bg-festa-amarelo hover:bg-festa-laranja text-white"
           >
             Tentar novamente
           </Button>
@@ -96,7 +115,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" aria-hidden="true" />
+          <Loader2 className="h-12 w-12 animate-spin text-festa-amarelo" aria-hidden="true" />
           <p className="text-muted-foreground">Verificando autenticação...</p>
         </div>
       </div>

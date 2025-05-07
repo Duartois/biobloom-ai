@@ -64,6 +64,11 @@ const Login = () => {
     e.preventDefault();
     setError(null);
     
+    if (!usernameOrEmail || !password) {
+      setError("Preencha todos os campos");
+      return;
+    }
+    
     try {
       await login(usernameOrEmail, password);
     } catch (err: any) {
@@ -119,7 +124,7 @@ const Login = () => {
             </div>
             <Button 
               type="submit" 
-              className="w-full bg-festa-amarelo hover:bg-festa-laranja text-white"
+              className="w-full"
               disabled={loading || isRedirecting}
             >
               {loading ? (

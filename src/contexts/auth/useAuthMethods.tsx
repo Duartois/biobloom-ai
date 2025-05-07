@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +12,11 @@ export const useAuthMethods = (user: UserProfile | null) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
   };
 
+  // Function to normalize username (all lowercase, remove invalid chars)
+  const normalizeUsername = (username: string): string => {
+    return username.toLowerCase().replace(/[^a-z0-9_]/g, '');
+  };
+
   // Login modificado para aceitar username ou email
   const login = async (usernameOrEmail: string, password: string) => {
     try {
@@ -20,13 +26,17 @@ export const useAuthMethods = (user: UserProfile | null) => {
       
       // Se não for um email, buscar o email correspondente ao username
       if (!isEmail(usernameOrEmail)) {
+        // Normalize username for consistency
+        const normalizedUsername = normalizeUsername(usernameOrEmail);
+        
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('email')
-          .eq('username', usernameOrEmail)
+          .ilike('username', normalizedUsername)
           .maybeSingle();
           
         if (userError || !userData || !userData.email) {
+          console.error('Error finding user by username:', userError);
           throw new Error("Usuário não encontrado. Verifique seu nome de usuário.");
         }
         
@@ -39,9 +49,10 @@ export const useAuthMethods = (user: UserProfile | null) => {
       });
 
       if (error) {
+        console.error('Login error:', error);
         // Personalizar a mensagem de erro
         if (error.message.includes('Invalid login credentials')) {
-          throw new Error("Senha incorreta. Por favor, tente novamente.");
+          throw new Error("Credenciais inválidas. Verifique seu email/usuário e senha.");
         }
         throw error;
       }
@@ -72,14 +83,17 @@ export const useAuthMethods = (user: UserProfile | null) => {
     try {
       setLoading(true);
       
-      console.log('Registering user:', email, username);
+      // Normalize username for consistency
+      const normalizedUsername = normalizeUsername(username);
+      
+      console.log('Registering user:', email, normalizedUsername);
       
       // First check if username is taken
       const { data: existingUser } = await supabase
         .from('users')
         .select('username')
-        .eq('username', username)
-        .single();
+        .ilike('username', normalizedUsername)
+        .maybeSingle();
       
       if (existingUser) {
         toast.error("Este nome de usuário já está em uso.");
@@ -92,8 +106,8 @@ export const useAuthMethods = (user: UserProfile | null) => {
         password,
         options: {
           data: {
-            username,
-            name: username, // Default name to username initially
+            username: normalizedUsername,
+            name: normalizedUsername, // Default name to username initially
           },
           emailRedirectTo: window.location.origin + '/login',
         }
@@ -193,6 +207,7 @@ export const useAuthMethods = (user: UserProfile | null) => {
     updateUserPlan,
     getRemainingTrialDays,
     isTrialActive,
-    loading
+    loading,
+    normalizeUsername
   };
 };

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth/AuthContext';
@@ -78,6 +77,7 @@ export const useBioPageEditor = () => {
     setFormData(prev => ({ ...prev, grayscale }));
   };
 
+  // Function to normalize username consistently across the app
   const sanitizeUsername = (name: string): string => {
     // Remove caracteres especiais e espaços, converter para minúsculas
     return name.toLowerCase().replace(/[^a-z0-9_]/g, '');
@@ -95,12 +95,15 @@ export const useBioPageEditor = () => {
         return true;
       }
       
+      // Normalize username before checking
+      const normalizedUsername = username.toLowerCase();
+      
       // Check if username is available in the database
       const { data, error } = await supabase
         .from('users')
         .select('username')
-        .eq('username', username)
-        .single();
+        .ilike('username', normalizedUsername)
+        .maybeSingle();
       
       // If no data returned, username is available
       return !data && !error;
@@ -134,6 +137,8 @@ export const useBioPageEditor = () => {
           setIsSaving(false);
           return;
         }
+        
+        console.log('Updating username from', user?.username, 'to', sanitizedUsername);
         
         // Update username in users table if it changed
         const { error: updateError } = await supabase
@@ -194,12 +199,12 @@ export const useBioPageEditor = () => {
     previewProfile,
     usernameError,
     handleInputChange,
-    handleSelectChange,
-    handleBackgroundTypeChange,
-    handleBackgroundSelection,
-    handleColorSelection,
-    handleOpacityChange,
-    handleGrayscaleChange,
+    handleSelectChange: formData.handleSelectChange || ((name, value) => {}),
+    handleBackgroundTypeChange: formData.handleBackgroundTypeChange || ((type) => {}),
+    handleBackgroundSelection: formData.handleBackgroundSelection || ((url) => {}),
+    handleColorSelection: formData.handleColorSelection || ((color) => {}),
+    handleOpacityChange: formData.handleOpacityChange || ((opacity) => {}),
+    handleGrayscaleChange: formData.handleGrayscaleChange || ((grayscale) => {}),
     handleSubmit,
     sanitizeUsername
   };
